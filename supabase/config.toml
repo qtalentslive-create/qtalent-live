@@ -1,0 +1,31 @@
+project_id = "myxizupccweukrxfdqmc"
+
+[functions.check-email-exists]
+verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.send-notification-email]
+verify_jwt = false
+
+[functions.welcome-email]
+verify_jwt = false
+
+[functions.activate-paypal-subscription]
+verify_jwt = true
+
+[functions.cancel-paypal-subscription]
+verify_jwt = true
+
+[functions.get-subscription-info]
+verify_jwt = true
+
+[functions.paypal-webhook-listener]
+verify_jwt = false
+
+[functions.cleanup-expired-bookings]
+verify_jwt = false
+
+[functions.detect-location]
+verify_jwt = false

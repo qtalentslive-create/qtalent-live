@@ -1,0 +1,219 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Qtalent.live Design System - Minimal, Bold, Elegant
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+    
+    /* Live dot - neon green accent (logo only) */
+    --live-dot: 142 100% 50%;
+    --live-glow: 142 100% 50%;
+    
+    /* Brand Colors - Premium palette */
+    --brand-primary: 217 91% 60%;        /* Deep blue for primary actions */
+    --brand-primary-dark: 225 65% 33%;   /* Darker blue for hover states */
+    --brand-secondary: 0 0% 12%;         /* Dark gray backgrounds */
+    --brand-accent: 142 100% 50%;        /* Neon green - minimal use only */
+    --brand-gold: 45 68% 53%;            /* Gold for premium indicators */
+    --brand-gold-light: 37 94% 50%;      /* Light gold variant */
+    --brand-success: 142 76% 36%;        /* Success states */
+    --brand-warning: 38 92% 50%;         /* Warning states */
+    --brand-error: 0 84% 60%;            /* Error states */
+    
+  /* Elegant shadows */
+    --shadow-minimal: 0 2px 10px hsl(0 0% 0% / 0.1);
+    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.15);
+    --shadow-elevated: 0 8px 40px hsl(0 0% 0% / 0.2);
+    --shadow-live: 0 0 20px hsl(var(--live-glow) / 0.4);
+    
+    /* Form gradients */
+    --form-gradient: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--secondary)) 100%);
+    --form-border-gradient: linear-gradient(135deg, hsl(var(--border)) 0%, hsl(var(--accent) / 0.3) 100%);
+    
+    /* UI Colors */
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
+    --card-border: 0 0% 12%;
+    
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+    
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 142 100% 50%;
+    --accent-foreground: 0 0% 4%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 12%;
+    --input: 0 0% 10%;
+    --ring: 0 0% 98%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark mode inherits the same minimal values */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 142 100% 50%;
+    --accent-foreground: 0 0% 4%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 12%;
+    --input: 0 0% 10%;
+    --ring: 0 0% 98%;
+    
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background: hsl(var(--background));
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  
+  html {
+    @apply dark;
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
+}
+
+@layer components {
+  /* Enhanced animations */
+  .animate-fadeIn {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  
+  .animate-slideUp {
+    animation: slideUp 0.5s ease-out forwards;
+  }
+  
+  /* Enhanced buttons - Professional deep blue */
+  .hero-button {
+    @apply bg-brand-primary text-primary-foreground font-semibold py-3 px-8 rounded-xl shadow-minimal hover:shadow-elevated transition-all duration-300 hover:scale-[1.02];
+    background: hsl(var(--brand-primary));
+    color: hsl(var(--primary-foreground));
+  }
+  
+  .hero-button:hover {
+    background: hsl(var(--brand-primary-dark));
+    box-shadow: 0 8px 30px hsl(var(--brand-primary) / 0.3);
+  }
+  
+  .outline-button {
+    @apply border border-border bg-transparent text-foreground font-medium py-2 px-6 rounded-lg hover:bg-secondary transition-all duration-200;
+  }
+  
+  /* Glass Card Effect - Minimal */
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-sm border border-card-border rounded-xl shadow-card;
+  }
+  
+  /* Live dot animations */
+  .animate-live-glow {
+    animation: live-glow 2s ease-in-out infinite;
+  }
+  
+  .animate-live-pulse {
+    animation: live-pulse 1s ease-in-out infinite;
+  }
+  
+  /* Typography */
+  .text-display {
+    @apply text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-none;
+  }
+  
+  .text-headline {
+    @apply text-3xl md:text-4xl font-bold tracking-tight;
+  }
+  
+  .text-subhead {
+    @apply text-lg md:text-xl text-muted-foreground leading-relaxed;
+  }
+  
+  /* Modern Form Styles */
+  .form-card {
+    background: var(--form-gradient);
+    border: 1px solid;
+    border-image: var(--form-border-gradient) 1;
+    @apply rounded-xl shadow-card backdrop-blur-sm;
+  }
+  
+  /* Genre Bubble Buttons */
+  .genre-bubble {
+    @apply px-4 py-2 rounded-full border-2 transition-all duration-200 cursor-pointer text-sm font-medium;
+    border-color: hsl(var(--border));
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+  
+  .genre-bubble:hover {
+    border-color: hsl(var(--accent));
+    background: hsl(var(--accent) / 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px hsl(var(--accent) / 0.3);
+  }
+  
+  .genre-bubble.selected {
+    border-color: hsl(var(--accent));
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+    box-shadow: 0 0 20px hsl(var(--accent) / 0.4);
+  }
+}
