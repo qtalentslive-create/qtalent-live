@@ -11,33 +11,49 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     },
     {
-      "src": "/pwa-icon.svg",
+      "src": "/android-chrome-192x192.png",
       "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
   "categories": ["entertainment", "business", "productivity"],
-  "screenshots": [],
+  "screenshots": [{
+      "src": "/screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png"
+    },
+    {
+      "src": "/screenshot2.png",
+      "sizes": "1080x1920",
+      "type": "image/png"
+    }],
   "shortcuts": [
     {
       "name": "Find Talent",
       "short_name": "Find",
       "description": "Browse and book talent",
       "url": "/",
-      "icons": [{ "src": "/favicon.ico", "sizes": "96x96" }]
+      "icons": [{ "src": "/shortcut-icon.png", "sizes": "96x96" }]
     },
     {
       "name": "My Dashboard",
       "short_name": "Dashboard",
       "description": "Access your dashboard",
       "url": "/booker-dashboard",
-      "icons": [{ "src": "/favicon.ico", "sizes": "96x96" }]
+      "icons": [{ "src": "/shortcut-icon.png", "sizes": "96x96" }]
     }
   ]
 }
