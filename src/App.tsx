@@ -39,6 +39,7 @@ import ResetPassword from "./pages/ResetPassword";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SubscriptionCancelled from "./pages/SubscriptionCancelled";
 
+
 // 🔐 Global auth listener with PASSWORD_RECOVERY detection
 supabase.auth.onAuthStateChange((event, session) => {
   console.log("Supabase Auth State Change Event:", { event, session });
@@ -51,6 +52,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 });
 
 const AppContent = () => {
+  
   useRealtimeNotifications();
 
   return (

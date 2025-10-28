@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ProBadge } from "@/components/ProBadge";
 import Autoplay from "embla-carousel-autoplay";
+import { Capacitor } from '@capacitor/core';
+
 
 const talentTypes = [
   { value: "all", label: "All Talent Types" },
@@ -43,21 +45,51 @@ interface TalentProfile {
   music_genres: string[];
 }
 
+// Multilingual biography texts
+const biographyTexts = [
+  {
+    language: "en",
+    text: "Qtalent.live is the simplest way to find and book exceptional performers, artists, and creators for any occasion.",
+    dir: "ltr",
+  },
+  {
+    language: "ar",
+    text: "Qtalent.live هو أبسط طريقة للعثور على فنانين استثنائيين وحجزهم لأي مناسبة.",
+    dir: "rtl",
+  },
+  {
+    language: "fr",
+    text: "Qtalent.live est le moyen le plus simple de trouver et de réserver des artistes exceptionnels pour toute occasion.",
+    dir: "ltr",
+  },
+];
+
 export function HeroSection() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { detectedLocation, userLocation } = useLocationDetection();
+  const isNativeApp = Capacitor.isNativePlatform(); // <-- ADD THIS LINE
   const [searchFilters, setSearchFilters] = useState({
     location: "",
     talentType: "all",
   });
   const [featuredTalents, setFeaturedTalents] = useState<TalentProfile[]>([]);
+  const [currentBiographyIndex, setCurrentBiographyIndex] = useState(0);
 
   // Sort countries by proximity to user's location
   const sortedCountries = sortCountriesByProximity(detectedLocation || userLocation, countries);
 
   useEffect(() => {
     fetchFeaturedTalents();
+  }, []);
+
+  // Auto-rotate biography text every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBiographyIndex((prev) => (prev + 1) % biographyTexts.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const fetchFeaturedTalents = async () => {
@@ -123,10 +155,18 @@ export function HeroSection() {
                 Book <span className="text-accent">live talents</span> for your event
               </h1>
 
-              <p className="text-base sm:text-lg text-muted-foreground max-w-lg leading-relaxed">
-                Qtalent.live is the simplest way to find and book exceptional performers, artists, and creators for any
-                occasion.
-              </p>
+              <div className="relative min-h-[4rem] flex items-center justify-start">
+                <p
+                  key={currentBiographyIndex}
+                  className="text-base sm:text-lg text-muted-foreground max-w-lg leading-relaxed animate-fade-in"
+                  dir={biographyTexts[currentBiographyIndex].dir}
+                  style={{
+                    textAlign: biographyTexts[currentBiographyIndex].dir === "rtl" ? "right" : "left",
+                  }}
+                >
+                  {biographyTexts[currentBiographyIndex].text}
+                </p>
+              </div>
             </div>
 
             {/* Search Form */}
@@ -329,7 +369,7 @@ export function HeroSection() {
               </div>
             )}
           </div>
-
+         {!isNativeApp && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto w-full px-4">
             <div className="text-center space-y-2">
               <div className="inline-flex items-center justify-center p-2 bg-accent/10 rounded-full">
@@ -352,7 +392,7 @@ export function HeroSection() {
               <h3 className="font-semibold">Book & celebrate</h3>
               <p className="text-sm text-muted-foreground">Connect directly and create unforgettable experiences</p>
             </div>
-          </div>
+          </div>)}
         </div>
       </div>
     </section>

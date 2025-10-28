@@ -2,11 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Cache control for fresh content -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Aggressive cache control for fresh content -->
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
+    <meta name="app-version" content="2.0.0" />
     <title>Qtalent.live | Book Live Talent for Any Event</title>
     <meta
       name="description"
@@ -34,11 +35,11 @@
       content="Connect with exceptional live talent for your events. Book verified performers, musicians, artists, and creators with ease."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://qtalent.com/og-image.png" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@qtalentlive" />
-    <meta name="twitter:image" content="https://qtalent.com/og-image.png" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json" />
@@ -49,8 +50,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Qtalent" />
     <link rel="apple-touch-icon" href="/pwa-icon.svg" />
-    <link rel="apple-touch-icon" sizes="192x192" href="/apple-touch-icon.png" />
-    <link rel="apple-touch-icon" sizes="512x512" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/pwa-icon.svg" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/pwa-icon.svg" />
 
     <!-- Android PWA Support -->
     <meta name="mobile-web-app-capable" content="yes" />
@@ -89,87 +90,5 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Service Worker Registration for PWA -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          // Register service worker with immediate activation
-          navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
-            .then(function(registration) {
-              console.log('SW registered for PWA: ', registration);
-
-              // Check for updates periodically
-              setInterval(() => {
-                registration.update();
-              }, 60000); // Check every minute
-
-              // Listen for service worker messages
-              navigator.serviceWorker.addEventListener('message', function(event) {
-                if (event.data.type === 'SW_UPDATED') {
-                  console.log('Service worker updated to version:', event.data.version);
-                  window.location.reload();
-                }
-              });
-
-              // Force update when new content is available
-              registration.addEventListener('updatefound', function() {
-                const newWorker = registration.installing;
-                if (newWorker) {
-                  newWorker.addEventListener('statechange', function() {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                      // New content is available, refresh automatically
-                      console.log('New content available, refreshing...');
-                      window.location.reload();
-                    }
-                  });
-                }
-              });
-
-              // Handle auth state changes more responsively
-              const originalPushState = window.history.pushState;
-              const originalReplaceState = window.history.replaceState;
-
-              // Add global cache clearing function
-              window.clearAppCache = function() {
-                navigator.serviceWorker.ready.then(registration => {
-                  registration.active?.postMessage({ type: 'CLEAR_ALL_CACHE' });
-                });
-              };
-
-              window.history.pushState = function(...args) {
-                originalPushState.apply(window.history, args);
-                // Clear cache on navigation for fresh data
-                if (args[2]?.includes('dashboard') || args[2]?.includes('login') || args[2]?.includes('auth') || args[2]?.includes('booking')) {
-                  navigator.serviceWorker.ready.then(registration => {
-                    registration.active?.postMessage({ type: 'CLEAR_DYNAMIC_CACHE' });
-                  });
-                }
-              };
-
-              window.history.replaceState = function(...args) {
-                originalReplaceState.apply(window.history, args);
-                // Clear cache on auth/data state changes
-                if (args[2]?.includes('dashboard') || args[2]?.includes('login') || args[2]?.includes('auth') || args[2]?.includes('booking')) {
-                  navigator.serviceWorker.ready.then(registration => {
-                    registration.active?.postMessage({ type: 'CLEAR_DYNAMIC_CACHE' });
-                  });
-                }
-              };
-
-              // Clear cache on page visibility change (when user returns to tab)
-              document.addEventListener('visibilitychange', function() {
-                if (!document.hidden) {
-                  navigator.serviceWorker.ready.then(registration => {
-                    registration.active?.postMessage({ type: 'CLEAR_DYNAMIC_CACHE' });
-                  });
-                }
-              });
-            })
-            .catch(function(registrationError) {
-              console.log('SW registration failed: ', registrationError);
-            });
-        });
-      }
-    </script>
   </body>
 </html>

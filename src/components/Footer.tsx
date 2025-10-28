@@ -3,17 +3,18 @@ import { Input } from "@/components/ui/input";
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { openSocialLink } from "@/utils/externalLinks";
 
 export function Footer() {
   const navigate = useNavigate();
 
   const handleSocialClick = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
+    openSocialLink(url);
   };
 
   return (
-    <footer className="bg-card border-t border-card-border">
-      <div className="container mx-auto px-4 py-16">
+    <footer className="bg-card border-t border-card-border safe-bottom">
+      <div className="container mx-auto px-4 pt-16">
         <div className="flex flex-col items-center text-center space-y-6">
           {/* Brand Section */}
           <div className="space-y-4 max-w-2xl">

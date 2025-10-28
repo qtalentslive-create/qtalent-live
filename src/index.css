@@ -139,10 +139,14 @@ iframe {
     @apply bg-background text-foreground font-sans antialiased;
     background: hsl(var(--background));
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    overflow-x: hidden;
+    
     max-width: 100vw;
     position: relative;
+    min-height: 100vh; /* Ensure full screen height */
+    overflow-y: auto;  /* Allow vertical scrolling */
     width: 100%;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
   
   html {
@@ -156,7 +160,7 @@ iframe {
   }
 
   #root {
-    overflow-x: hidden;
+    
     max-width: 100vw;
     position: relative;
     width: 100%;
@@ -245,4 +249,66 @@ iframe {
     color: hsl(var(--accent-foreground));
     box-shadow: 0 0 20px hsl(var(--accent) / 0.4);
   }
+  /* ... all your other CSS code is above this ... */
+
+
+/* ADD THIS NEW CODE */
+@layer utilities {
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+/* Force remove outline and shadow specifically for hero-button */
+.hero-button:focus,
+.hero-button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  /* Optional: You might want a subtle visual cue for focus */
+  /* E.g., background-color: hsl(var(--brand-primary-dark)); */
+}
+/* Add this at the very bottom of index.css */
+@layer utilities {
+  /* ... your existing safe-area rules ... */
+
+  /* Media Query for smaller screens */
+  @media (max-width: 600px) {
+    
+    /* --- Example Font Size Adjustments --- */
+
+    /* Reduce the base body font size slightly */
+    body {
+      font-size: 14px; /* Or maybe 15px, experiment! */
+    }
+
+    /* Reduce heading sizes */
+    h1, .text-display {
+      font-size: 2.5rem; /* Adjust as needed */
+    }
+    h2, .text-headline {
+      font-size: 1.8rem; /* Adjust as needed */
+    }
+    
+    /* Reduce paragraph/subheading text */
+    p, .text-subhead {
+      font-size: 0.9rem; /* Adjust as needed */
+    }
+
+    /* Reduce button text size */
+    button, .button-class { /* Use the specific class for your buttons */
+      font-size: 0.875rem; /* 14px */
+    }
+    
+    /* Specifically target the hero button if needed */
+    .hero-button {
+       font-size: 0.95rem; /* Slightly larger than normal buttons */
+       padding-top: 0.8rem; /* Adjust padding if font changes */
+       padding-bottom: 0.8rem;
+    }
+    
+    /* --- End Example Adjustments --- */
+  }
+}
 }

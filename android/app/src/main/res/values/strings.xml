@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Qtalent</string>
+    <string name="title_activity_main">Qtalent</string>
+    <string name="package_name">live.qtalent.app</string>
+    <string name="custom_url_scheme">live.qtalent.app</string>
+</resources>
