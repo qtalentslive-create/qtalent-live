@@ -6,7 +6,6 @@ import { Footer } from "@/components/Footer";
 import { useLocationDetection } from "@/hooks/useLocationDetection";
 import PullToRefresh from "react-simple-pull-to-refresh";
 
-
 const Index = () => {
   const { userLocation } = useLocationDetection();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -26,11 +25,10 @@ const Index = () => {
         </main>
       </PullToRefresh>
       <Footer />
+      {/* Native app sticky footer bar for safe area */}
+      <div className="native-footer-bar" />
     </div>
   );
-
-
-
 };
 
 export default Index;
