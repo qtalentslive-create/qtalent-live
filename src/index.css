@@ -155,7 +155,7 @@ All colors MUST be HSL.
     overflow-y: auto; /* Allow vertical scrolling */
     width: 100%;
     padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+    overflow-x: hidden;
   }
 
   html {
@@ -305,7 +305,15 @@ All colors MUST be HSL.
   .plt-mobile .text-headline {
     @apply text-2xl font-bold;
   }
-
+  .bottom-safe-area-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-bottom);
+    background-color: hsl(var(--background)); /* Or black */
+    z-index: 50;
+  }
   /* --- 2. Chat Component Styles --- */
 
   /* Make the chat window full-screen instead of a popup */
@@ -339,5 +347,9 @@ All colors MUST be HSL.
 
   .plt-mobile .your-notification-title-class {
     @apply text-base font-semibold; /* 15px base + font-semibold */
+  }
+  .main-content-area {
+    padding-bottom: env(safe-area-inset-bottom);
+    /* Add calc(...) if you want extra space above the bar */
   }
 }
