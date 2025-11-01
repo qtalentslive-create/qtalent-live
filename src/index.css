@@ -10,48 +10,40 @@ All colors MUST be HSL.
   :root {
     --background: 0 0% 4%;
     --foreground: 0 0% 98%;
-
+    
     /* Live dot - neon green accent (logo only) */
     --live-dot: 142 100% 50%;
     --live-glow: 142 100% 50%;
-
+    
     /* Brand Colors - Premium palette */
-    --brand-primary: 217 91% 60%; /* Deep blue for primary actions */
-    --brand-primary-dark: 225 65% 33%; /* Darker blue for hover states */
-    --brand-secondary: 0 0% 12%; /* Dark gray backgrounds */
-    --brand-accent: 142 100% 50%; /* Neon green - minimal use only */
-    --brand-gold: 45 68% 53%; /* Gold for premium indicators */
-    --brand-gold-light: 37 94% 50%; /* Light gold variant */
-    --brand-success: 142 76% 36%; /* Success states */
-    --brand-warning: 38 92% 50%; /* Warning states */
-    --brand-error: 0 84% 60%; /* Error states */
-
-    /* Elegant shadows */
+    --brand-primary: 217 91% 60%;        /* Deep blue for primary actions */
+    --brand-primary-dark: 225 65% 33%;   /* Darker blue for hover states */
+    --brand-secondary: 0 0% 12%;         /* Dark gray backgrounds */
+    --brand-accent: 142 100% 50%;        /* Neon green - minimal use only */
+    --brand-gold: 45 68% 53%;            /* Gold for premium indicators */
+    --brand-gold-light: 37 94% 50%;      /* Light gold variant */
+    --brand-success: 142 76% 36%;        /* Success states */
+    --brand-warning: 38 92% 50%;         /* Warning states */
+    --brand-error: 0 84% 60%;            /* Error states */
+    
+  /* Elegant shadows */
     --shadow-minimal: 0 2px 10px hsl(0 0% 0% / 0.1);
     --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.15);
     --shadow-elevated: 0 8px 40px hsl(0 0% 0% / 0.2);
     --shadow-live: 0 0 20px hsl(var(--live-glow) / 0.4);
-
+    
     /* Form gradients */
-    --form-gradient: linear-gradient(
-      135deg,
-      hsl(var(--card)) 0%,
-      hsl(var(--secondary)) 100%
-    );
-    --form-border-gradient: linear-gradient(
-      135deg,
-      hsl(var(--border)) 0%,
-      hsl(var(--accent) / 0.3) 100%
-    );
-
+    --form-gradient: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--secondary)) 100%);
+    --form-border-gradient: linear-gradient(135deg, hsl(var(--border)) 0%, hsl(var(--accent) / 0.3) 100%);
+    
     /* UI Colors */
     --card: 0 0% 6%;
     --card-foreground: 0 0% 98%;
     --card-border: 0 0% 12%;
-
+    
     --popover: 0 0% 6%;
     --popover-foreground: 0 0% 98%;
-
+    
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 98%;
 
@@ -112,7 +104,7 @@ All colors MUST be HSL.
     --border: 0 0% 12%;
     --input: 0 0% 10%;
     --ring: 0 0% 98%;
-
+    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -125,39 +117,36 @@ All colors MUST be HSL.
 }
 
 @layer base {
-  * {
-    @apply border-border;
-    box-sizing: border-box;
-  }
+* {
+  @apply border-border;
+  box-sizing: border-box;
+}
 
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-  img,
-  video,
-  iframe {
-    max-width: 100%;
-    height: auto;
-  }
+img,
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     background: hsl(var(--background));
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-      system-ui, sans-serif;
-
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    overflow-x: hidden;
     max-width: 100vw;
     position: relative;
-    min-height: 100vh; /* Ensure full screen height */
-    overflow-y: auto; /* Allow vertical scrolling */
     width: 100%;
     padding-top: env(safe-area-inset-top);
-    overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom);
   }
-
+  
   html {
     @apply dark;
     scroll-behavior: smooth;
@@ -169,9 +158,182 @@ All colors MUST be HSL.
   }
 
   #root {
+    overflow-x: hidden;
     max-width: 100vw;
     position: relative;
     width: 100%;
+  }
+  
+  /* Mobile WebView Optimizations */
+  @media (max-width: 640px) {
+    html {
+      font-size: 14px; /* Reduce base font size for mobile */
+    }
+    
+    body {
+      font-size: 0.875rem; /* 14px */
+      line-height: 1.5;
+      /* Add padding for fixed header on mobile */
+      scroll-padding-top: 5rem;
+    }
+    
+    h1 {
+      font-size: 1.5rem !important; /* 24px */
+      line-height: 1.3;
+    }
+    
+    h2 {
+      font-size: 1.25rem !important; /* 20px */
+      line-height: 1.4;
+    }
+    
+    h3 {
+      font-size: 1.125rem !important; /* 18px */
+      line-height: 1.4;
+    }
+    
+    /* Compact buttons on mobile */
+    button {
+      padding: 0.5rem 0.875rem !important;
+      font-size: 0.8125rem !important;
+      min-height: 2.25rem !important;
+      height: auto !important;
+    }
+    
+    /* Compact inputs and textareas */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    textarea,
+    select {
+      padding: 0.5rem 0.75rem !important;
+      font-size: 0.8125rem !important;
+      min-height: 2.25rem !important;
+      height: auto !important;
+    }
+    
+    /* Compact form labels */
+    label {
+      font-size: 0.75rem !important; /* 12px */
+      margin-bottom: 0.25rem !important;
+      font-weight: 500 !important;
+    }
+    
+    /* Auth card specific styling */
+    .mobile-auth-card {
+      max-width: 100% !important;
+      margin: 0 !important;
+    }
+    
+    /* Reduce card padding on mobile */
+    [class*="card"] {
+      padding: 0.75rem !important;
+    }
+    
+    /* Compact spacing for form groups */
+    .space-y-2 > * + * {
+      margin-top: 0.375rem !important;
+    }
+    
+    .space-y-3 > * + * {
+      margin-top: 0.5rem !important;
+    }
+    
+    .space-y-4 > * + * {
+      margin-top: 0.75rem !important;
+    }
+    
+    .space-y-6 > * + * {
+      margin-top: 1rem !important;
+    }
+    
+    /* Reduce modal/dialog padding */
+    [role="dialog"] {
+      padding: 0.75rem !important;
+      max-width: 95vw !important;
+    }
+    
+    /* Compact tab triggers */
+    [role="tab"] {
+      padding: 0.375rem 0.75rem !important;
+      font-size: 0.75rem !important;
+      height: 2rem !important;
+    }
+    
+    [role="tablist"] {
+      height: 2.25rem !important;
+    }
+    
+    /* Make select dropdowns more compact */
+    [role="combobox"] {
+      padding: 0.5rem 0.75rem !important;
+      font-size: 0.8125rem !important;
+      min-height: 2.25rem !important;
+    }
+    
+    /* Sheet/mobile menu adjustments */
+    [data-sheet-content] {
+      max-width: 85vw !important;
+    }
+    
+    /* Compact description text */
+    p {
+      font-size: 0.8125rem !important;
+      line-height: 1.4 !important;
+    }
+    
+    /* Ensure fixed header doesn't cover content */
+    main {
+      padding-top: 0 !important;
+    }
+  }
+
+  /* ============================================
+     CAPACITOR NATIVE APP STYLES
+     Only applies when running in Capacitor container
+     ============================================ */
+  
+  /* Sticky Header with Safe Area - Native Apps Only */
+  .capacitor-native header,
+  .plt-ios header,
+  .plt-android header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* Main Content Padding - Prevent Header/Footer Overlap */
+  .capacitor-native main,
+  .plt-ios main,
+  .plt-android main {
+    padding-top: 1rem;
+    padding-bottom: 4rem; /* Space for sticky footer bar */
+  }
+
+  /* Sticky Footer Safe Area Bar - Native Apps Only */
+  .capacitor-native .native-footer-bar,
+  .plt-ios .native-footer-bar,
+  .plt-android .native-footer-bar {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #000;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 40;
+    height: auto;
+    min-height: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Remove body padding when in native app (header handles it) */
+  .capacitor-native body,
+  .plt-ios body,
+  .plt-android body {
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
 
@@ -180,54 +342,54 @@ All colors MUST be HSL.
   .animate-fadeIn {
     animation: fadeIn 0.6s ease-out forwards;
   }
-
+  
   .animate-slideUp {
     animation: slideUp 0.5s ease-out forwards;
   }
-
+  
   /* Enhanced buttons - Professional deep blue */
   .hero-button {
     @apply bg-brand-primary text-primary-foreground font-semibold py-3 px-8 rounded-xl shadow-minimal hover:shadow-elevated transition-all duration-300 hover:scale-[1.02];
     background: hsl(var(--brand-primary));
     color: hsl(var(--primary-foreground));
   }
-
+  
   .hero-button:hover {
     background: hsl(var(--brand-primary-dark));
     box-shadow: 0 8px 30px hsl(var(--brand-primary) / 0.3);
   }
-
+  
   .outline-button {
     @apply border border-border bg-transparent text-foreground font-medium py-2 px-6 rounded-lg hover:bg-secondary transition-all duration-200;
   }
-
+  
   /* Glass Card Effect - Minimal */
   .glass-card {
     @apply bg-card/80 backdrop-blur-sm border border-card-border rounded-xl shadow-card;
   }
-
+  
   /* Live dot animations */
   .animate-live-glow {
     animation: live-glow 2s ease-in-out infinite;
   }
-
+  
   .animate-live-pulse {
     animation: live-pulse 1s ease-in-out infinite;
   }
-
+  
   /* Typography */
   .text-display {
     @apply text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-none;
   }
-
+  
   .text-headline {
     @apply text-3xl md:text-4xl font-bold tracking-tight;
   }
-
+  
   .text-subhead {
     @apply text-lg md:text-xl text-muted-foreground leading-relaxed;
   }
-
+  
   /* Modern Form Styles */
   .form-card {
     background: var(--form-gradient);
@@ -235,7 +397,7 @@ All colors MUST be HSL.
     border-image: var(--form-border-gradient) 1;
     @apply rounded-xl shadow-card backdrop-blur-sm;
   }
-
+  
   /* Genre Bubble Buttons */
   .genre-bubble {
     @apply px-4 py-2 rounded-full border-2 transition-all duration-200 cursor-pointer text-sm font-medium;
@@ -243,23 +405,24 @@ All colors MUST be HSL.
     background: hsl(var(--background));
     color: hsl(var(--foreground));
   }
-
+  
   .genre-bubble:hover {
     border-color: hsl(var(--accent));
     background: hsl(var(--accent) / 0.1);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px hsl(var(--accent) / 0.3);
   }
-
+  
   .genre-bubble.selected {
     border-color: hsl(var(--accent));
     background: hsl(var(--accent));
     color: hsl(var(--accent-foreground));
     box-shadow: 0 0 20px hsl(var(--accent) / 0.4);
   }
-}
+  /* ... all your other CSS code is above this ... */
 
-/* This is the correct place for the utilities layer */
+
+/* ADD THIS NEW CODE */
 @layer utilities {
   .safe-top {
     padding-top: env(safe-area-inset-top);
@@ -267,89 +430,5 @@ All colors MUST be HSL.
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
-
-  /* Force remove outline and shadow specifically for hero-button */
-  .hero-button:focus,
-  .hero-button:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-  }
 }
-/*
-==========================================================================
- 
-  NATIVE CAPACITOR APP STYLES (iOS & Android)
-  These styles will ONLY apply on your native app and will NOT
-  affect your website.
- 
-==========================================================================
-*/
-
-@layer utilities {
-  /* --- 1. General "Native Feel" Tweaks --- */
-
-  /* Reduce the base font size for the app. 15px feels more "native" */
-  .plt-mobile body {
-    font-size: 15px;
-
-    /* Use the phone's native system font */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
-      sans-serif;
-  }
-
-  /* Reduce your website's large headings for the app */
-  .plt-mobile .text-display {
-    @apply text-4xl font-bold;
-  }
-
-  .plt-mobile .text-headline {
-    @apply text-2xl font-bold;
-  }
-  .bottom-safe-area-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: env(safe-area-inset-bottom);
-    background-color: hsl(var(--background)); /* Or black */
-    z-index: 50;
-  }
-  /* --- 2. Chat Component Styles --- */
-
-  /* Make the chat window full-screen instead of a popup */
-  .plt-mobile .chat-window {
-    @apply w-full h-full max-w-none top-0 left-0 bottom-0 right-0;
-  }
-
-  /* Make chat bubbles more compact and use the new 15px base font */
-  .plt-mobile .chat-bubble {
-    @apply p-2 rounded-xl; /* Smaller padding & radius */
-    font-size: 15px; /* Overrides the 'text-xs' */
-    line-height: 1.4;
-  }
-
-  /* Make the chat input more compact */
-  .plt-mobile .chat-input {
-    @apply min-h-[40px] max-h-[80px];
-    font-size: 15px;
-    padding: 8px 10px; /* Smaller native-like padding */
-  }
-
-  /* --- 3. Notification Dropdown (Placeholder) --- */
-
-  /* You will need to find the component for your notifications
-     and add a class like "notification-card" to it,
-     just like we did for the chat.
-  */
-  .plt-mobile .your-notification-card-class {
-    @apply p-3; /* Example: make padding smaller */
-  }
-
-  .plt-mobile .your-notification-title-class {
-    @apply text-base font-semibold; /* 15px base + font-semibold */
-  }
-  .main-content-area {
-    padding-bottom: env(safe-area-inset-bottom);
-    /* Add calc(...) if you want extra space above the bar */
-  }
 }
