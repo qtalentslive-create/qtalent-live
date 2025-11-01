@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "672073307873",
+    "project_id": "qtalent-push-service",
+    "storage_bucket": "qtalent-push-service.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672073307873:android:47bd67922dc00215d2c9a0",
+        "android_client_info": {
+          "package_name": "live.qtalent.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrz4zm5jwXVRmYMD9O7sCVPzdqPDHyDWE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
