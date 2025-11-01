@@ -78,7 +78,7 @@ export const UniversalChat = () => {
     if (messages.length > 0) {
       updateConversationBuffer(messages);
     }
-  }, [messages]);
+  }, [messages, updateConversationBuffer]);
 
   // Communicate interaction state to context
   useEffect(() => {
