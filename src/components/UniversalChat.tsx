@@ -17,10 +17,21 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom"; // ✅ Added import
 
 export const UniversalChat = () => {
-  const { isOpen, closeChat, messages, sendMessage, loadingMessages, channelInfo, setUserInteracting } = useChat();
+  const {
+    isOpen,
+    closeChat,
+    messages,
+    sendMessage,
+    loadingMessages,
+    channelInfo,
+    setUserInteracting,
+  } = useChat();
   const { user } = useAuth();
   const { canReceiveBooking, isProUser, isTalent } = useTalentBookingLimit();
-  const { isRecipientNonProTalent } = useRecipientTalentStatus(channelInfo, user?.id);
+  const { isRecipientNonProTalent } = useRecipientTalentStatus(
+    channelInfo,
+    user?.id
+  );
 
   // Log filter parameters for debugging
   console.log(
@@ -29,18 +40,18 @@ export const UniversalChat = () => {
     "isProUser:",
     isProUser,
     "isRecipientNonProTalent:",
-    isRecipientNonProTalent,
+    isRecipientNonProTalent
   );
   console.log(
     "[CHAT FILTER DEBUG] Filter bypass calculation: isProUser ||(!isTalent && !isRecipientNonProTalent) =",
-    isProUser || (!isTalent && !isRecipientNonProTalent),
+    isProUser || (!isTalent && !isRecipientNonProTalent)
   );
 
   const { filterMessage, updateConversationBuffer } = useAdvancedChatFilter(
     channelInfo,
     user?.id,
     isProUser || (!isTalent && !isRecipientNonProTalent),
-    isTalent, // <--- Add this
+    isTalent // <--- Add this
   );
   const { toast } = useToast();
   const navigate = useNavigate(); // ✅ Added safely
@@ -48,7 +59,9 @@ export const UniversalChat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [showFilteredMessage, setShowFilteredMessage] = useState<string | null>(null);
+  const [showFilteredMessage, setShowFilteredMessage] = useState<string | null>(
+    null
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -81,7 +94,7 @@ export const UniversalChat = () => {
         "isProUser:",
         isProUser,
         "isRecipientNonProTalent:",
-        isRecipientNonProTalent,
+        isRecipientNonProTalent
       );
 
       // Apply advanced filtering for non-pro talents (sender is talent)
@@ -97,7 +110,9 @@ export const UniversalChat = () => {
 
       // Apply advanced filtering when bookers message non-pro talents (recipient is non-pro talent)
       if (!isTalent && isRecipientNonProTalent) {
-        console.log("[CHAT SEND DEBUG] Filtering as BOOKER messaging NON-PRO TALENT");
+        console.log(
+          "[CHAT SEND DEBUG] Filtering as BOOKER messaging NON-PRO TALENT"
+        );
         const filterResult = filterMessage(newMessage);
         if (filterResult.isBlocked) {
           toast({
@@ -105,7 +120,9 @@ export const UniversalChat = () => {
             description: filterResult.reason || "This message is not allowed.",
             variant: "destructive",
           });
-          setShowFilteredMessage(filterResult.reason || "This message is not allowed.");
+          setShowFilteredMessage(
+            filterResult.reason || "This message is not allowed."
+          );
           setNewMessage("");
           return;
         }
@@ -121,7 +138,7 @@ export const UniversalChat = () => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-2 right-2 sm:bottom-8 sm:right-8 w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-sm h-[85vh] sm:h-[min(600px,80vh)] z-50">
+    <div className="chat-window fixed bottom-2 right-2 sm:bottom-8 sm:right-8 w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-sm h-[85vh] sm:h-[min(600px,80vh)] z-50">
       <Card
         className="w-full h-full flex flex-col shadow-2xl overflow-hidden"
         onMouseEnter={() => setIsHovering(true)}
@@ -129,9 +146,16 @@ export const UniversalChat = () => {
       >
         <CardHeader className="flex flex-row items-center justify-between p-3 sm:p-4 border-b">
           <CardTitle className="text-sm sm:text-base font-semibold">
-            {channelInfo?.type === "booking" ? "Booking Chat" : "Event Request Chat"}
+            {channelInfo?.type === "booking"
+              ? "Booking Chat"
+              : "Event Request Chat"}
           </CardTitle>
-          <Button variant="ghost" size="icon" onClick={closeChat} className="h-8 w-8 sm:h-10 sm:w-10">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={closeChat}
+            className="h-8 w-8 sm:h-10 sm:w-10"
+          >
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
@@ -143,7 +167,9 @@ export const UniversalChat = () => {
               </div>
             ) : messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <p className="text-xs sm:text-sm text-muted-foreground">Start the conversation!</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Start the conversation!
+                </p>
               </div>
             ) : (
               messages.map((msg) => (
@@ -151,7 +177,7 @@ export const UniversalChat = () => {
                   key={msg.id}
                   className={cn(
                     "flex items-end gap-1.5 sm:gap-2",
-                    msg.sender_id === user?.id ? "justify-end" : "justify-start",
+                    msg.sender_id === user?.id ? "justify-end" : "justify-start"
                   )}
                 >
                   {msg.sender_id !== user?.id && (
@@ -163,17 +189,20 @@ export const UniversalChat = () => {
                   )}
                   <div
                     className={cn(
+                      "chat-bubble",
                       "max-w-[75%] sm:max-w-xs p-2 sm:p-3 rounded-2xl text-xs sm:text-sm break-words",
                       msg.sender_id === user?.id
                         ? "bg-primary text-primary-foreground rounded-br-none"
-                        : "bg-muted rounded-bl-none",
+                        : "bg-muted rounded-bl-none"
                     )}
                   >
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                     <p
                       className={cn(
                         "text-[10px] sm:text-xs mt-1",
-                        msg.sender_id === user?.id ? "text-primary-foreground/70" : "text-muted-foreground/70",
+                        msg.sender_id === user?.id
+                          ? "text-primary-foreground/70"
+                          : "text-muted-foreground/70"
                       )}
                     >
                       {format(new Date(msg.created_at), "p")}
@@ -214,7 +243,9 @@ export const UniversalChat = () => {
               <div className="mb-1.5 p-1.5 sm:p-2 bg-primary/5 dark:bg-primary/10 rounded border border-primary/20">
                 <p className="text-[9px] sm:text-[10px] text-muted-foreground font-medium flex items-center gap-1 leading-tight">
                   <AlertTriangle className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary flex-shrink-0" />
-                  <span>This talent can't receive contact details (Free plan)</span>
+                  <span>
+                    This talent can't receive contact details (Free plan)
+                  </span>
                 </p>
               </div>
             )}
@@ -228,14 +259,18 @@ export const UniversalChat = () => {
               </div>
             )}
 
-            <form onSubmit={handleSendMessage} className="flex items-end gap-1.5 sm:gap-2">
+            <form
+              onSubmit={handleSendMessage}
+              className="flex items-end gap-1.5 sm:gap-2"
+            >
               <Textarea
                 value={newMessage}
                 onChange={(e) => {
                   setNewMessage(e.target.value);
                   setIsTyping(e.target.value.length > 0);
 
-                  if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                  if (typingTimeoutRef.current)
+                    clearTimeout(typingTimeoutRef.current);
 
                   typingTimeoutRef.current = setTimeout(() => {
                     if (!isFocused) setIsTyping(false);
@@ -252,10 +287,10 @@ export const UniversalChat = () => {
                   isTalent && !isProUser
                     ? "Upgrade to Pro to share contact details..."
                     : !isTalent && isRecipientNonProTalent
-                      ? "This talent can't receive contact details (Free plan)..."
-                      : "Type your message..."
+                    ? "This talent can't receive contact details (Free plan)..."
+                    : "Type your message..."
                 }
-                className="resize-none min-h-[44px] max-h-[88px] sm:min-h-[40px] sm:max-h-[80px] text-xs sm:text-sm leading-tight py-2 px-2.5 sm:px-3 placeholder:text-[10px] sm:placeholder:text-xs placeholder:text-muted-foreground/70"
+                className="chat-input resize-none min-h-[44px] max-h-[88px] sm:min-h-[40px] sm:max-h-[80px] text-xs sm:text-sm leading-tight py-2 px-2.5 sm:px-3 placeholder:text-[10px] sm:placeholder:text-xs placeholder:text-muted-foreground/70"
                 rows={1}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
