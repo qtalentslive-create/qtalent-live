@@ -1,5 +1,3 @@
-// FILE: src/App.tsx
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,7 +10,7 @@ import { ProStatusProvider } from "./contexts/ProStatusContext";
 import { UniversalChat } from "./components/UniversalChat";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { NotificationPermissionPrompt } from "./components/NotificationPermissionPrompt";
-import { useRealtimeNotifications } from "./hooks/useRealtimeNotifications";
+import { UnifiedNotificationHandler } from "./components/UnifiedNotificationHandler";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import BookerDashboard from "./pages/BookerDashboard";
@@ -39,22 +37,20 @@ import ResetPassword from "./pages/ResetPassword";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SubscriptionCancelled from "./pages/SubscriptionCancelled";
 
-
 // 🔐 Global auth listener with PASSWORD_RECOVERY detection
 supabase.auth.onAuthStateChange((event, session) => {
   console.log("Supabase Auth State Change Event:", { event, session });
-  
+
   // Set recovery flag when PASSWORD_RECOVERY event is detected
-  if (event === 'PASSWORD_RECOVERY') {
-    sessionStorage.setItem('isPasswordRecovery', 'true');
-    console.log("[App] PASSWORD_RECOVERY event detected globally - recovery flag set");
+  if (event === "PASSWORD_RECOVERY") {
+    sessionStorage.setItem("isPasswordRecovery", "true");
+    console.log(
+      "[App] PASSWORD_RECOVERY event detected globally - recovery flag set"
+    );
   }
 });
 
 const AppContent = () => {
-  
-  useRealtimeNotifications();
-
   return (
     <div className="w-full max-w-full overflow-x-hidden">
       <Toaster />
@@ -62,6 +58,7 @@ const AppContent = () => {
       <UniversalChat />
       <PWAInstallPrompt />
       <NotificationPermissionPrompt />
+      <UnifiedNotificationHandler />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
@@ -103,7 +100,10 @@ const AppContent = () => {
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/trust-safety" element={<TrustSafety />} />
         <Route path="/subscription-success" element={<SubscriptionSuccess />} />
-        <Route path="/subscription-cancelled" element={<SubscriptionCancelled />} />
+        <Route
+          path="/subscription-cancelled"
+          element={<SubscriptionCancelled />}
+        />
         <Route path="/talent-onboarding" element={<TalentOnboarding />} />
         <Route
           path="/talent-dashboard"
