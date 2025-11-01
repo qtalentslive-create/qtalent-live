@@ -52,78 +52,84 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 const AppContent = () => {
   return (
-    <div className="w-full max-w-full overflow-x-hidden">
+    <div className="w-full max-w-full overflow-x-hidden min-h-screen flex flex-col relative">
       <Toaster />
       <Sonner />
       <UniversalChat />
       <PWAInstallPrompt />
       <NotificationPermissionPrompt />
       <UnifiedNotificationHandler />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/login" element={<Auth />} />
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="bookings" element={<AdminBookings />} />
-        </Route>
-        <Route
-          path="/booker-dashboard"
-          element={
-            <ProtectedRoute>
-              <BookerDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/your-event"
-          element={
-            <ProtectedRoute>
-              <YourEvent />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/update-password" element={<UpdatePassword />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route path="/trust-safety" element={<TrustSafety />} />
-        <Route path="/subscription-success" element={<SubscriptionSuccess />} />
-        <Route
-          path="/subscription-cancelled"
-          element={<SubscriptionCancelled />}
-        />
-        <Route path="/talent-onboarding" element={<TalentOnboarding />} />
-        <Route
-          path="/talent-dashboard"
-          element={
-            <ProtectedTalentRoute>
-              <TalentDashboard />
-            </ProtectedTalentRoute>
-          }
-        />
-        <Route
-          path="/talent-profile-edit"
-          element={
-            <ProtectedTalentRoute>
-              <TalentProfileEdit />
-            </ProtectedTalentRoute>
-          }
-        />
-        <Route path="/talent/:id" element={<TalentProfile />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <main className="w-full max-w-full overflow-x-hidden flex-grow main-content-area">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/login" element={<Auth />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="bookings" element={<AdminBookings />} />
+          </Route>
+          <Route
+            path="/booker-dashboard"
+            element={
+              <ProtectedRoute>
+                <BookerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/your-event"
+            element={
+              <ProtectedRoute>
+                <YourEvent />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/update-password" element={<UpdatePassword />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/trust-safety" element={<TrustSafety />} />
+          <Route
+            path="/subscription-success"
+            element={<SubscriptionSuccess />}
+          />
+          <Route
+            path="/subscription-cancelled"
+            element={<SubscriptionCancelled />}
+          />
+          <Route path="/talent-onboarding" element={<TalentOnboarding />} />
+          <Route
+            path="/talent-dashboard"
+            element={
+              <ProtectedTalentRoute>
+                <TalentDashboard />
+              </ProtectedTalentRoute>
+            }
+          />
+          <Route
+            path="/talent-profile-edit"
+            element={
+              <ProtectedTalentRoute>
+                <TalentProfileEdit />
+              </ProtectedTalentRoute>
+            }
+          />
+          <Route path="/talent/:id" element={<TalentProfile />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      <div className="bottom-safe-area-bar"></div>
     </div>
   );
 };
