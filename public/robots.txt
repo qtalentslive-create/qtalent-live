@@ -1,14 +1,22 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# Qtalent.live Robots.txt
+# Updated for 2025 SEO Best Practices
 
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /talent-dashboard/
+Disallow: /booker-dashboard/
+Disallow: /api/
+Disallow: /*.json$
+Disallow: /*?*_ga=*
+Disallow: /*?*utm_*
+
+# Allow important pages
+Allow: /pricing
+Allow: /privacy-policy
+Allow: /terms-of-service
+Allow: /trust-safety
+
+# Sitemap location
+Sitemap: https://qtalent.live/sitemap.xml

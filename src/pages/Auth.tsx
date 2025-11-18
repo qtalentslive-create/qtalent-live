@@ -137,6 +137,14 @@ const Auth = () => {
     }
   }, [activeTab, authMethod, email, password]);
 
+  // Reset auto-submit flag when loading completes and fields are cleared (allows retry)
+  useEffect(() => {
+    // Only reset if fields are cleared (user manually cleared them to retry)
+    if (!loading && autoSubmitAttemptedRef.current && activeTab === "login" && !email && !password) {
+      autoSubmitAttemptedRef.current = false;
+    }
+  }, [loading, activeTab, email, password]);
+
   const handleAuthAction = async (isSignUp: boolean) => {
     setLoading(true);
     const userType = mode === "booker" ? "booker" : "talent";
