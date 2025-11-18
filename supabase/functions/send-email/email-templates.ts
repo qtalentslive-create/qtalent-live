@@ -26,9 +26,11 @@ interface MessageEmailData {
   eventType: string;
   eventDate: string;
   messagePreview: string;
-  bookingId: string;
+  bookingId?: string;
+  eventRequestId?: string;
   appUrl: string;
-  isFromTalent: boolean;
+  isFromTalent?: boolean;
+  isFromAdmin?: boolean;
 }
 
 interface PaymentEmailData {
@@ -154,6 +156,19 @@ export function generateBookingEmailHtml(data: BookingEmailData): string {
 }
 
 export function generateMessageEmailHtml(data: MessageEmailData): string {
+  const isEventRequest = !!data.eventRequestId;
+  const dashboardUrl = data.eventRequestId 
+    ? `${data.appUrl}/booker-dashboard?chat=${data.eventRequestId}`
+    : data.bookingId
+    ? `${data.appUrl}/${data.isFromTalent ? 'booker' : 'talent'}-dashboard?chat=${data.bookingId}`
+    : `${data.appUrl}/dashboard`;
+  
+  const messageContext = isEventRequest 
+    ? `your ${data.eventType} event request`
+    : data.eventDate 
+    ? `your ${data.eventType} event on ${data.eventDate}`
+    : `your ${data.eventType} event`;
+
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -165,18 +180,18 @@ export function generateMessageEmailHtml(data: MessageEmailData): string {
     <h1 style="color: #333; font-size: 24px; font-weight: bold; margin: 40px 0; padding: 0;">New Message</h1>
     <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Hi ${data.recipientName},</p>
     <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">
-      You have received a new message from ${data.senderName} regarding your ${data.eventType} event on ${data.eventDate}.
+      You have received a new message from ${data.senderName}${data.isFromAdmin ? ' (QTalent Team)' : ''} regarding ${messageContext}.
     </p>
     
     <div style="margin: 24px 0; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
       <p style="color: #333; font-size: 16px; font-weight: bold; margin: 0 0 12px 0;">Message Preview:</p>
-      <p style="color: #666; font-size: 14px; line-height: 22px; margin: 0; font-style: italic;">
+      <p style="color: #666; font-size: 14px; line-height: 22px; margin: 0; font-style: italic; white-space: pre-wrap;">
         "${data.messagePreview}"
       </p>
     </div>
 
     <div style="text-align: center; margin: 32px 0;">
-      <a href="${data.appUrl}/${data.isFromTalent ? 'booker' : 'talent'}-dashboard" style="background-color: #007ee6; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
+      <a href="${dashboardUrl}" style="background-color: #007ee6; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
         Reply to Message
       </a>
     </div>
@@ -374,7 +389,19 @@ export function generateAdminSupportMessageEmailHtml(data: {
   senderEmail: string;
   messagePreview: string;
   appUrl: string;
+  event_request_id?: string;
+  event_type?: string;
+  event_date?: string;
+  event_location?: string;
+  event_duration?: number;
+  description?: string;
+  booker_phone?: string;
 }): string {
+  const hasEventRequest = !!(data.event_request_id || data.event_type);
+  const replyUrl = hasEventRequest && data.event_request_id 
+    ? `${data.appUrl}/admin/bookings?eventRequestId=${data.event_request_id}`
+    : `${data.appUrl}/admin/direct-messages`;
+
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -383,10 +410,13 @@ export function generateAdminSupportMessageEmailHtml(data: {
 </head>
 <body style="font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif; background-color: #ffffff;">
   <div style="margin: 0 auto; padding: 20px 0 48px; max-width: 560px;">
-    <h1 style="color: #333; font-size: 24px; font-weight: bold; margin: 40px 0; padding: 0;">🆘 New Support Message</h1>
+    <h1 style="color: #333; font-size: 24px; font-weight: bold; margin: 40px 0; padding: 0;">${hasEventRequest ? '📅 New Event Request Message' : '🆘 New Support Message'}</h1>
     <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Hi Admin,</p>
     <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">
-      A user has sent a new support message and is waiting for your response.
+      ${hasEventRequest 
+        ? 'A booker has sent a new message regarding their event request and is waiting for your response.'
+        : 'A user has sent a new support message and is waiting for your response.'
+      }
     </p>
     
     <div style="margin: 24px 0; padding: 20px; background-color: #fff3cd; border-radius: 8px; border: 2px solid #ffc107;">
@@ -394,19 +424,33 @@ export function generateAdminSupportMessageEmailHtml(data: {
       <div style="color: #666; font-size: 14px; line-height: 22px; margin: 0;">
         <p><strong>Name:</strong> ${data.senderName}</p>
         <p><strong>Email:</strong> ${data.senderEmail}</p>
+        ${data.booker_phone ? `<p><strong>Phone:</strong> ${data.booker_phone}</p>` : ''}
       </div>
     </div>
 
+    ${hasEventRequest ? `
+    <div style="margin: 24px 0; padding: 20px; background-color: #e7f3ff; border-radius: 8px; border: 2px solid #2196F3;">
+      <p style="color: #333; font-size: 16px; font-weight: bold; margin: 0 0 12px 0;">Event Request Details:</p>
+      <div style="color: #666; font-size: 14px; line-height: 22px; margin: 0;">
+        ${data.event_type ? `<p><strong>Event Type:</strong> ${data.event_type}</p>` : ''}
+        ${data.event_date ? `<p><strong>Event Date:</strong> ${data.event_date}</p>` : ''}
+        ${data.event_location ? `<p><strong>Location:</strong> ${data.event_location}</p>` : ''}
+        ${data.event_duration ? `<p><strong>Duration:</strong> ${data.event_duration} hours</p>` : ''}
+        ${data.description ? `<p><strong>Description:</strong> ${data.description}</p>` : ''}
+      </div>
+    </div>
+    ` : ''}
+
     <div style="margin: 24px 0; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
-      <p style="color: #333; font-size: 16px; font-weight: bold; margin: 0 0 12px 0;">Message Preview:</p>
-      <p style="color: #666; font-size: 14px; line-height: 22px; margin: 0; font-style: italic;">
+      <p style="color: #333; font-size: 16px; font-weight: bold; margin: 0 0 12px 0;">Message:</p>
+      <p style="color: #666; font-size: 14px; line-height: 22px; margin: 0; font-style: italic; white-space: pre-wrap;">
         "${data.messagePreview}"
       </p>
     </div>
 
     <div style="text-align: center; margin: 32px 0;">
-      <a href="${data.appUrl}/admin/direct-messages" style="background-color: #dc3545; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
-        Reply to User
+      <a href="${replyUrl}" style="background-color: #dc3545; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
+        ${hasEventRequest ? 'View Event Request & Reply' : 'Reply to User'}
       </a>
     </div>
 

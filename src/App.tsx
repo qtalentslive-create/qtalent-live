@@ -1,16 +1,27 @@
+// FILE: src/App.tsx
+// FINAL CORRECTED VERSION (with correct import paths)
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Routes, Route } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client"; // Ensure supabase is imported
-import { AuthProvider } from "./hooks/useAuth";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { useEffect } from "react"; // 👈 This was part of the fix
+import { supabase } from "@/integrations/supabase/client";
+//
+// ▼▼▼ THESE ARE THE FIXED IMPORTS ▼▼▼
+//
+import { AuthProvider, useAuth } from "@/hooks/useAuth"; // 👈 Fixed path
+import { registerDeviceForNotifications } from "@/hooks/usePushNotifications"; // 👈 Fixed path
+//
+// ▲▲▲ END OF FIXED IMPORTS ▲▲▲
+//
 import { UserModeProvider } from "./contexts/UserModeContext";
 import { ChatProvider } from "./contexts/ChatContext";
 import { ProStatusProvider } from "./contexts/ProStatusContext";
 import { UniversalChat } from "./components/UniversalChat";
-import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { NotificationPermissionPrompt } from "./components/NotificationPermissionPrompt";
-import { UnifiedNotificationHandler } from "./components/UnifiedNotificationHandler";
+import { UnifiedNotificationHandler } from "./components/UnifiedNotificationhandler";
+import { useModalBackdrop } from "./hooks/useModalBackdrop";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import BookerDashboard from "./pages/BookerDashboard";
@@ -40,21 +51,58 @@ import SubscriptionCancelled from "./pages/SubscriptionCancelled";
 // 🔐 Global auth listener with PASSWORD_RECOVERY detection
 supabase.auth.onAuthStateChange((event, session) => {
   console.log("Supabase Auth State Change Event:", { event, session });
-  
+
   // Set recovery flag when PASSWORD_RECOVERY event is detected
-  if (event === 'PASSWORD_RECOVERY') {
-    sessionStorage.setItem('isPasswordRecovery', 'true');
-    console.log("[App] PASSWORD_RECOVERY event detected globally - recovery flag set");
+  if (event === "PASSWORD_RECOVERY") {
+    sessionStorage.setItem("isPasswordRecovery", "true");
+    console.log(
+      "[App] PASSWORD_RECOVERY event detected globally - recovery flag set"
+    );
   }
 });
 
 const AppContent = () => {
+  const navigate = useNavigate();
+  //
+  // ▼▼▼ THIS IS THE FIX (Part 1) ▼▼▼
+  //
+  const { user } = useAuth(); // 👈 This will now work
+  //
+  // ▲▲▲ END OF FIX ▲▲▲
+  //
+
+  // Add backdrop for modals, popovers, and selects in Capacitor native apps
+  useModalBackdrop();
+
+  useEffect(() => {
+    // This is your hook for the white page crash
+    const pendingUrl = sessionStorage.getItem("pending_notification_url");
+    if (pendingUrl) {
+      console.log(`Found pending URL, navigating to: ${pendingUrl}`);
+      sessionStorage.removeItem("pending_notification_url");
+      navigate(pendingUrl);
+    }
+  }, [navigate]);
+
+  //
+  // ▼▼▼ THIS IS THE FIX (Part 2) ▼▼▼
+  //
+  useEffect(() => {
+    // If we find a user, register their device for notifications
+    if (user) {
+      console.log(`[App] User ${user.id} found, registering for push...`);
+      registerDeviceForNotifications(user.id); // 👈 This will now work
+    }
+  }, [user]); // 👈 This runs every time 'user' is loaded
+  //
+  // ▲▲▲ END OF FIX ▲▲▲
+  //
+
   return (
     <div className="w-full max-w-full overflow-x-hidden">
       <Toaster />
       <Sonner />
       <UniversalChat />
-      <PWAInstallPrompt />
       <NotificationPermissionPrompt />
       <UnifiedNotificationHandler />
       <Routes>
@@ -98,7 +146,10 @@ const AppContent = () => {
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/trust-safety" element={<TrustSafety />} />
         <Route path="/subscription-success" element={<SubscriptionSuccess />} />
-        <Route path="/subscription-cancelled" element={<SubscriptionCancelled />} />
+        <Route
+          path="/subscription-cancelled"
+          element={<SubscriptionCancelled />}
+        />
         <Route path="/talent-onboarding" element={<TalentOnboarding />} />
         <Route
           path="/talent-dashboard"

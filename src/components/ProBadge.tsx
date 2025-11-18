@@ -8,47 +8,53 @@ interface ProBadgeProps {
   showIcon?: boolean;
 }
 
-export function ProBadge({ size = "default", className, showIcon = true }: ProBadgeProps) {
+export function ProBadge({
+  size = "default",
+  className,
+  showIcon = true,
+}: ProBadgeProps) {
   const sizeClasses = {
-    sm: "text-xs px-2 py-1 font-bold",
-    default: "text-sm px-3 py-1.5 font-extrabold",
-    lg: "text-base px-4 py-2 font-extrabold"
+    sm: "text-[10px] px-2.5 py-1 font-semibold",
+    default: "text-xs px-3 py-1.5 font-semibold",
+    lg: "text-sm px-4 py-2 font-semibold",
   };
 
   const iconSizes = {
     sm: "h-3 w-3",
-    default: "h-4 w-4", 
-    lg: "h-5 w-5"
+    default: "h-3.5 w-3.5",
+    lg: "h-4 w-4",
   };
 
   return (
-    <Badge 
+    <Badge
+      aria-label="Pro subscriber"
       className={cn(
-        // Premium gold gradient with beveled edge effect
-        "bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600",
-        "text-white border-2 border-yellow-300/50",
-        // 3D beveled effect with multiple shadows
-        "shadow-[0_2px_0_rgb(180,83,9),0_4px_8px_rgba(234,179,8,0.4),inset_0_1px_0_rgba(255,255,255,0.3),inset_0_-2px_0_rgba(180,83,9,0.3)]",
-        "hover:shadow-[0_3px_0_rgb(180,83,9),0_6px_12px_rgba(234,179,8,0.5),inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-2px_0_rgba(180,83,9,0.4)]",
-        // Subtle animation and transform
-        "transition-all duration-300 relative overflow-hidden",
-        "hover:translate-y-[-1px] active:translate-y-[1px]",
-        // Shine effect overlay
-        "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent",
-        "before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
+        "relative inline-flex items-center gap-1 uppercase tracking-[0.18em]",
+        "border border-[hsl(var(--color-accent-gold))]/70",
+        "bg-[radial-gradient(circle_at_top,hsl(var(--color-brand-gold))_0%,hsl(var(--color-accent-gold))_45%,hsl(var(--color-brand-primary))_120%)]",
+        "text-[hsl(var(--color-text-primary-light))]",
+        "shadow-[0_4px_16px_rgba(234,179,8,0.25)]",
+        "before:absolute before:inset-0 before:rounded-[inherit] before:bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.25),transparent)] before:opacity-60",
+        "after:absolute after:inset-0 after:rounded-[inherit] after:border after:border-white/10",
+        "overflow-hidden transition-all duration-300",
+        "hover:shadow-[0_6px_18px_rgba(234,179,8,0.35)] hover:-translate-y-[1px]",
         sizeClasses[size],
         className
       )}
     >
       {showIcon && (
-        <Crown 
-          className={cn(
-            "mr-1.5 drop-shadow-[0_1px_2px_rgba(180,83,9,0.8)]", 
-            iconSizes[size]
-          )} 
-        />
+        <span className="relative z-10 flex items-center">
+          <Crown
+            className={cn(
+              iconSizes[size],
+              "text-[hsl(var(--color-text-primary-light))]",
+              "drop-shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
+            )}
+            strokeWidth={1.5}
+          />
+        </span>
       )}
-      <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(180,83,9,0.8)] tracking-wide font-black">
+      <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
         PRO
       </span>
     </Badge>

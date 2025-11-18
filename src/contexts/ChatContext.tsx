@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +38,7 @@ interface ChatContextType {
   setUserInteracting: (isInteracting: boolean) => void;
   viewedChats: Set<string>;
   markAllAsRead: (ids: string[], type: "booking" | "event_request") => void;
+  recipientUserId: string | null;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -42,9 +50,12 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [messageChannel, setMessageChannel] = useState<RealtimeChannel | null>(null);
+  const [messageChannel, setMessageChannel] = useState<RealtimeChannel | null>(
+    null
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [channelInfo, setChannelInfo] = useState<ChannelInfo | null>(null);
+  const [recipientUserId, setRecipientUserId] = useState<string | null>(null);
   const [userInteracting, setUserInteracting] = useState(false);
   const [viewedChats, setViewedChats] = useState<Set<string>>(new Set());
 
@@ -58,19 +69,26 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
       setLoadingMessages(true);
       try {
-        const query = supabase.from("chat_messages").select("*").order("created_at", { ascending: true });
+        let query = supabase
+          .from("chat_messages")
+          .select("*");
 
         if (channelInfo.type === "booking") {
-          query.eq("booking_id", channelInfo.id);
-        } else {
-          query.eq("event_request_id", channelInfo.id);
+          query = query.eq("booking_id", channelInfo.id);
+        } else if (channelInfo.type === "event_request") {
+          query = query.eq("event_request_id", channelInfo.id);
         }
 
-        const { data, error } = await query;
+        const { data, error } = await query.order("created_at", { ascending: true });
+
         if (error) throw error;
         setMessages(data || []);
-      } catch (e: any) {
-        setError(e.message);
+      } catch (e) {
+        if (e instanceof Error) {
+          setError(e.message);
+        } else {
+          setError("An unknown error occurred while fetching messages.");
+        }
       } finally {
         setLoadingMessages(false);
       }
@@ -86,16 +104,20 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     if (user && channelInfo) {
       const channel = supabase
         .channel(`chat_${channelInfo.type}_${channelInfo.id}`)
-        .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, (payload) => {
-          const newMessage = payload.new as Message;
-          const isRelevant =
-            (channelInfo.type === "booking" && newMessage.booking_id === channelInfo.id) ||
-            (channelInfo.type === "event_request" && newMessage.event_request_id === channelInfo.id);
-
-          if (isRelevant) {
-            setMessages((prev) => [...prev, newMessage]);
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "chat_messages" },
+          (payload) => {
+            const newMessage = payload.new as Message;
+            // Check if message belongs to current channel
+            if (
+              (channelInfo.type === "booking" && newMessage.booking_id === channelInfo.id) ||
+              (channelInfo.type === "event_request" && newMessage.event_request_id === channelInfo.id)
+            ) {
+              setMessages((prev) => [...prev, newMessage]);
+            }
           }
-        })
+        )
         .subscribe();
       setMessageChannel(channel);
     }
@@ -105,49 +127,128 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   }, [user, channelInfo]);
 
   const openChat = useCallback(
-    async (id: string, type: "booking" | "event_request") => {
+    async (id: string, type: "booking" | "event_request" = "booking") => {
       if (!user) return;
       setChannelInfo({ type, id });
       setIsOpen(true);
-      // Mark this chat as viewed
       setViewedChats((prev) => new Set(prev).add(`${type}_${id}`));
+
+      // Find the recipient
+      setLoading(true);
+      setError(null);
+      setRecipientUserId(null);
+      try {
+        if (type === "booking") {
+          // Handle booking chat (existing logic)
+          const { data, error } = await supabase
+            .from("bookings")
+            .select("user_id, talent_id")
+            .eq("id", id)
+            .single();
+          if (error) throw error;
+
+          const bookerId = data.user_id;
+          const talentId = data.talent_id;
+
+          if (talentId) {
+            const { data: profile, error: pError } = await supabase
+              .from("talent_profiles")
+              .select("user_id")
+              .eq("id", talentId)
+              .single();
+            if (pError) throw pError;
+
+            // The recipient is the *other* person
+            const otherUserId =
+              bookerId === user.id ? profile.user_id : bookerId;
+            setRecipientUserId(otherUserId);
+          }
+        } else if (type === "event_request") {
+          // Handle event_request chat (new logic)
+          const { data: eventRequest, error } = await supabase
+            .from("event_requests")
+            .select("user_id")
+            .eq("id", id)
+            .single();
+          if (error) throw error;
+
+          const bookerId = eventRequest.user_id;
+
+          // Check if current user is a talent
+          const { data: talentProfile } = await supabase
+            .from("talent_profiles")
+            .select("user_id")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (talentProfile) {
+            // Current user is a talent, recipient is the booker
+            setRecipientUserId(bookerId);
+          } else if (bookerId === user.id) {
+            // Current user is the booker
+            // For event requests, bookers can see messages from any talent
+            // We'll set recipient to null and handle it differently in notifications
+            setRecipientUserId(null);
+          }
+        }
+      } catch (e) {
+        if (e instanceof Error) {
+          console.error("Error fetching chat recipient:", e.message);
+          setError("Error loading chat participant.");
+        }
+      } finally {
+        setLoading(false);
+      }
     },
-    [user],
+    [user]
   );
 
   const closeChat = () => {
     setIsOpen(false);
     setChannelInfo(null);
+    setRecipientUserId(null);
     setMessages([]);
   };
 
-  const markAllAsRead = useCallback((ids: string[], type: "booking" | "event_request") => {
-    setViewedChats((prev) => {
-      const newSet = new Set(prev);
-      ids.forEach(id => newSet.add(`${type}_${id}`));
-      return newSet;
-    });
-  }, []);
+  const markAllAsRead = useCallback(
+    (ids: string[], type: "booking" | "event_request" = "booking") => {
+      setViewedChats((prev) => {
+        const newSet = new Set(prev);
+        ids.forEach((id) => newSet.add(`${type}_${id}`));
+        return newSet;
+      });
+    },
+    []
+  );
 
   const sendMessage = useCallback(
     async (content: string) => {
-      if (!user || !channelInfo) return;
+      if (!user || !channelInfo) {
+        return;
+      }
 
-      // ✅ REMOVED the redundant filter that was causing the conflict.
-      // All filtering is now correctly handled by the UI component.
-
-      const messageData: any = {
+      // Prepare message data based on channel type
+      const messageData: {
+        sender_id: string;
+        content: string;
+        booking_id?: string | null;
+        event_request_id?: string | null;
+      } = {
         sender_id: user.id,
         content,
       };
 
       if (channelInfo.type === "booking") {
         messageData.booking_id = channelInfo.id;
-      } else {
+      } else if (channelInfo.type === "event_request") {
         messageData.event_request_id = channelInfo.id;
       }
 
-      const { error } = await supabase.from("chat_messages").insert(messageData);
+      const { data: newMsg, error } = await supabase
+        .from("chat_messages")
+        .insert(messageData)
+        .select()
+        .single();
 
       if (error) {
         console.error("Error sending message:", error);
@@ -156,9 +257,42 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           description: "Could not send message.",
           variant: "destructive",
         });
+        return;
+      }
+
+      // Send push notification if we have a recipient
+      if (recipientUserId) {
+        try {
+          const { error: functionError } = await supabase.functions.invoke(
+            "send-push-notification",
+            {
+              body: {
+                userId: recipientUserId,
+                title: `New message from ${user.user_metadata?.name || "a user"}`,
+                body: content,
+                url: channelInfo.type === "booking" 
+                  ? `/booker-dashboard?chat=${channelInfo.id}`
+                  : `/booker-dashboard?eventRequest=${channelInfo.id}`,
+                bookingId: channelInfo.type === "booking" ? newMsg.id : undefined,
+                eventRequestId: channelInfo.type === "event_request" ? channelInfo.id : undefined,
+              },
+            }
+          );
+
+          if (functionError) {
+            console.error("Failed to send push notification:", functionError);
+          }
+        } catch (e) {
+          if (e instanceof Error) {
+            console.error(
+              "Error invoking push notification function:",
+              e.message
+            );
+          }
+        }
       }
     },
-    [user, channelInfo, toast], // Removed isProUser from dependency array
+    [user, channelInfo, recipientUserId, toast]
   );
 
   return (
@@ -176,6 +310,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         setUserInteracting,
         viewedChats,
         markAllAsRead,
+        recipientUserId,
       }}
     >
       {children}

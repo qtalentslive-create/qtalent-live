@@ -7,6 +7,9 @@ import { useToast } from "@/hooks/use-toast";
 import { SubscriptionModal } from "@/components/SubscriptionModal";
 import { SubscriptionManagementModal } from "@/components/SubscriptionManagementModal";
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from "@capacitor/core";
+import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface SubscriptionButtonProps {
   isProSubscriber?: boolean;
@@ -37,6 +40,8 @@ export function SubscriptionButton({
 }: SubscriptionButtonProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const isNativeApp = Capacitor.isNativePlatform();
   const [showModal, setShowModal] = useState(false);
   const [showManagementModal, setShowManagementModal] = useState(false);
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);
@@ -105,7 +110,8 @@ export function SubscriptionButton({
     if (isProSubscriber) {
       setShowManagementModal(true);
     } else {
-      setShowModal(true);
+      // Navigate to pricing page (works better than modal in both web and Capacitor)
+      navigate("/pricing");
     }
   };
 
@@ -113,27 +119,46 @@ export function SubscriptionButton({
     return (
       <>
         <Button
-          variant={variant}
-          size={size}
-          onClick={handleSubscriptionAction}
-          className={`${className} gap-2 relative`}
+        variant="outline"
+        size={size}
+        onClick={handleSubscriptionAction}
+        className={cn(
+          "relative gap-2 rounded-full border-border/60 text-foreground hover:border-accent hover:text-accent transition-all",
+          isNativeApp ? "h-9 px-3 text-sm" : "h-10 px-4",
+          className
+        )}
         >
-          <Settings className="h-4 w-4" />
-          <div className="flex flex-col items-start">
-            <span>Manage Pro</span>
-            {daysRemaining !== null && (
+          <Settings className={isNativeApp ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
+          <div className={`flex ${isNativeApp ? 'flex-col items-start' : 'flex-col items-start'}`}>
+            <span className={isNativeApp ? 'text-xs leading-tight' : ''}>Manage Pro</span>
+            {daysRemaining !== null && !isNativeApp && (
               <span className="text-xs opacity-80">
                 {daysRemaining} days left
               </span>
             )}
+            {daysRemaining !== null && isNativeApp && (
+              <span className="text-[10px] opacity-70 leading-tight">
+                {daysRemaining}d left
+              </span>
+            )}
           </div>
-          <ProBadge size="sm" showIcon={false} />
+          {!isNativeApp && <ProBadge size="sm" showIcon={false} />}
         </Button>
 
         <SubscriptionManagementModal
           open={showManagementModal}
           onOpenChange={setShowManagementModal}
-          subscriptionData={subscriptionData || undefined}
+          subscriptionData={subscriptionData ? {
+            isProSubscriber: subscriptionData.isProSubscriber,
+            subscriptionStatus: subscriptionData.subscriptionStatus,
+            planId: subscriptionData.planId,
+            currentPeriodEnd: subscriptionData.currentPeriodEnd,
+            subscriptionStartedAt: subscriptionData.subscriptionStartedAt,
+            paypal_subscription_id: subscriptionData.paypal_subscription_id,
+            provider: subscriptionData.provider,
+            manualGrantExpiresAt: subscriptionData.manualGrantExpiresAt,
+            grantedByAdminId: subscriptionData.grantedByAdminId,
+          } : undefined}
         />
       </>
     );
@@ -142,15 +167,23 @@ export function SubscriptionButton({
   return (
     <>
       <Button
-        variant={variant}
+        variant="outline"
         size={size}
         onClick={handleSubscriptionAction}
-        className={`${className} gap-2 relative overflow-hidden group`}
+        className={cn(
+          "relative gap-2 rounded-full border-border/60 text-foreground hover:border-accent hover:text-accent transition-all",
+          isNativeApp ? "h-9 px-3 text-sm" : "h-12 px-6 text-sm",
+          className
+        )}
       >
-        <Crown className="h-4 w-4 text-brand-warning" />
-        Upgrade to Pro
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/20 to-brand-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+        <Crown className={isNativeApp ? 'h-3.5 w-3.5 text-brand-warning' : 'h-4 w-4 text-brand-warning'} />
+        <span className={isNativeApp ? 'text-xs' : ''}>Upgrade to Pro</span>
+        {!isNativeApp && (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/20 to-brand-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+          </>
+        )}
       </Button>
       
       <SubscriptionModal 

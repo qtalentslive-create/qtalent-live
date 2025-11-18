@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Star, MapPin, Search, Music, Crown, HelpCircle, Calendar } from "lucide-react";
@@ -11,9 +10,9 @@ import { countries, sortCountriesByProximity } from "@/lib/countries";
 import { useLocationDetection } from "@/hooks/useLocationDetection";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { ProBadge } from "@/components/ProBadge";
 import Autoplay from "embla-carousel-autoplay";
-import { Capacitor } from '@capacitor/core';
+import { Capacitor } from "@capacitor/core";
+import { TalentCard } from "@/components/TalentCard";
 
 
 const talentTypes = [
@@ -69,6 +68,13 @@ export function HeroSection() {
   const { user } = useAuth();
   const { detectedLocation, userLocation } = useLocationDetection();
   const isNativeApp = Capacitor.isNativePlatform(); // <-- ADD THIS LINE
+  const heroCarouselAutoplay = useRef(
+    Autoplay({
+      delay: isNativeApp ? 2600 : 3200,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+    }) as any
+  );
   const [searchFilters, setSearchFilters] = useState({
     location: "",
     talentType: "all",
@@ -141,24 +147,26 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-24 pb-16 w-full max-w-full overflow-x-hidden">
+    <section className={`relative min-h-screen flex items-center justify-center ${isNativeApp ? 'pt-4' : 'pt-24'} pb-16 w-full max-w-full overflow-x-hidden`}>
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-brand-primary/5" />
 
       <div className="container mx-auto px-4 relative z-10 w-full max-w-full">
-        <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
+        <div className={`grid ${isNativeApp ? 'lg:grid-cols-1 gap-8' : 'lg:grid-cols-2 gap-12'} items-center w-full`}>
           {/* Left Content */}
-          <div className="space-y-8 animate-fadeIn w-full max-w-full overflow-x-hidden">
-            <div className="space-y-4 sm:space-y-6">
-              <div className="text-accent font-medium text-base sm:text-lg">Connect with live talent</div>
+          <div className={`${isNativeApp ? 'space-y-5' : 'space-y-8'} animate-fadeIn w-full max-w-full overflow-x-hidden`}>
+            <div className={isNativeApp ? 'space-y-3' : 'space-y-4 sm:space-y-6'}>
+              <div className={isNativeApp ? 'text-accent font-medium text-sm uppercase tracking-wide text-center' : 'text-accent font-medium text-base sm:text-lg'}>
+                Connect with live talent
+              </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              <h1 className={isNativeApp ? 'text-3xl font-bold leading-tight text-center px-2' : 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight'}>
                 Book <span className="text-accent">live talents</span> for your event
               </h1>
 
-              <div className="relative min-h-[4rem] flex items-center justify-start">
+              <div className={`relative ${isNativeApp ? 'min-h-[3rem]' : 'min-h-[4rem]'} flex items-center ${isNativeApp ? 'justify-center px-4' : 'justify-start'}`}>
                 <p
                   key={currentBiographyIndex}
-                  className="text-base sm:text-lg text-muted-foreground max-w-lg leading-relaxed animate-fade-in"
+                  className={`${isNativeApp ? 'text-sm text-center text-muted-foreground/90 max-w-lg' : 'text-base sm:text-lg max-w-lg text-muted-foreground'} leading-relaxed animate-fade-in`}
                   dir={biographyTexts[currentBiographyIndex].dir}
                   style={{
                     textAlign: biographyTexts[currentBiographyIndex].dir === "rtl" ? "right" : "left",
@@ -170,18 +178,29 @@ export function HeroSection() {
             </div>
 
             {/* Search Form */}
-            <Card className="p-4 sm:p-6 md:p-8 glass-card border border-border/50 shadow-elevated w-full max-w-full overflow-hidden">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full">
-                <div className="space-y-2 w-full">
-                  <label className="text-xs sm:text-sm font-semibold text-foreground uppercase tracking-wide">WHERE</label>
+            <Card 
+              id="hero-search-form"
+              className={`${isNativeApp ? 'p-5 border border-border/30 shadow-sm bg-card/80 backdrop-blur-sm' : 'p-4 sm:p-6 md:p-8 glass-card border border-border/50 shadow-elevated'} w-full max-w-full overflow-hidden`}
+            >
+              <div className={`grid ${isNativeApp ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-3 gap-4 md:gap-6'} w-full`}>
+                <div className={`${isNativeApp ? 'space-y-2' : 'space-y-1.5'} w-full`}>
+                  <label className={`${isNativeApp ? 'text-[11px] font-medium text-muted-foreground block mb-2' : 'text-xs sm:text-sm font-semibold text-foreground uppercase tracking-wide'}`}>
+                    {isNativeApp ? 'Location' : 'WHERE'}
+                  </label>
                   <div className="relative w-full">
-                    <MapPin className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground z-10" />
+                    <MapPin className={`absolute ${isNativeApp ? 'left-3 h-4 w-4' : 'left-3 sm:left-4 h-4 w-4 sm:h-5 sm:w-5'} top-1/2 -translate-y-1/2 text-muted-foreground z-[11] pointer-events-none`} style={{ left: isNativeApp ? '0.75rem' : '0.75rem' }} />
                     <Select
                       value={searchFilters.location}
                       onValueChange={(value) => setSearchFilters((prev) => ({ ...prev, location: value }))}
                     >
-                      <SelectTrigger className="pl-10 sm:pl-12 h-11 sm:h-12 bg-background/50 border-border/50 hover:border-accent/50 transition-colors text-sm sm:text-base w-full">
-                        <SelectValue placeholder="Select location" />
+                      <SelectTrigger 
+                        className={`${isNativeApp ? 'h-10 text-sm bg-background border-border/40' : 'h-11 sm:h-12 bg-background/50 border-border/50 hover:border-accent/50 text-sm sm:text-base'} transition-colors w-full search-select-trigger`}
+                        style={{
+                          paddingLeft: isNativeApp ? '2.75rem' : '2.875rem',
+                          paddingRight: '2rem'
+                        }}
+                      >
+                        <SelectValue placeholder="Select location" className="search-select-value" />
                       </SelectTrigger>
                       <SelectContent className="max-h-60">
                         <SelectItem value="all">All Countries</SelectItem>
@@ -195,16 +214,24 @@ export function HeroSection() {
                   </div>
                 </div>
 
-                <div className="space-y-2 w-full">
-                  <label className="text-xs sm:text-sm font-semibold text-foreground uppercase tracking-wide">TALENT TYPE</label>
+                <div className={`${isNativeApp ? 'space-y-2' : 'space-y-1.5'} w-full`}>
+                  <label className={`${isNativeApp ? 'text-[11px] font-medium text-muted-foreground block mb-2' : 'text-xs sm:text-sm font-semibold text-foreground uppercase tracking-wide'}`}>
+                    {isNativeApp ? 'Talent Type' : 'TALENT TYPE'}
+                  </label>
                   <div className="relative w-full">
-                    <Music className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground z-10" />
+                    <Music className={`absolute ${isNativeApp ? 'left-3 h-4 w-4' : 'left-3 sm:left-4 h-4 w-4 sm:h-5 sm:w-5'} top-1/2 -translate-y-1/2 text-muted-foreground z-[11] pointer-events-none`} style={{ left: isNativeApp ? '0.75rem' : '0.75rem' }} />
                     <Select
                       value={searchFilters.talentType}
                       onValueChange={(value) => setSearchFilters((prev) => ({ ...prev, talentType: value }))}
                     >
-                      <SelectTrigger className="pl-10 sm:pl-12 h-11 sm:h-12 bg-background/50 border-border/50 hover:border-accent/50 transition-colors text-sm sm:text-base w-full">
-                        <SelectValue placeholder="What kind of talent?" />
+                      <SelectTrigger 
+                        className={`${isNativeApp ? 'h-10 text-sm bg-background border-border/40' : 'h-11 sm:h-12 bg-background/50 border-border/50 hover:border-accent/50 text-sm sm:text-base'} transition-colors w-full search-select-trigger`}
+                        style={{
+                          paddingLeft: isNativeApp ? '2.75rem' : '2.875rem',
+                          paddingRight: '2rem'
+                        }}
+                      >
+                        <SelectValue placeholder="What kind of talent?" className="search-select-value" />
                       </SelectTrigger>
                       <SelectContent>
                         {talentTypes.map((type) => (
@@ -217,12 +244,12 @@ export function HeroSection() {
                   </div>
                 </div>
 
-                <div className="flex items-end w-full">
+                <div className={`flex ${isNativeApp ? 'items-end' : 'items-end'} w-full`}>
                   <Button
-                    className="w-full h-11 sm:h-12 bg-primary text-primary-foreground font-bold text-sm sm:text-base shadow-minimal hover:shadow-elevated transition-all duration-300 hover:scale-[1.02] hover:bg-primary/90 rounded-xl"
+                    className={`w-full ${isNativeApp ? 'h-10 bg-primary text-primary-foreground font-semibold text-sm shadow-sm' : 'h-11 sm:h-12 bg-primary text-primary-foreground font-bold text-sm sm:text-base shadow-minimal hover:shadow-elevated'} transition-all duration-300 hover:bg-primary/90 ${isNativeApp ? 'rounded-lg' : 'rounded-xl hover:scale-[1.02]'}`}
                     onClick={handleSearch}
                   >
-                    <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+                    {!isNativeApp && <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />}
                     <span className="truncate">Explore</span>
                   </Button>
                 </div>
@@ -230,7 +257,7 @@ export function HeroSection() {
             </Card>
 
             {/* Social Proof */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm w-full">
+            <div className={`flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm w-full ${isNativeApp ? 'px-2' : ''}`}>
               <div className="flex items-center space-x-2">
                 <div className="flex -space-x-1">
                   {[...Array(5)].map((_, i) => (
@@ -250,70 +277,77 @@ export function HeroSection() {
             {/* Search Status Message */}
             {(searchFilters.location !== "all" && searchFilters.location) ||
             (searchFilters.talentType !== "all" && searchFilters.talentType) ? (
-              <div className="mt-4 p-3 bg-accent/10 border border-accent/20 rounded-lg w-full max-w-full">
-                <div className="text-sm text-accent font-medium">
-                  🎯 Your search will show results below in the talent section
+              <div className={`mt-3 ${isNativeApp ? 'p-2.5 bg-primary/5 border border-primary/20 rounded-lg' : 'p-3 bg-accent/10 border border-accent/20 rounded-lg'} w-full max-w-full`}>
+                <div className={`${isNativeApp ? 'text-xs text-primary font-medium' : 'text-sm text-accent font-medium'}`}>
+                  🎯 {isNativeApp ? 'Search results below' : 'Your search will show results below in the talent section'}
                 </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Looking for{" "}
-                  {searchFilters.talentType !== "all" && searchFilters.talentType ? (
-                    <span className="font-medium">{searchFilters.talentType}s</span>
-                  ) : (
-                    <span className="font-medium">all talent types</span>
-                  )}
-                  {searchFilters.location !== "all" && searchFilters.location && (
-                    <span>
-                      {" "}
-                      in <span className="font-medium">{searchFilters.location}</span>
-                    </span>
-                  )}
-                </div>
+                {!isNativeApp && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Looking for{" "}
+                    {searchFilters.talentType !== "all" && searchFilters.talentType ? (
+                      <span className="font-medium">{searchFilters.talentType}s</span>
+                    ) : (
+                      <span className="font-medium">all talent types</span>
+                    )}
+                    {searchFilters.location !== "all" && searchFilters.location && (
+                      <span>
+                        {" "}
+                        in <span className="font-medium">{searchFilters.location}</span>
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             ) : null}
           </div>
 
           {/* Right Content - Pro Artists Carousel */}
-          <div className="space-y-6 w-full max-w-full overflow-x-hidden">
-            <div className="text-center space-y-2">
+          <div className={`${isNativeApp ? 'space-y-4 mt-8' : 'space-y-6'} w-full max-w-full overflow-x-hidden`}>
+            <div className={`text-center ${isNativeApp ? 'space-y-2' : 'space-y-2'}`}>
               <div className="flex items-center justify-center gap-2">
-                <Crown className="h-6 w-6 text-brand-warning" />
-                <h3 className="text-xl font-bold text-foreground">Featured Pro Artists</h3>
+                <Crown className={`${isNativeApp ? 'h-5 w-5' : 'h-6 w-6'} text-brand-warning`} />
+                <h3 className={`${isNativeApp ? 'text-lg' : 'text-xl'} font-bold text-foreground`}>Featured Pro Artists</h3>
               </div>
-              <p className="text-sm text-muted-foreground">Premium verified talents with unlimited bookings</p>
+              <p className={`${isNativeApp ? 'text-xs' : 'text-sm'} text-muted-foreground`}>Premium verified talents with unlimited bookings</p>
             </div>
 
             {featuredTalents.length > 0 ? (
-              <div className="w-full max-w-full overflow-hidden">
+              <div
+                className="w-full max-w-full overflow-hidden relative"
+                onMouseEnter={() => heroCarouselAutoplay.current?.stop()}
+                onMouseLeave={() => heroCarouselAutoplay.current?.reset()}
+              >
                 <Carousel
                   opts={{
                     align: "start",
                     loop: true,
                   }}
-                  plugins={[
-                    Autoplay({
-                      delay: 3000,
-                      stopOnInteraction: true,
-                    }) as any,
-                  ]}
+                  plugins={[heroCarouselAutoplay.current]}
                   className="w-full max-w-full"
                 >
                   <CarouselContent className="-ml-2 md:-ml-4">
-                    {featuredTalents.map((talent) => (
-                      <CarouselItem key={talent.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2">
-                        <FeaturedTalentCard
-                          id={talent.id}
-                          name={talent.artist_name}
-                          location={talent.location || "Location not specified"}
-                          category={
-                            talent.act.toLowerCase() === "dj"
-                              ? "DJ"
-                              : talent.act.charAt(0).toUpperCase() + talent.act.slice(1)
-                          }
-                          image={talent.picture_url || "/placeholder.svg"}
-                          isPro={talent.is_pro_subscriber}
-                          rate={talent.rate_per_hour}
-                          currency={talent.currency}
-                          genres={talent.music_genres}
+                    {(
+                      featuredTalents.length > (isNativeApp ? 4 : 6)
+                        ? [...featuredTalents, ...featuredTalents]
+                        : featuredTalents
+                    ).map((talent, index) => (
+                      <CarouselItem
+                        key={`${talent.id}-${index}`}
+                        className="pl-2 md:pl-4 basis-[85%] sm:basis-1/2 xl:basis-1/3"
+                      >
+                        <TalentCard
+                          className="h-full"
+                          talent={{
+                            id: talent.id,
+                            artist_name: talent.artist_name,
+                            act: talent.act,
+                            location: talent.location,
+                            picture_url: talent.picture_url,
+                            music_genres: talent.music_genres,
+                            rate_per_hour: talent.rate_per_hour,
+                            currency: talent.currency,
+                            is_pro_subscriber: talent.is_pro_subscriber,
+                          }}
                         />
                       </CarouselItem>
                     ))}
@@ -321,6 +355,8 @@ export function HeroSection() {
                   <CarouselPrevious className="hidden md:flex" />
                   <CarouselNext className="hidden md:flex" />
                 </Carousel>
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-background via-background/60 to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-background via-background/60 to-transparent" />
               </div>
             ) : (
               // Loading state
@@ -336,19 +372,19 @@ export function HeroSection() {
         </div>
 
         {/* Booker Help Section */}
-        <div className="mt-24 text-center space-y-8 w-full max-w-full px-4">
-          <div className="space-y-4 w-full max-w-full">
-            <div className="inline-flex items-center justify-center p-3 bg-accent/10 rounded-full mb-4">
-              <HelpCircle className="h-8 w-8 text-accent" />
+        <div className={`${isNativeApp ? 'mt-12' : 'mt-24'} text-center ${isNativeApp ? 'space-y-6' : 'space-y-8'} w-full max-w-full`}>
+          <div className={`${isNativeApp ? 'space-y-3' : 'space-y-4'} w-full max-w-full`}>
+            <div className={`inline-flex items-center justify-center ${isNativeApp ? 'p-2.5' : 'p-3'} bg-accent/10 rounded-full mb-4`}>
+              <HelpCircle className={isNativeApp ? 'h-6 w-6 text-accent' : 'h-8 w-8 text-accent'} />
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold px-4">Need help finding the perfect talents?</h2>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
+            <h2 className={isNativeApp ? 'text-xl font-bold' : 'text-2xl sm:text-3xl md:text-4xl font-bold'}>Need help finding the perfect talents?</h2>
+            <p className={`text-muted-foreground ${isNativeApp ? 'text-sm max-w-full' : 'text-base sm:text-lg max-w-2xl mx-auto'} leading-relaxed`}>
               Our expert team personally curates recommendations based on your event type, budget, and style
               preferences. Get matched with verified performers in 24 hours.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-full px-4">
+          <div className={`flex ${isNativeApp ? 'flex-col gap-3' : 'flex-col sm:flex-row gap-4'} items-center justify-center w-full max-w-full`}>
             <Button
               size="lg"
               className="hero-button px-6 sm:px-8 py-4 text-sm sm:text-base font-semibold w-full sm:w-auto max-w-full"
@@ -399,123 +435,3 @@ export function HeroSection() {
   );
 }
 
-interface FeaturedTalentCardProps {
-  id?: string;
-  name: string;
-  location: string;
-  category: string;
-  image: string;
-  isPro: boolean;
-  rate?: number;
-  currency: string;
-  genres: string[];
-}
-
-function FeaturedTalentCard({
-  id,
-  name,
-  location,
-  category,
-  image,
-  isPro,
-  rate,
-  currency,
-  genres,
-}: FeaturedTalentCardProps) {
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    if (id) {
-      navigate(`/talent/${id}`);
-    }
-  };
-
-  const getCurrencySymbol = (currency: string) => {
-    const symbols: Record<string, string> = {
-      USD: "$",
-      EUR: "€",
-      GBP: "£",
-      AED: "د.إ",
-    };
-    return symbols[currency] || currency;
-  };
-
-  return (
-    <Card
-      className="group p-4 glass-card hover:shadow-elevated transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden border border-border/50 hover:border-primary/30 relative h-full"
-      onClick={handleClick}
-    >
-      {/* Pro Badge - Top Right */}
-      {isPro && (
-        <div className="absolute top-3 right-3 z-10">
-          <ProBadge size="sm" />
-        </div>
-      )}
-
-      {/* Profile Picture */}
-      <div className="flex justify-center mb-4">
-        <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-300">
-          <img
-            src={image}
-            alt={name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-        </div>
-      </div>
-
-      {/* Artist Info */}
-      <div className="text-center space-y-2">
-        <h3 className="font-bold text-base text-foreground group-hover:text-primary transition-colors duration-300 truncate">
-          {name}
-        </h3>
-        <div className="space-y-1">
-          <div className="flex justify-center">
-            <Badge variant="outline" className="text-xs font-bold bg-primary/10 border-primary/30 text-primary">
-              {category}
-            </Badge>
-          </div>
-          <div className="flex items-center justify-center space-x-1">
-            <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-            <span className="text-xs text-muted-foreground truncate">{location}</span>
-          </div>
-        </div>
-
-        {/* Genres */}
-        <div className="flex flex-wrap gap-1 justify-center">
-          {genres?.slice(0, 2).map((genre) => (
-            <span key={genre} className="text-xs bg-secondary px-2 py-1 rounded-full text-secondary-foreground">
-              {genre}
-            </span>
-          ))}
-          {genres?.length > 2 && <span className="text-xs text-muted-foreground">+{genres.length - 2} more</span>}
-        </div>
-
-        {/* Rate & Status */}
-        {/* FIX 4: Added "flex-wrap" and "gap-2" to allow wrapping on very small screens */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-          <div className="flex items-center space-x-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-full">
-            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-            <span className="text-xs font-semibold text-yellow-600 dark:text-yellow-400">Pro</span>
-          </div>
-
-          <div className="text-right">
-            {rate ? (
-              <>
-                <div className="text-sm font-bold text-brand-primary">
-                  {getCurrencySymbol(currency)}
-                  {rate}
-                </div>
-                <div className="text-xs text-muted-foreground">per hour</div>
-              </>
-            ) : (
-              <div className="text-xs text-muted-foreground">Contact for rates</div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Hover Effect Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-    </Card>
-  );
-}

@@ -1,5 +1,5 @@
 // FILE: src/pages/UpdatePassword.tsx
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, FormEvent, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client"; // ✅ USE SHARED CLIENT
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useAutoScrollOnInput } from "@/hooks/useAutoScrollOnInput";
 import { CheckCircle, AlertTriangle } from "lucide-react";
 
 const UpdatePassword = () => {
@@ -19,6 +20,17 @@ const UpdatePassword = () => {
 
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Refs for auto-scroll functionality
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
+  const formCardRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll when password inputs are focused (native apps only)
+  useAutoScrollOnInput({
+    submitButtonRef: submitButtonRef,
+    formRef: formCardRef,
+    enabled: true,
+  });
 
   useEffect(() => {
     console.log("[UpdatePassword] Component mounted");
@@ -163,7 +175,7 @@ const UpdatePassword = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Card>
+        <Card ref={formCardRef}>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Set a New Password</CardTitle>
             <CardDescription>
@@ -178,6 +190,7 @@ const UpdatePassword = () => {
                 <Input
                   id="new-password"
                   type="password"
+                  autoComplete="new-password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -191,6 +204,7 @@ const UpdatePassword = () => {
                 <Input
                   id="confirm-password"
                   type="password"
+                  autoComplete="new-password"
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -216,7 +230,12 @@ const UpdatePassword = () => {
                 </div>
               )}
 
-              <Button type="submit" disabled={loading} className="w-full">
+              <Button 
+                ref={submitButtonRef}
+                type="submit" 
+                disabled={loading} 
+                className="w-full"
+              >
                 {loading ? "Updating..." : "Update Password"}
               </Button>
             </form>

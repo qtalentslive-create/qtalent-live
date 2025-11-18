@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Settings, LogOut, Crown, MessageSquare, Calendar, DollarSign } from "lucide-react";
+import { User, Settings, LogOut, Crown, MessageSquare, Calendar, DollarSign, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { DeleteAccountModal } from "@/components/DeleteAccountModal";
 
 interface ProfileMenuProps {
   talentName?: string;
@@ -33,6 +34,7 @@ export function ProfileMenu({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
 
   const displayName = talentName || user?.email?.split('@')[0] || 'User';
   const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -159,6 +161,16 @@ export function ProfileMenu({
         <DropdownMenuSeparator />
         
         <DropdownMenuItem 
+          onClick={() => setShowDeleteAccountModal(true)}
+          className="cursor-pointer hover:bg-accent text-destructive focus:text-destructive"
+        >
+          <Trash2 className="mr-2 h-4 w-4" />
+          <span>Delete Account</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator />
+        
+        <DropdownMenuItem 
           onClick={handleSignOut}
           disabled={isLoading}
           className="cursor-pointer hover:bg-accent text-destructive focus:text-destructive"
@@ -167,6 +179,11 @@ export function ProfileMenu({
           <span>{isLoading ? 'Signing out...' : 'Sign out'}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
+      
+      <DeleteAccountModal
+        open={showDeleteAccountModal}
+        onOpenChange={setShowDeleteAccountModal}
+      />
     </DropdownMenu>
   );
 }

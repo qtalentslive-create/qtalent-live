@@ -2,9 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
+    />
     <!-- Aggressive cache control for fresh content -->
-    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+    />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <meta name="app-version" content="2.0.0" />
@@ -29,37 +35,66 @@
   "
     />
 
-    <meta property="og:title" content="Qtalent.live | Book Live Talent for Any Event" />
+    <meta
+      property="og:title"
+      content="Qtalent.live | Book Live Talent for Any Event"
+    />
     <meta
       property="og:description"
       content="Connect with exceptional live talent for your events. Book verified performers, musicians, artists, and creators with ease."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta
+      property="og:image"
+      content="https://lovable.dev/opengraph-image-p98pqg.png"
+    />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@qtalentlive" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta
+      name="twitter:image"
+      content="https://lovable.dev/opengraph-image-p98pqg.png"
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="shortcut icon" href="/shortcut-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#9b87f5" />
 
     <!-- iOS PWA Support -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="Qtalent" />
-    <link rel="apple-touch-icon" href="/pwa-icon.svg" />
-    <link rel="apple-touch-icon" sizes="192x192" href="/pwa-icon.svg" />
-    <link rel="apple-touch-icon" sizes="512x512" href="/pwa-icon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/android-chrome-192x192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/android-chrome-512x512.png" />
 
     <!-- Android PWA Support -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="application-name" content="Qtalent" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
 
     <!-- Notification Support -->
     <meta name="notification-permissions-policy" content="self" />
     <meta name="push-messaging-permissions-policy" content="self" />
+
+    <!-- Ionic CSS - Native app styling -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@ionic/react@8.7.9/css/ionic.bundle.css"
+    />
+
     <style>
       /* Styles for the react-phone-number-input component */
       .phone-input .PhoneInputInput {

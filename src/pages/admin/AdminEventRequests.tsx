@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Calendar, Clock, MapPin, User, Mail, FileText, Eye, CheckCircle, XCircle, AlertCircle, Reply, Trash2, Send, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { useChat } from '@/contexts/ChatContext';
+// Event request chat disabled - useChat import removed
 
 interface AdminEventRequest {
   id: string;
@@ -33,7 +33,7 @@ interface AdminEventRequest {
 }
 
 export default function AdminEventRequests() {
-  const { openChat } = useChat();
+  // Event request chat disabled
   const [requests, setRequests] = useState<AdminEventRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<AdminEventRequest | null>(null);
@@ -308,9 +308,10 @@ export default function AdminEventRequests() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button
-                          onClick={() => openChat(request.id, 'event_request')}
+                          disabled={true}
                           variant="outline"
                           size="sm"
+                          title="Event request chat disabled"
                         >
                           <MessageCircle className="h-4 w-4" />
                         </Button>
@@ -382,9 +383,10 @@ export default function AdminEventRequests() {
                                     <div className="flex items-center justify-between">
                                       <h3 className="font-semibold mb-2">Admin Response</h3>
                                       <Button
-                                        onClick={() => openChat(selectedRequest.id, 'event_request')}
+                                        disabled={true}
                                         variant="outline"
                                         size="sm"
+                                        title="Event request chat disabled"
                                       >
                                         <MessageCircle className="h-4 w-4 mr-2" />
                                         Open Chat

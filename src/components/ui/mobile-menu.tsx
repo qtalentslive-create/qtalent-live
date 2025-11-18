@@ -1,25 +1,112 @@
-import * as React from "react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Menu, X } from "lucide-react"
-import { useIsMobile } from "@/hooks/use-mobile"
-import { useUnreadNotifications } from "@/hooks/useUnreadNotifications"
+import * as React from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Menu, X } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 
 interface MobileMenuProps {
-  children: React.ReactNode
+  children: React.ReactNode;
+  onTriggerClick?: () => void; // Callback for external trigger
 }
 
-export function MobileMenu({ children }: MobileMenuProps) {
-  const [open, setOpen] = React.useState(false)
-  const isMobile = useIsMobile()
-  const { unreadCount } = useUnreadNotifications()
+// Shared state context for menu control (used by both Header button and MobileMenu)
+const MobileMenuStateContext = React.createContext<{
+  open: boolean;
+  setOpen: (open: boolean) => void;
+} | null>(null);
+
+// Create context for closing the menu (used inside menu content)
+const MobileMenuContext = React.createContext<{
+  closeMenu: () => void;
+  openMenu: () => void;
+  isOpen: boolean;
+}>({
+  closeMenu: () => {},
+  openMenu: () => {},
+  isOpen: false,
+});
+
+export const useMobileMenu = () => React.useContext(MobileMenuContext);
+
+// Export hook to control menu from outside (e.g., Header button)
+export function useMobileMenuControl() {
+  const context = React.useContext(MobileMenuStateContext);
+  if (!context) {
+    throw new Error("useMobileMenuControl must be used within MobileMenuProvider");
+  }
+  return {
+    open: context.open,
+    openMenu: () => context.setOpen(true),
+    closeMenu: () => context.setOpen(false),
+    toggleMenu: () => context.setOpen(!context.open),
+  };
+}
+
+// Provider component that manages the shared state
+export function MobileMenuProvider({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <MobileMenuStateContext.Provider value={{ open, setOpen }}>
+      {children}
+    </MobileMenuStateContext.Provider>
+  );
+}
+
+export function MobileMenu({ children, onTriggerClick }: MobileMenuProps) {
+  const stateContext = React.useContext(MobileMenuStateContext);
+  // Use shared state if available (when inside MobileMenuProvider), otherwise use local state
+  const [localOpen, setLocalOpen] = React.useState(false);
+  const open = stateContext ? stateContext.open : localOpen;
+  const setOpen = stateContext ? stateContext.setOpen : setLocalOpen;
+  
+  const isMobile = useIsMobile();
+  const { unreadCount } = useUnreadNotifications();
+  const isNativeApp = Capacitor.isNativePlatform();
+
+  // Define closeMenu and openMenu before any conditional returns (React Hook rules)
+  const closeMenu = React.useCallback(() => {
+    setOpen(false);
+  }, [setOpen]);
+
+  const openMenu = React.useCallback(() => {
+    setOpen(true);
+  }, [setOpen]);
 
   // Only render on mobile
   if (!isMobile) {
-    return null
+    return null;
   }
 
+  // For native apps: Sheet WITHOUT trigger - button is rendered separately in Header
+  if (isNativeApp) {
+    return (
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent
+          side="right"
+          className={cn(
+            "w-[380px] pt-4 px-1 [&>button]:top-4 [&>button]:right-4 [&>button]:opacity-100 [&>button]:h-9 [&>button]:w-9 [&>button>svg]:h-6 [&>button>svg]:w-6"
+          )}
+        >
+          <MobileMenuContext.Provider value={{ closeMenu, openMenu, isOpen: open }}>
+            <div className="flex flex-col space-y-0 pt-2 pb-6">
+              {children}
+            </div>
+          </MobileMenuContext.Provider>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // For web: Use normal Sheet with trigger
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -31,16 +118,18 @@ export function MobileMenu({ children }: MobileMenuProps) {
           <span className="sr-only">Open menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[280px] sm:w-[400px]">
-        <button 
-          data-mobile-menu-close 
-          className="absolute top-4 right-4 opacity-0 pointer-events-none"
-          onClick={() => setOpen(false)}
-        />
-        <div className="flex flex-col space-y-4 py-4">
-          {children}
-        </div>
+      <SheetContent
+        side="right"
+        className={cn(
+          "w-[280px] sm:w-[400px]"
+        )}
+      >
+        <MobileMenuContext.Provider value={{ closeMenu, openMenu, isOpen: open }}>
+          <div className="flex flex-col space-y-4 py-4">
+            {children}
+          </div>
+        </MobileMenuContext.Provider>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

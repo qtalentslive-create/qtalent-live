@@ -29,3 +29,7 @@ verify_jwt = false
 
 [functions.detect-location]
 verify_jwt = false
+
+[functions.send-event-request-reminders]
+verify_jwt = false
+

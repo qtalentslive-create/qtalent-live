@@ -11,26 +11,55 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/android-chrome-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    },
-    {
-      "src": "/android-chrome-192x192.png",
-      "sizes": "192x192 512x512",
+      "src": "../icons/icon-48.webp",
       "type": "image/png",
+      "sizes": "48x48",
       "purpose": "any maskable"
     },
-
     {
-      "src": "/android-chrome-512x512.png",
-      "sizes": "512x512",
+      "src": "../icons/icon-72.webp",
       "type": "image/png",
+      "sizes": "72x72",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-96.webp",
+      "type": "image/png",
+      "sizes": "96x96",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-128.webp",
+      "type": "image/png",
+      "sizes": "128x128",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-192.webp",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-256.webp",
+      "type": "image/png",
+      "sizes": "256x256",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-512.webp",
+      "type": "image/png",
+      "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["entertainment", "business", "productivity"],
-  "screenshots": [{
+  "categories": [
+    "entertainment",
+    "business",
+    "productivity"
+  ],
+  "screenshots": [
+    {
       "src": "/screenshot1.png",
       "sizes": "1080x1920",
       "type": "image/png"
@@ -39,21 +68,32 @@
       "src": "/screenshot2.png",
       "sizes": "1080x1920",
       "type": "image/png"
-    }],
+    }
+  ],
   "shortcuts": [
     {
       "name": "Find Talent",
       "short_name": "Find",
       "description": "Browse and book talent",
       "url": "/",
-      "icons": [{ "src": "/shortcut-icon.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/shortcut-icon.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "My Dashboard",
       "short_name": "Dashboard",
       "description": "Access your dashboard",
       "url": "/booker-dashboard",
-      "icons": [{ "src": "/shortcut-icon.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/shortcut-icon.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 }

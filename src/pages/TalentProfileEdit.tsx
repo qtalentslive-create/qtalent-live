@@ -2,13 +2,24 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,10 +27,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { countries, musicGenres, actTypes } from "@/lib/countries";
 import { SimpleGalleryUpload } from "@/components/SimpleGalleryUpload";
 import { SimpleAvatarUpload } from "@/components/SimpleAvatarUpload";
-import { User, Save, ArrowLeft, Camera, Plus, X, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  User,
+  Save,
+  ArrowLeft,
+  Camera,
+  Plus,
+  X,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 import { ProFeatureWrapper } from "@/components/ProFeatureWrapper";
 import { useProStatus } from "@/contexts/ProStatusContext";
 import { useProfileSave } from "@/hooks/useProfileSave";
+import { Header } from "@/components/Header";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 
 interface TalentProfile {
   id: string;
@@ -57,7 +80,9 @@ const TalentProfileEdit = () => {
   const [customGenre, setCustomGenre] = useState("");
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [lastSaveStatus, setLastSaveStatus] = useState<"success" | "error" | null>(null);
+  const [lastSaveStatus, setLastSaveStatus] = useState<
+    "success" | "error" | null
+  >(null);
 
   useEffect(() => {
     if (!user) {
@@ -71,7 +96,11 @@ const TalentProfileEdit = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase.from("talent_profiles").select("*").eq("user_id", user.id).maybeSingle();
+      const { data, error } = await supabase
+        .from("talent_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching profile:", error);
@@ -102,7 +131,9 @@ const TalentProfileEdit = () => {
       return u.toString();
     } catch (err) {
       // Fallback for non-standard URLs — append or add
-      return url.includes("?") ? `${url}&t=${Date.now()}` : `${url}?t=${Date.now()}`;
+      return url.includes("?")
+        ? `${url}&t=${Date.now()}`
+        : `${url}?t=${Date.now()}`;
     }
   };
 
@@ -136,7 +167,9 @@ const TalentProfileEdit = () => {
         throw uploadError;
       }
 
-      const { data: urlData } = supabase.storage.from("talent-pictures").getPublicUrl(fileName);
+      const { data: urlData } = supabase.storage
+        .from("talent-pictures")
+        .getPublicUrl(fileName);
 
       const publicUrl = urlData?.publicUrl || "";
       // Add cache buster so browser fetches the fresh image immediately
@@ -174,7 +207,9 @@ const TalentProfileEdit = () => {
 
   const handleGenreToggle = useCallback((genre: string) => {
     setSelectedGenres((prev) => {
-      const newGenres = prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre];
+      const newGenres = prev.includes(genre)
+        ? prev.filter((g) => g !== genre)
+        : [...prev, genre];
       setHasUnsavedChanges(true);
       return newGenres;
     });
@@ -188,7 +223,7 @@ const TalentProfileEdit = () => {
       setHasUnsavedChanges(true);
       setLastSaveStatus(null);
     },
-    [profile],
+    [profile]
   );
 
   const saveChanges = useCallback(
@@ -199,7 +234,10 @@ const TalentProfileEdit = () => {
         act: profile.act,
         location: profile.location,
         nationality: profile.nationality,
-        music_genres: [...selectedGenres, ...(customGenre.trim() ? [customGenre.trim()] : [])],
+        music_genres: [
+          ...selectedGenres,
+          ...(customGenre.trim() ? [customGenre.trim()] : []),
+        ],
         custom_genre: customGenre.trim() || null,
         gallery_images: galleryImages,
         soundcloud_link: profile.soundcloud_link,
@@ -224,7 +262,7 @@ const TalentProfileEdit = () => {
         },
       });
     },
-    [profile, selectedGenres, customGenre, galleryImages, saveProfile, toast],
+    [profile, selectedGenres, customGenre, galleryImages, saveProfile, toast]
   );
 
   const handleGalleryChange = useCallback(
@@ -237,7 +275,7 @@ const TalentProfileEdit = () => {
         await saveChanges({ gallery_images: newImages });
       }
     },
-    [isProUser, profile, saveChanges],
+    [isProUser, profile, saveChanges]
   );
 
   const handleSaveProfile = async () => {
@@ -261,7 +299,9 @@ const TalentProfileEdit = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Profile not found</h1>
-          <Button onClick={() => navigate("/talent-onboarding")}>Complete Your Profile</Button>
+          <Button onClick={() => navigate("/talent-onboarding")}>
+            Complete Your Profile
+          </Button>
         </div>
       </div>
     );
@@ -269,54 +309,104 @@ const TalentProfileEdit = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      {/* Add Header component */}
+      <Header />
+
+      {/* Fix: Add proper padding-top for Capacitor to account for fixed header */}
+      <div
+        className={cn(
+          "container mx-auto",
+          Capacitor.isNativePlatform() ? "px-4 pt-20 pb-4" : "px-4 py-8"
+        )}
+      >
+        {/* Back to Home Button */}
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className={cn("mb-4", Capacitor.isNativePlatform() && "h-10 text-sm")}
+        >
+          <ArrowLeft
+            className={cn(
+              "mr-2",
+              Capacitor.isNativePlatform() ? "h-4 w-4" : "h-4 w-4"
+            )}
+          />
+          Back to Home
+        </Button>
         {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold gradient-text">Edit Profile</h1>
-            <p className="text-muted-foreground">Update your talent profile information</p>
+            <h1
+              className={cn(
+                "font-bold gradient-text",
+                Capacitor.isNativePlatform()
+                  ? "text-lg"
+                  : "text-2xl lg:text-3xl"
+              )}
+            >
+              Edit Profile
+            </h1>
+            <p
+              className={cn(
+                "text-muted-foreground",
+                Capacitor.isNativePlatform() ? "text-xs" : ""
+              )}
+            >
+              Update your talent profile information
+            </p>
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => navigate("/talent-dashboard")} className="flex-shrink-0">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
+            {!Capacitor.isNativePlatform() && (
+              <Button
+                variant="outline"
+                onClick={() => navigate("/talent-dashboard")}
+                className="flex-shrink-0"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            )}
 
-            <Button
-              onClick={handleSaveProfile}
-              disabled={saving || !hasUnsavedChanges}
-              className="flex-shrink-0 hero-button"
-              variant={hasUnsavedChanges ? "default" : "secondary"}
-            >
-              {saving ? (
-                <>
-                  <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Saving...
-                </>
-              ) : lastSaveStatus === "success" ? (
-                <>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Saved
-                </>
-              ) : lastSaveStatus === "error" ? (
-                <>
-                  <AlertCircle className="h-4 w-4 mr-2" />
-                  Try Again
-                </>
-              ) : hasUnsavedChanges ? (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  All Saved
-                </>
-              )}
-            </Button>
+            {hasUnsavedChanges ? (
+              <Button
+                onClick={handleSaveProfile}
+                disabled={saving}
+                className={cn(
+                  "flex-shrink-0 hero-button",
+                  Capacitor.isNativePlatform() && "h-10 text-sm"
+                )}
+                variant="default"
+              >
+                {saving ? (
+                  <>
+                    <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Saving...
+                  </>
+                ) : lastSaveStatus === "success" ? (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Saved
+                  </>
+                ) : lastSaveStatus === "error" ? (
+                  <>
+                    <AlertCircle className="h-4 w-4 mr-2" />
+                    Try Again
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </>
+                )}
+              </Button>
+            ) : (
+              <span className="text-muted-foreground text-sm flex items-center">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                All Saved
+              </span>
+            )}
           </div>
         </div>
 
@@ -346,10 +436,16 @@ const TalentProfileEdit = () => {
                 <Camera className="h-5 w-5 mr-2" />
                 Photo Gallery
               </CardTitle>
-              <CardDescription>Upload up to 5 additional photos to showcase your talent</CardDescription>
+              <CardDescription>
+                Upload up to 5 additional photos to showcase your talent
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ProFeatureWrapper isProFeature={true} featureType="images" showProIcon={true}>
+              <ProFeatureWrapper
+                isProFeature={true}
+                featureType="images"
+                showProIcon={true}
+              >
                 <SimpleGalleryUpload
                   currentImages={galleryImages}
                   onImagesChange={handleGalleryChange}
@@ -372,11 +468,16 @@ const TalentProfileEdit = () => {
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium">Artist Name</Label>
-                  <div className="p-2 bg-muted rounded">{profile.artist_name}</div>
+                  <div className="p-2 bg-muted rounded">
+                    {profile.artist_name}
+                  </div>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Act Type</Label>
-                  <Select value={profile.act} onValueChange={(value) => handleFieldChange("act", value)}>
+                  <Select
+                    value={profile.act}
+                    onValueChange={(value) => handleFieldChange("act", value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -390,10 +491,14 @@ const TalentProfileEdit = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Talent Location (Where you're available)</Label>
+                  <Label className="text-sm font-medium">
+                    Talent Location (Where you're available)
+                  </Label>
                   <Select
                     value={profile.location || ""}
-                    onValueChange={(value) => handleFieldChange("location", value)}
+                    onValueChange={(value) =>
+                      handleFieldChange("location", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select location" />
@@ -411,7 +516,9 @@ const TalentProfileEdit = () => {
                   <Label className="text-sm font-medium">Nationality</Label>
                   <Select
                     value={profile.nationality}
-                    onValueChange={(value) => handleFieldChange("nationality", value)}
+                    onValueChange={(value) =>
+                      handleFieldChange("nationality", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -434,9 +541,19 @@ const TalentProfileEdit = () => {
                     type="number"
                     placeholder="Enter your rate"
                     value={profile.rate_per_hour || ""}
-                    onChange={(e) => handleFieldChange("rate_per_hour", parseFloat(e.target.value) || undefined)}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        "rate_per_hour",
+                        parseFloat(e.target.value) || undefined
+                      )
+                    }
                   />
-                  <Select value={profile.currency} onValueChange={(value) => handleFieldChange("currency", value)}>
+                  <Select
+                    value={profile.currency}
+                    onValueChange={(value) =>
+                      handleFieldChange("currency", value)
+                    }
+                  >
                     <SelectTrigger className="w-24">
                       <SelectValue />
                     </SelectTrigger>
@@ -451,20 +568,29 @@ const TalentProfileEdit = () => {
               </div>
 
               <div>
-                <Label className="text-sm font-medium mb-3 block">Music Genres</Label>
+                <Label className="text-sm font-medium mb-3 block">
+                  Music Genres
+                </Label>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  <div
+                    className={cn(
+                      "flex flex-wrap gap-2 sm:gap-3",
+                      Capacitor.isNativePlatform() && "gap-2"
+                    )}
+                  >
                     {musicGenres.map((genre) => (
-                      <div key={genre} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={genre}
-                          checked={selectedGenres.includes(genre)}
-                          onCheckedChange={() => handleGenreToggle(genre)}
-                        />
-                        <Label htmlFor={genre} className="text-xs font-medium cursor-pointer">
-                          {genre}
-                        </Label>
-                      </div>
+                      <button
+                        key={genre}
+                        type="button"
+                        className={cn(
+                          "genre-bubble",
+                          selectedGenres.includes(genre) ? "selected" : "",
+                          Capacitor.isNativePlatform() ? "text-xs" : "text-sm"
+                        )}
+                        onClick={() => handleGenreToggle(genre)}
+                      >
+                        {genre}
+                      </button>
                     ))}
                   </div>
 
@@ -482,7 +608,11 @@ const TalentProfileEdit = () => {
 
                   <div className="flex flex-wrap gap-1">
                     {selectedGenres.map((genre) => (
-                      <Badge key={genre} variant="secondary" className="text-xs">
+                      <Badge
+                        key={genre}
+                        variant="secondary"
+                        className="text-xs"
+                      >
                         {genre}
                         <button
                           type="button"
@@ -514,33 +644,49 @@ const TalentProfileEdit = () => {
                 <Textarea
                   placeholder="Tell us about yourself and your talent..."
                   value={profile.biography}
-                  onChange={(e) => handleFieldChange("biography", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("biography", e.target.value)
+                  }
                   rows={4}
                 />
               </div>
 
-              <ProFeatureWrapper isProFeature={true} featureType="links" showProIcon={true}>
+              <ProFeatureWrapper
+                isProFeature={true}
+                featureType="links"
+                showProIcon={true}
+              >
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium">SoundCloud Link</Label>
+                    <Label className="text-sm font-medium">
+                      SoundCloud Link
+                    </Label>
                     <p className="text-xs text-muted-foreground mb-2">
-                      Add a link to your DJ mix set or music track (not your profile page). Example: soundcloud.com/artist/track-name
+                      Add a link to your DJ mix set or music track (not your
+                      profile page). Example: soundcloud.com/artist/track-name
                     </p>
                     <Input
                       placeholder="https://soundcloud.com/artist/your-mix-set"
                       value={profile.soundcloud_link || ""}
-                      onChange={(e) => handleFieldChange("soundcloud_link", e.target.value)}
+                      onChange={(e) =>
+                        handleFieldChange("soundcloud_link", e.target.value)
+                      }
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium">YouTube Video Link</Label>
+                    <Label className="text-sm font-medium">
+                      YouTube Video Link
+                    </Label>
                     <p className="text-xs text-muted-foreground mb-2">
-                      Add a link to a specific video performance (not your channel page). Example: youtube.com/watch?v=VIDEO_ID
+                      Add a link to a specific video performance (not your
+                      channel page). Example: youtube.com/watch?v=VIDEO_ID
                     </p>
                     <Input
                       placeholder="https://youtube.com/watch?v=VIDEO_ID"
                       value={profile.youtube_link || ""}
-                      onChange={(e) => handleFieldChange("youtube_link", e.target.value)}
+                      onChange={(e) =>
+                        handleFieldChange("youtube_link", e.target.value)
+                      }
                     />
                   </div>
                 </div>

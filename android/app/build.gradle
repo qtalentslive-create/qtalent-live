@@ -1,4 +1,11 @@
-apply plugin: 'com.android.application'
+// FILE: android/app/build.gradle
+// FINAL CORRECTED VERSION
+
+// 1. WE ADDED THE PLUGIN ID HERE
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services' // 👈 ADDED THIS LINE
+}
 
 android {
     namespace "live.qtalent.app"
@@ -10,9 +17,10 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        aaptOptions {
-             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
-             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+     
+   aaptOptions { [cite: 2]
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps. [cite: 2]
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61 [cite: 3]
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
@@ -40,15 +48,14 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+
+    // 2. WE ADDED THE FIREBASE MESSAGING LIBRARY ("THE MAILBOX")
+    implementation 'com.google.firebase:firebase-messaging:23.4.1' // 👈 ADDED THIS LINE
 }
 
 apply from: 'capacitor.build.gradle'
 
-try {
-    def servicesJSON = file('google-services.json')
-    if (servicesJSON.text) {
-        apply plugin: 'com.google.gms.google-services'
-    }
-} catch(Exception e) {
-    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
-}
+// 3. WE DELETED THE OLD, UNRELIABLE "try...catch" BLOCK FROM HERE
+// 
+// ▼▼▼ FIX: Removed the extra '}' that was here ▼▼▼
+//

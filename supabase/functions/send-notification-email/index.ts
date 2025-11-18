@@ -206,6 +206,7 @@ serve(async (req: Request): Promise<Response> => {
             break;
 
           case 'message':
+            // Handle booking messages
             if (actualMessageId && actualBookingId) {
               const { data: message } = await supabaseAdmin
                 .from('chat_messages')
@@ -239,6 +240,52 @@ serve(async (req: Request): Promise<Response> => {
                   messagePreview: message.content.substring(0, 100) + (message.content.length > 100 ? '...' : ''),
                   bookingId: actualBookingId,
                   isFromTalent,
+                };
+              }
+            }
+            // Handle event request messages
+            else if (actualMessageId && actualEventRequestId) {
+              const { data: message } = await supabaseAdmin
+                .from('chat_messages')
+                .select('content, sender_id')
+                .eq('id', actualMessageId)
+                .maybeSingle();
+
+              const { data: eventRequest } = await supabaseAdmin
+                .from('event_requests')
+                .select('*')
+                .eq('id', actualEventRequestId)
+                .maybeSingle();
+
+              if (message && eventRequest) {
+                // Check if sender is admin
+                const { data: isAdminResult } = await supabaseAdmin.rpc('is_admin', {
+                  user_id_param: message.sender_id
+                });
+                const isFromAdmin = !!isAdminResult;
+
+                // Check if sender is talent
+                const { data: talentProfile } = await supabaseAdmin
+                  .from('talent_profiles')
+                  .select('artist_name, user_id')
+                  .eq('user_id', message.sender_id)
+                  .maybeSingle();
+
+                const isFromTalent = !!talentProfile;
+                const senderName = isFromAdmin 
+                  ? 'QTalent Team'
+                  : isFromTalent
+                  ? talentProfile.artist_name
+                  : eventRequest.booker_name;
+
+                emailData = {
+                  senderName,
+                  eventType: eventRequest.event_type,
+                  eventDate: eventRequest.event_date,
+                  messagePreview: message.content.substring(0, 100) + (message.content.length > 100 ? '...' : ''),
+                  eventRequestId: actualEventRequestId,
+                  isFromTalent,
+                  isFromAdmin,
                 };
               }
             }
@@ -299,6 +346,28 @@ serve(async (req: Request): Promise<Response> => {
               }
             }
             break;
+
+          case 'event_request_talent_match':
+            if (actualEventRequestId) {
+              const { data: eventRequest } = await supabaseAdmin
+                .from('event_requests')
+                .select('*')
+                .eq('id', actualEventRequestId)
+                .single();
+
+              if (eventRequest) {
+                emailData = {
+                  eventRequestId: actualEventRequestId,
+                  event_type: eventRequest.event_type,
+                  event_date: eventRequest.event_date,
+                  event_location: eventRequest.event_location,
+                  talent_type_needed: eventRequest.talent_type_needed,
+                  event_duration: eventRequest.event_duration,
+                  description: eventRequest.description,
+                };
+              }
+            }
+            break;
         }
 
         // Send email via send-email function
@@ -321,8 +390,8 @@ serve(async (req: Request): Promise<Response> => {
       }
     }
 
-    // Send admin notification for admin email types
-    if (emailType.startsWith('admin_') && emailType !== 'admin_support_message' && adminEmailAddress) {
+    // Send admin notification for admin email types (including 'admin' for backward compatibility)
+    if ((emailType.startsWith('admin_') || emailType === 'admin') && emailType !== 'admin_support_message' && adminEmailAddress) {
       let adminEmailData: any = { ...emailData };
 
       // If emailData already contains the necessary data (from frontend), use it directly
@@ -433,7 +502,8 @@ serve(async (req: Request): Promise<Response> => {
           recipientEmail: adminEmailAddress,
           data: {
             ...adminEmailData,
-            recipient_name: 'Admin'
+            recipient_name: 'Admin',
+            eventRequestId: actualEventRequestId || adminEmailData.eventRequestId,
           },
         },
       });

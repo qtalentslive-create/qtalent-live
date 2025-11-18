@@ -6,15 +6,22 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTalentBookingLimit } from "@/hooks/useTalentBookingLimit";
 import { useAdvancedChatFilter } from "@/hooks/useAdvancedChatFilter";
 import { useRecipientTalentStatus } from "@/hooks/useRecipientTalentStatus";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, X, User, Crown, AlertTriangle } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Send, X, Crown, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom"; // ✅ Added import
+import { useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
+import { supabase } from "@/integrations/supabase/client";
 
 export const UniversalChat = () => {
   const {
@@ -27,34 +34,21 @@ export const UniversalChat = () => {
     setUserInteracting,
   } = useChat();
   const { user } = useAuth();
-  const { canReceiveBooking, isProUser, isTalent } = useTalentBookingLimit();
+  const { isProUser, isTalent } = useTalentBookingLimit();
   const { isRecipientNonProTalent } = useRecipientTalentStatus(
     channelInfo,
     user?.id
-  );
-
-  // Log filter parameters for debugging
-  console.log(
-    "[CHAT FILTER DEBUG] isTalent:",
-    isTalent,
-    "isProUser:",
-    isProUser,
-    "isRecipientNonProTalent:",
-    isRecipientNonProTalent
-  );
-  console.log(
-    "[CHAT FILTER DEBUG] Filter bypass calculation: isProUser ||(!isTalent && !isRecipientNonProTalent) =",
-    isProUser || (!isTalent && !isRecipientNonProTalent)
   );
 
   const { filterMessage, updateConversationBuffer } = useAdvancedChatFilter(
     channelInfo,
     user?.id,
     isProUser || (!isTalent && !isRecipientNonProTalent),
-    isTalent // <--- Add this
+    isTalent
   );
   const { toast } = useToast();
-  const navigate = useNavigate(); // ✅ Added safely
+  const navigate = useNavigate();
+  const isNativeApp = Capacitor.isNativePlatform();
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
@@ -64,6 +58,7 @@ export const UniversalChat = () => {
   );
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [senderNames, setSenderNames] = useState<{ [key: string]: string }>({});
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -85,21 +80,86 @@ export const UniversalChat = () => {
     setUserInteracting(isTyping || isHovering || isFocused);
   }, [isTyping, isHovering, isFocused, setUserInteracting]);
 
+  // Fetch sender names for messages
+  useEffect(() => {
+    const fetchSenderNames = async () => {
+      if (!messages.length || !channelInfo) return;
+
+      // Get unique sender IDs that we don't have names for yet
+      const unknownSenders = messages
+        .filter(
+          (msg) => msg.sender_id !== user?.id && !senderNames[msg.sender_id]
+        )
+        .map((msg) => msg.sender_id);
+
+      if (unknownSenders.length === 0) return;
+
+      const names: { [key: string]: string } = {};
+
+      if (channelInfo.type === "booking") {
+        // For booking chats, get booker name and talent name
+        const { data: booking } = await supabase
+          .from("bookings")
+          .select(
+            "user_id, booker_name, talent_id, talent_profiles(user_id, artist_name)"
+          )
+          .eq("id", channelInfo.id)
+          .single();
+
+        if (booking) {
+          // Booker name
+          names[booking.user_id] = booking.booker_name || "Booker";
+
+          // Talent name
+          if (booking.talent_profiles) {
+            const talent = booking.talent_profiles as any;
+            names[talent.user_id] = talent.artist_name || "Talent";
+          }
+        }
+      } else if (channelInfo.type === "event_request") {
+        // For event request chats, get booker name and talent names
+        const { data: eventRequest } = await supabase
+          .from("event_requests")
+          .select("user_id, booker_name")
+          .eq("id", channelInfo.id)
+          .single();
+
+        if (eventRequest) {
+          // Booker name
+          names[eventRequest.user_id] = eventRequest.booker_name || "Booker";
+        }
+
+        // Get talent names for all talent senders
+        const talentUserIds = unknownSenders.filter(
+          (id) => id !== eventRequest?.user_id
+        );
+        if (talentUserIds.length > 0) {
+          const { data: talents } = await supabase
+            .from("talent_profiles")
+            .select("user_id, artist_name")
+            .in("user_id", talentUserIds);
+
+          if (talents) {
+            talents.forEach((talent) => {
+              names[talent.user_id] = talent.artist_name || "Talent";
+            });
+          }
+        }
+      }
+
+      if (Object.keys(names).length > 0) {
+        setSenderNames((prev) => ({ ...prev, ...names }));
+      }
+    };
+
+    fetchSenderNames();
+  }, [messages, channelInfo, user?.id, senderNames]);
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim() && user?.id) {
-      console.log(
-        "[CHAT SEND DEBUG] Attempting to send. isTalent:",
-        isTalent,
-        "isProUser:",
-        isProUser,
-        "isRecipientNonProTalent:",
-        isRecipientNonProTalent
-      );
-
       // Apply advanced filtering for non-pro talents (sender is talent)
       if (isTalent && !isProUser) {
-        console.log("[CHAT SEND DEBUG] Filtering as NON-PRO TALENT sender");
         const filterResult = filterMessage(newMessage);
         if (filterResult.isBlocked) {
           setShowFilteredMessage(filterResult.reason || "Message blocked");
@@ -110,9 +170,6 @@ export const UniversalChat = () => {
 
       // Apply advanced filtering when bookers message non-pro talents (recipient is non-pro talent)
       if (!isTalent && isRecipientNonProTalent) {
-        console.log(
-          "[CHAT SEND DEBUG] Filtering as BOOKER messaging NON-PRO TALENT"
-        );
         const filterResult = filterMessage(newMessage);
         if (filterResult.isBlocked) {
           toast({
@@ -128,69 +185,119 @@ export const UniversalChat = () => {
         }
       }
 
-      console.log("[CHAT SEND DEBUG] Message passed all filters, sending...");
       sendMessage(newMessage);
       setNewMessage("");
       setShowFilteredMessage(null);
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="chat-window fixed bottom-2 right-2 sm:bottom-8 sm:right-8 w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-sm h-[85vh] sm:h-[min(600px,80vh)] z-50">
-      <Card
-        className="w-full h-full flex flex-col shadow-2xl overflow-hidden"
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
+    <Dialog open={isOpen} onOpenChange={closeChat}>
+      <DialogContent
+        hideCloseButton={true}
+        className={`${
+          isNativeApp
+            ? "max-w-full h-[90vh] left-0 right-0 bottom-0 top-auto translate-y-0 rounded-t-2xl"
+            : "max-w-2xl h-[80vh]"
+        } flex flex-col p-0 gap-0`}
       >
-        <CardHeader className="flex flex-row items-center justify-between p-3 sm:p-4 border-b">
-          <CardTitle className="text-sm sm:text-base font-semibold">
-            {channelInfo?.type === "booking"
-              ? "Booking Chat"
-              : "Event Request Chat"}
-          </CardTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={closeChat}
-            className="h-8 w-8 sm:h-10 sm:w-10"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </CardHeader>
-        <CardContent className="p-0 flex-1 flex flex-col min-h-0">
-          <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4 min-h-0">
-            {loadingMessages ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-              </div>
-            ) : messages.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  Start the conversation!
-                </p>
-              </div>
-            ) : (
-              messages.map((msg) => (
+        <DialogHeader
+          className={`${isNativeApp ? "px-3 py-2.5" : "px-4 py-3"} border-b`}
+        >
+          <div className="flex items-center justify-between">
+            <DialogTitle
+              className={isNativeApp ? "text-base font-semibold" : ""}
+            >
+              {channelInfo?.type === "booking"
+                ? "Booking Chat"
+                : "Event Request Chat"}
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={closeChat}
+              className={isNativeApp ? "h-8 w-8" : "h-8 w-8"}
+            >
+              <X className={isNativeApp ? "h-4 w-4" : "h-4 w-4"} />
+            </Button>
+          </div>
+        </DialogHeader>
+
+        <div
+          className={`flex-1 overflow-y-auto ${
+            isNativeApp ? "p-3" : "p-4"
+          } space-y-3 min-h-0`}
+        >
+          {loadingMessages ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <p
+                className={`${
+                  isNativeApp ? "text-sm" : ""
+                } text-muted-foreground text-center`}
+              >
+                Start the conversation!
+              </p>
+            </div>
+          ) : (
+            messages.map((msg) => {
+              const senderName =
+                senderNames[msg.sender_id] ||
+                msg.sender_id.slice(0, 2).toUpperCase();
+              const displayInitials = senderNames[msg.sender_id]
+                ? senderNames[msg.sender_id]
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()
+                    .slice(0, 2)
+                : msg.sender_id.slice(0, 2).toUpperCase();
+
+              return (
                 <div
                   key={msg.id}
                   className={cn(
-                    "flex items-end gap-1.5 sm:gap-2",
+                    "flex items-end gap-2",
                     msg.sender_id === user?.id ? "justify-end" : "justify-start"
                   )}
                 >
                   {msg.sender_id !== user?.id && (
-                    <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
-                      <AvatarFallback>
-                        <User className="h-3 w-3 sm:h-4 sm:w-4" />
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="flex flex-col items-start gap-1">
+                      <Avatar
+                        className={cn(
+                          isNativeApp
+                            ? "h-7 w-7 flex-shrink-0"
+                            : "h-8 w-8 flex-shrink-0"
+                        )}
+                      >
+                        <AvatarFallback
+                          className={isNativeApp ? "text-xs" : ""}
+                        >
+                          {displayInitials}
+                        </AvatarFallback>
+                      </Avatar>
+                      {senderNames[msg.sender_id] && (
+                        <p
+                          className={cn(
+                            "text-xs text-muted-foreground",
+                            isNativeApp ? "text-[10px]" : ""
+                          )}
+                        >
+                          {senderNames[msg.sender_id]}
+                        </p>
+                      )}
+                    </div>
                   )}
                   <div
                     className={cn(
-                      "chat-bubble",
-                      "max-w-[75%] sm:max-w-xs p-2 sm:p-3 rounded-2xl text-xs sm:text-sm break-words",
+                      `max-w-[75%] ${
+                        isNativeApp
+                          ? "p-2.5 rounded-lg text-sm"
+                          : "p-3 rounded-2xl text-sm"
+                      } break-words`,
                       msg.sender_id === user?.id
                         ? "bg-primary text-primary-foreground rounded-br-none"
                         : "bg-muted rounded-bl-none"
@@ -199,7 +306,7 @@ export const UniversalChat = () => {
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                     <p
                       className={cn(
-                        "text-[10px] sm:text-xs mt-1",
+                        `${isNativeApp ? "text-[10px]" : "text-xs"} mt-1`,
                         msg.sender_id === user?.id
                           ? "text-primary-foreground/70"
                           : "text-muted-foreground/70"
@@ -209,108 +316,154 @@ export const UniversalChat = () => {
                     </p>
                   </div>
                 </div>
-              ))
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+              );
+            })
+          )}
+          <div ref={messagesEndRef} />
+        </div>
 
-          <div className="p-2 sm:p-3 border-t bg-background flex-shrink-0">
-            {/* Pro upgrade prompt for non-pro talents */}
-            {isTalent && !isProUser && (
-              <div className="mb-1.5 p-1.5 sm:p-2 bg-primary/5 dark:bg-primary/10 rounded border border-primary/20">
-                <p className="text-[9px] sm:text-[10px] text-muted-foreground mb-1 leading-tight flex items-center gap-1">
-                  <Crown className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary flex-shrink-0" />
-                  <span>
-                    <strong>Pro:</strong> Share contact info directly
-                  </span>
-                </p>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    navigate("/pricing"); // This opens the subscription page
-                    closeChat(); // This immediately closes the chat window
-                  }}
-                  className="h-5 sm:h-6 text-[9px] sm:text-[10px] w-full"
-                  variant="default"
-                >
-                  Upgrade
-                </Button>
-              </div>
-            )}
-
-            {/* Alert when bookers message non-pro talents */}
-            {!isTalent && isRecipientNonProTalent && (
-              <div className="mb-1.5 p-1.5 sm:p-2 bg-primary/5 dark:bg-primary/10 rounded border border-primary/20">
-                <p className="text-[9px] sm:text-[10px] text-muted-foreground font-medium flex items-center gap-1 leading-tight">
-                  <AlertTriangle className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary flex-shrink-0" />
-                  <span>
-                    This talent can't receive contact details (Free plan)
-                  </span>
-                </p>
-              </div>
-            )}
-
-            {/* Filtered message notification */}
-            {showFilteredMessage && (
-              <div className="mb-1.5 p-1.5 sm:p-2 bg-destructive/10 rounded border border-destructive/20">
-                <p className="text-[9px] sm:text-[10px] text-destructive font-medium leading-tight">
-                  {showFilteredMessage}
-                </p>
-              </div>
-            )}
-
-            <form
-              onSubmit={handleSendMessage}
-              className="flex items-end gap-1.5 sm:gap-2"
+        <div
+          className={`border-t ${
+            isNativeApp ? "p-3" : "p-4"
+          } flex-shrink-0 space-y-2`}
+        >
+          {/* Pro upgrade prompt - Compact and native-looking */}
+          {isTalent && !isProUser && (
+            <div
+              className={`flex items-center gap-2 ${
+                isNativeApp
+                  ? "p-2 bg-primary/5 rounded-md border border-primary/15"
+                  : "p-2 bg-primary/10 rounded-lg border border-primary/20"
+              }`}
             >
-              <Textarea
-                value={newMessage}
-                onChange={(e) => {
-                  setNewMessage(e.target.value);
-                  setIsTyping(e.target.value.length > 0);
-
-                  if (typingTimeoutRef.current)
-                    clearTimeout(typingTimeoutRef.current);
-
-                  typingTimeoutRef.current = setTimeout(() => {
-                    if (!isFocused) setIsTyping(false);
-                  }, 5000);
-                }}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => {
-                  setIsFocused(false);
-                  setTimeout(() => {
-                    if (!isFocused) setIsTyping(false);
-                  }, 1000);
-                }}
-                placeholder={
-                  isTalent && !isProUser
-                    ? "Upgrade to Pro to share contact details..."
-                    : !isTalent && isRecipientNonProTalent
-                    ? "This talent can't receive contact details (Free plan)..."
-                    : "Type your message..."
-                }
-                className="chat-input resize-none min-h-[44px] max-h-[88px] sm:min-h-[40px] sm:max-h-[80px] text-xs sm:text-sm leading-tight py-2 px-2.5 sm:px-3 placeholder:text-[10px] sm:placeholder:text-xs placeholder:text-muted-foreground/70"
-                rows={1}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage(e);
-                  }
-                }}
+              <Crown
+                className={`${
+                  isNativeApp ? "h-3.5 w-3.5" : "h-4 w-4"
+                } text-primary flex-shrink-0`}
               />
-              <Button
-                type="submit"
-                size="icon"
-                className="h-[44px] w-[44px] sm:h-[40px] sm:w-[40px] flex-shrink-0"
-                disabled={!newMessage.trim()}
+              <p
+                className={`${
+                  isNativeApp ? "text-xs flex-1" : "text-sm flex-1"
+                }`}
               >
-                <Send className="h-4 w-4" />
+                <strong className={isNativeApp ? "text-xs" : ""}>Pro:</strong>{" "}
+                Share contact info
+              </p>
+              <Button
+                size={isNativeApp ? "sm" : "sm"}
+                onClick={() => {
+                  navigate("/pricing");
+                  closeChat();
+                }}
+                className={isNativeApp ? "h-7 px-2.5 text-xs font-medium" : ""}
+              >
+                Upgrade
               </Button>
-            </form>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            </div>
+          )}
+
+          {/* Alert for bookers - Compact */}
+          {!isTalent && isRecipientNonProTalent && (
+            <div
+              className={`flex items-center gap-2 ${
+                isNativeApp
+                  ? "p-2 bg-yellow-500/5 rounded-md border border-yellow-500/15"
+                  : "p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/20"
+              }`}
+            >
+              <AlertTriangle
+                className={`${
+                  isNativeApp ? "h-3.5 w-3.5" : "h-4 w-4"
+                } text-yellow-600 flex-shrink-0`}
+              />
+              <p
+                className={`${
+                  isNativeApp ? "text-xs" : "text-sm"
+                } text-yellow-600`}
+              >
+                {isNativeApp
+                  ? "Talent can't receive contact details"
+                  : "This talent can't receive contact details (Free plan)"}
+              </p>
+            </div>
+          )}
+
+          {/* Filtered message - Compact */}
+          {showFilteredMessage && (
+            <div
+              className={`flex items-center gap-2 ${
+                isNativeApp
+                  ? "p-2 bg-destructive/5 rounded-md border border-destructive/15"
+                  : "p-2 bg-destructive/10 rounded-lg border border-destructive/20"
+              }`}
+            >
+              <AlertTriangle
+                className={`${
+                  isNativeApp ? "h-3.5 w-3.5" : "h-4 w-4"
+                } text-destructive flex-shrink-0`}
+              />
+              <p
+                className={`${
+                  isNativeApp ? "text-xs" : "text-sm"
+                } text-destructive`}
+              >
+                {showFilteredMessage}
+              </p>
+            </div>
+          )}
+
+          {/* Message Input */}
+          <form
+            onSubmit={handleSendMessage}
+            className={`flex items-end gap-2 ${isNativeApp ? "gap-2" : ""}`}
+          >
+            <Textarea
+              value={newMessage}
+              onChange={(e) => {
+                setNewMessage(e.target.value);
+                setIsTyping(e.target.value.length > 0);
+                if (typingTimeoutRef.current)
+                  clearTimeout(typingTimeoutRef.current);
+                typingTimeoutRef.current = setTimeout(() => {
+                  if (!isFocused) setIsTyping(false);
+                }, 5000);
+              }}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => {
+                setIsFocused(false);
+                setTimeout(() => {
+                  if (!isFocused) setIsTyping(false);
+                }, 1000);
+              }}
+              placeholder="Type your message..."
+              rows={1}
+              className={`flex-1 ${
+                isNativeApp
+                  ? "min-h-[48px] text-sm resize-none"
+                  : "min-h-[60px] resize-none"
+              }`}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage(e);
+                }
+              }}
+            />
+            <Button
+              type="submit"
+              disabled={!newMessage.trim()}
+              size="icon"
+              className={
+                isNativeApp
+                  ? "h-10 w-10 flex-shrink-0"
+                  : "h-10 w-10 flex-shrink-0"
+              }
+            >
+              <Send className={isNativeApp ? "h-4 w-4" : "h-4 w-4"} />
+            </Button>
+          </form>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

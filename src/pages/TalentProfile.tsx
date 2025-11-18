@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SoundCloudEmbed } from "@/components/SoundCloudEmbed";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
+import { Capacitor } from "@capacitor/core";
 
 interface TalentProfile {
   id: string;
@@ -44,6 +45,10 @@ export default function TalentProfile() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const bookButtonRef = useRef<HTMLButtonElement>(null);
+  const profileImageRef = useRef<HTMLDivElement>(null);
+  const profileEndRef = useRef<HTMLDivElement>(null);
+  const profileContainerRef = useRef<HTMLDivElement>(null);
+  const isCapacitorNative = Capacitor.isNativePlatform();
   
   const [talent, setTalent] = useState<TalentProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -95,9 +100,27 @@ export default function TalentProfile() {
     fetchTalent();
   }, [id, toast]);
 
-  // Auto-scroll to Book button on page load
+  // Auto-scroll to beginning of profile (picture, details, book button) on page load (Capacitor native apps only)
   useEffect(() => {
-    if (!loading && talent && bookButtonRef.current && !isOwnProfile) {
+    if (!loading && talent && !isOwnProfile && isCapacitorNative) {
+      const scrollToBeginning = () => {
+        // Scroll to the beginning of the profile to show picture, details, and book button
+        if (profileImageRef.current) {
+          profileImageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (profileContainerRef.current) {
+          // Fallback: scroll to top of the container
+          profileContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          // Final fallback: scroll to top of page
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      };
+
+      // Small delay to ensure page is fully rendered
+      const timer = setTimeout(scrollToBeginning, 300);
+      return () => clearTimeout(timer);
+    } else if (!loading && talent && bookButtonRef.current && !isOwnProfile && !isCapacitorNative) {
+      // For web: scroll to button only
       const scrollToButton = () => {
         const button = bookButtonRef.current;
         if (!button) return;
@@ -111,11 +134,10 @@ export default function TalentProfile() {
         }
       };
 
-      // Small delay to ensure page is fully rendered
       const timer = setTimeout(scrollToButton, 300);
       return () => clearTimeout(timer);
     }
-  }, [loading, talent, isOwnProfile, isMobile]);
+  }, [loading, talent, isOwnProfile, isMobile, isCapacitorNative]);
 
   // Auto-open booking form if redirected from auth with intent
   useEffect(() => {
@@ -172,13 +194,13 @@ export default function TalentProfile() {
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto" ref={profileContainerRef}>
           {/* Profile Header */}
           <Card className="mb-8">
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row gap-8">
                 {/* Profile Image */}
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0" ref={profileImageRef}>
                   <div className="w-48 h-48 rounded-lg overflow-hidden bg-muted">
                     {talent.picture_url ? (
                       <img 
@@ -329,6 +351,9 @@ export default function TalentProfile() {
               </CardContent>
             </Card>
           )}
+
+          {/* End marker for scrolling - invisible but used for scroll target */}
+          <div ref={profileEndRef} style={{ height: '1px', visibility: 'hidden' }} aria-hidden="true" />
         </div>
       </main>
 

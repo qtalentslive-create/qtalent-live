@@ -199,16 +199,9 @@ export function NotificationList() {
         navigate('/booker-dashboard');
       }
     } else if (notification.event_request_id) {
-      // Always go to booker dashboard for event requests (only bookers create them)
+      // Event request chat disabled - just navigate to dashboard
       navigate('/booker-dashboard');
-      
-      // Open chat for the event request after navigation
-      setTimeout(() => {
-        const chatEvent = new CustomEvent('openChat', { 
-          detail: { id: notification.event_request_id, type: 'event_request' }
-        });
-        window.dispatchEvent(chatEvent);
-      }, 500);
+      // Chat functionality for event requests has been disabled
     } else if (notification.message_id) {
       // Navigate to chat - implementation depends on your chat structure
       navigate('/talent-dashboard');

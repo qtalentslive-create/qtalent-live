@@ -17,6 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 
 interface SubscriptionManagementModalProps {
   open: boolean;
@@ -28,6 +30,9 @@ interface SubscriptionManagementModalProps {
     currentPeriodEnd?: string;
     subscriptionStartedAt?: string;
     paypal_subscription_id?: string;
+    provider?: string; // 'paypal' or 'manual'
+    manualGrantExpiresAt?: string;
+    grantedByAdminId?: string;
   };
 }
 
@@ -39,6 +44,7 @@ export function SubscriptionManagementModal({
   const { toast } = useToast();
   const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const isNativeApp = Capacitor.isNativePlatform();
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
@@ -75,13 +81,51 @@ export function SubscriptionManagementModal({
   const isExpiringSoon = daysRemaining <= 7 && daysRemaining > 0;
 
   const handleCancelSubscription = () => {
+    // Check if subscription was granted by admin
+    const isAdminGranted = subscriptionData?.grantedByAdminId || subscriptionData?.provider === 'manual';
+    
+    if (isAdminGranted) {
+      toast({ 
+        title: "Cannot Cancel Subscription", 
+        description: "You were granted Pro by an admin and cannot cancel this subscription. Please contact support if you have questions.",
+        variant: "default",
+        duration: 5000,
+      });
+      return;
+    }
+    
+    // Check if PayPal subscription ID exists
+    if (!subscriptionData?.paypal_subscription_id) {
+      toast({ 
+        title: "Error", 
+        description: "Subscription ID not found. Cannot cancel.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
     // Instead of redirecting, open our own confirmation dialog
     setIsConfirmingCancel(true);
   };
 
   const executeCancellation = async () => {
+    // Double-check admin grant before executing
+    const isAdminGranted = subscriptionData?.grantedByAdminId || subscriptionData?.provider === 'manual';
+    
+    if (isAdminGranted) {
+      toast({ 
+        title: "Cannot Cancel Subscription", 
+        description: "You were granted Pro by an admin and cannot cancel this subscription.",
+        variant: "default",
+        duration: 5000,
+      });
+      setIsConfirmingCancel(false);
+      return;
+    }
+    
     if (!subscriptionData?.paypal_subscription_id) {
       toast({ title: "Error", description: "Subscription ID not found. Cannot cancel.", variant: "destructive" });
+      setIsConfirmingCancel(false);
       return;
     }
     setIsCancelling(true);
@@ -131,97 +175,262 @@ export function SubscriptionManagementModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Crown className="h-5 w-5 text-brand-warning" />
+        <DialogContent className={cn(
+          "max-w-2xl max-h-[90vh] overflow-y-auto",
+          isNativeApp && "max-w-full mx-0 rounded-t-[28px] p-0 h-[92vh] max-h-[92vh] flex flex-col bg-background shadow-2xl"
+        )}>
+          {/* Native-style drag handle */}
+          {isNativeApp && (
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+            </div>
+          )}
+          
+          <DialogHeader className={cn(
+            isNativeApp && "pb-3 pt-4 px-5 border-b border-border/30 bg-background"
+          )}>
+            <DialogTitle className={cn(
+              "flex items-center gap-2",
+              isNativeApp ? "text-xl font-bold tracking-tight" : "text-xl"
+            )}>
+              <Crown className={cn("h-5 w-5 text-brand-warning", isNativeApp && "h-6 w-6")} />
               Subscription Management
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className={cn(
+            "space-y-6 py-4",
+            isNativeApp && "flex-1 overflow-y-auto px-5 pb-6 pt-4 space-y-5"
+          )}>
             {subscriptionData?.isProSubscriber ? (
               <>
                 {/* Cards for plan, benefits, etc. remain the same */}
-                <Card className="p-6 border-brand-accent/20 bg-gradient-to-br from-brand-accent/5 to-transparent">
-                  <div className="flex items-center justify-between mb-4">
+                <Card className={cn(
+                  "border-brand-accent/20 bg-gradient-to-br from-brand-accent/5 to-transparent",
+                  isNativeApp ? "p-5 rounded-2xl border-2 shadow-lg" : "p-6"
+                )}>
+                  <div className={cn(
+                    "flex items-center justify-between",
+                    isNativeApp ? "mb-4" : "mb-4"
+                  )}>
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-brand-accent/10 rounded-lg">
-                        <Crown className="h-5 w-5 text-brand-accent" />
+                      <div className={cn(
+                        "bg-brand-accent/10 rounded-lg",
+                        isNativeApp ? "p-2.5" : "p-2"
+                      )}>
+                        <Crown className={cn(
+                          "text-brand-accent",
+                          isNativeApp ? "h-5 w-5" : "h-5 w-5"
+                        )} />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg">{getPlanDisplayName(subscriptionData.planId)}</h3>
-                        <p className="text-sm text-muted-foreground">$0.25/month • Active</p>
+                        <h3 className={cn(
+                          "font-semibold",
+                          isNativeApp ? "text-base tracking-tight" : "text-lg"
+                        )}>
+                          {getPlanDisplayName(subscriptionData.planId)}
+                        </h3>
+                        <p className={cn(
+                          "text-muted-foreground",
+                          isNativeApp ? "text-xs" : "text-sm"
+                        )}>
+                          $0.25/month • Active
+                        </p>
                       </div>
                     </div>
-                    <Badge className="bg-brand-success text-background">Active</Badge>
+                    <Badge className={cn(
+                      "bg-brand-success text-background",
+                      isNativeApp && "text-xs px-2 py-0.5"
+                    )}>
+                      Active
+                    </Badge>
                   </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
+                  <div className={cn("space-y-3", isNativeApp && "space-y-2.5")}>
+                    <div className={cn(
+                      "flex items-center justify-between",
+                      isNativeApp ? "text-xs" : "text-sm"
+                    )}>
                       <span className="text-muted-foreground">Billing cycle progress</span>
                       <span className="font-medium">{daysRemaining} days remaining</span>
                     </div>
-                    <Progress value={progress} className="h-2" />
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <Progress value={progress} className={cn("h-2", isNativeApp && "h-1.5")} />
+                    <div className={cn(
+                      "flex items-center justify-between text-muted-foreground",
+                      isNativeApp ? "text-[10px] leading-tight" : "text-xs"
+                    )}>
                       <span>Started: {formatDate(subscriptionData.subscriptionStartedAt)}</span>
                       <span>Next billing: {formatDate(subscriptionData.currentPeriodEnd)}</span>
                     </div>
                   </div>
                   {isExpiringSoon && (
-                    <div className="mt-4 p-3 bg-brand-warning/10 border border-brand-warning/20 rounded-lg flex items-center gap-2">
-                      <AlertTriangle className="h-4 w-4 text-brand-warning" />
-                      <span className="text-sm">Your subscription renews in {daysRemaining} days</span>
+                    <div className={cn(
+                      "mt-4 p-3 bg-brand-warning/10 border border-brand-warning/20 rounded-lg flex items-center gap-2",
+                      isNativeApp && "mt-3 p-2.5 rounded-xl"
+                    )}>
+                      <AlertTriangle className={cn(
+                        "text-brand-warning",
+                        isNativeApp ? "h-3.5 w-3.5" : "h-4 w-4"
+                      )} />
+                      <span className={cn(
+                        isNativeApp ? "text-xs leading-relaxed" : "text-sm"
+                      )}>
+                        Your subscription renews in {daysRemaining} days
+                      </span>
                     </div>
                   )}
                 </Card>
-                <Card className="p-6">
-                  <h4 className="font-semibold mb-4 flex items-center gap-2">
-                    <CreditCard className="h-4 w-4" /> Your Pro Benefits
+                <Card className={cn(
+                  isNativeApp ? "p-5 rounded-2xl shadow-lg" : "p-6"
+                )}>
+                  <h4 className={cn(
+                    "font-semibold mb-4 flex items-center gap-2",
+                    isNativeApp ? "text-base" : ""
+                  )}>
+                    <CreditCard className={cn(
+                      isNativeApp ? "h-4 w-4" : "h-4 w-4"
+                    )} /> Your Pro Benefits
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className={cn(
+                    "grid gap-3",
+                    isNativeApp ? "grid-cols-1 gap-2.5" : "grid-cols-1 md:grid-cols-2"
+                  )}>
                     {benefits.map((benefit, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
-                        <span className="text-lg">{benefit.icon}</span>
+                      <div key={index} className={cn(
+                        "flex items-center gap-3 bg-secondary/50 rounded-lg",
+                        isNativeApp ? "p-2.5 rounded-xl" : "p-3"
+                      )}>
+                        <span className={cn(isNativeApp ? "text-base" : "text-lg")}>{benefit.icon}</span>
                         <div>
-                          <p className="text-sm font-medium">{benefit.title}</p>
-                          <p className="text-xs text-muted-foreground">{benefit.description}</p>
+                          <p className={cn(
+                            "font-medium",
+                            isNativeApp ? "text-xs" : "text-sm"
+                          )}>
+                            {benefit.title}
+                          </p>
+                          <p className={cn(
+                            "text-muted-foreground",
+                            isNativeApp ? "text-[10px] leading-tight" : "text-xs"
+                          )}>
+                            {benefit.description}
+                          </p>
                         </div>
                       </div>
                     ))}
                   </div>
                 </Card>
-                <Card className="p-6">
-                  <h4 className="font-semibold mb-4 flex items-center gap-2">
-                    <Calendar className="h-4 w-4" /> Manage Subscription
+                <Card className={cn(
+                  isNativeApp ? "p-5 rounded-2xl shadow-lg" : "p-6"
+                )}>
+                  <h4 className={cn(
+                    "font-semibold mb-4 flex items-center gap-2",
+                    isNativeApp ? "text-base" : ""
+                  )}>
+                    <Calendar className={cn(
+                      isNativeApp ? "h-4 w-4" : "h-4 w-4"
+                    )} /> Manage Subscription
                   </h4>
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3 p-4 bg-secondary/30 rounded-lg">
-                      <AlertTriangle className="h-5 w-5 text-brand-warning mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium mb-1">Cancellation Policy</p>
-                        <p className="text-xs text-muted-foreground">
-                          If you cancel, you'll keep Pro access until {formatDate(subscriptionData.currentPeriodEnd)}.
-                          After that, your account will revert to the free plan.
-                        </p>
+                  <div className={cn("space-y-4", isNativeApp && "space-y-3")}>
+                    {/* Check if subscription was granted by admin */}
+                    {(subscriptionData?.grantedByAdminId || subscriptionData?.provider === 'manual') ? (
+                      <div className={cn(
+                        "flex items-start gap-3 bg-primary/10 border-2 border-primary/20 rounded-lg",
+                        isNativeApp ? "p-3 rounded-xl" : "p-4"
+                      )}>
+                        <Crown className={cn(
+                          "text-brand-warning mt-0.5 flex-shrink-0",
+                          isNativeApp ? "h-4 w-4" : "h-5 w-5"
+                        )} />
+                        <div className="flex-1">
+                          <p className={cn(
+                            "font-medium mb-1 text-foreground",
+                            isNativeApp ? "text-xs" : "text-sm"
+                          )}>
+                            Admin-Granted Pro Subscription
+                          </p>
+                          <p className={cn(
+                            "text-muted-foreground",
+                            isNativeApp ? "text-[10px] leading-relaxed" : "text-xs"
+                          )}>
+                            You were granted Pro by an admin and cannot cancel this subscription. Please contact support if you have questions.
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <Button variant="destructive" onClick={handleCancelSubscription} className="w-full">
-                      Cancel Subscription
-                    </Button>
-                    <p className="text-xs text-muted-foreground text-center">
-                      Your subscription will be cancelled via PayPal.
-                    </p>
+                    ) : (
+                      <>
+                        <div className={cn(
+                          "flex items-start gap-3 bg-secondary/30 rounded-lg",
+                          isNativeApp ? "p-3 rounded-xl" : "p-4"
+                        )}>
+                          <AlertTriangle className={cn(
+                            "text-brand-warning mt-0.5",
+                            isNativeApp ? "h-4 w-4" : "h-5 w-5"
+                          )} />
+                          <div className="flex-1">
+                            <p className={cn(
+                              "font-medium mb-1",
+                              isNativeApp ? "text-xs" : "text-sm"
+                            )}>
+                              Cancellation Policy
+                            </p>
+                            <p className={cn(
+                              "text-muted-foreground",
+                              isNativeApp ? "text-[10px] leading-relaxed" : "text-xs"
+                            )}>
+                              If you cancel, you'll keep Pro access until {formatDate(subscriptionData.currentPeriodEnd)}.
+                              After that, your account will revert to the free plan.
+                            </p>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="destructive" 
+                          onClick={handleCancelSubscription} 
+                          className={cn(
+                            "w-full",
+                            isNativeApp && "h-12 text-base font-semibold rounded-xl shadow-md active:scale-[0.98] transition-transform"
+                          )}
+                        >
+                          Cancel Subscription
+                        </Button>
+                        <p className={cn(
+                          "text-muted-foreground text-center",
+                          isNativeApp ? "text-[10px] leading-tight" : "text-xs"
+                        )}>
+                          Your subscription will be cancelled via PayPal.
+                        </p>
+                      </>
+                    )}
                   </div>
                 </Card>
               </>
             ) : (
-              <Card className="p-6 text-center">
-                <Crown className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Active Subscription</h3>
-                <p className="text-muted-foreground mb-4">
+              <Card className={cn(
+                "text-center",
+                isNativeApp ? "p-5 rounded-2xl shadow-lg" : "p-6"
+              )}>
+                <Crown className={cn(
+                  "text-muted-foreground mx-auto mb-4",
+                  isNativeApp ? "h-10 w-10" : "h-12 w-12"
+                )} />
+                <h3 className={cn(
+                  "font-semibold mb-2",
+                  isNativeApp ? "text-base" : "text-lg"
+                )}>
+                  No Active Subscription
+                </h3>
+                <p className={cn(
+                  "text-muted-foreground mb-4",
+                  isNativeApp ? "text-sm leading-relaxed" : ""
+                )}>
                   You don't have an active Pro subscription. Upgrade to unlock all Pro features!
                 </p>
-                <Button onClick={() => onOpenChange(false)}>Close</Button>
+                <Button 
+                  onClick={() => onOpenChange(false)}
+                  className={cn(
+                    isNativeApp && "h-12 text-base font-semibold rounded-xl"
+                  )}
+                >
+                  Close
+                </Button>
               </Card>
             )}
           </div>
@@ -229,17 +438,37 @@ export function SubscriptionManagementModal({
       </Dialog>
 
       <AlertDialog open={isConfirmingCancel} onOpenChange={setIsConfirmingCancel}>
-        <AlertDialogContent>
+        <AlertDialogContent className={cn(
+          isNativeApp && "max-w-[calc(100vw-2rem)] mx-4 rounded-2xl"
+        )}>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className={cn(
+              isNativeApp && "text-lg font-bold"
+            )}>
+              Are you sure?
+            </AlertDialogTitle>
+            <AlertDialogDescription className={cn(
+              isNativeApp && "text-sm leading-relaxed"
+            )}>
               This will cancel your Pro subscription. You will retain Pro access until the end of your current billing
               period.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Go Back</AlertDialogCancel>
-            <AlertDialogAction onClick={executeCancellation} disabled={isCancelling}>
+          <AlertDialogFooter className={cn(
+            isNativeApp && "flex-col gap-2 sm:flex-row"
+          )}>
+            <AlertDialogCancel className={cn(
+              isNativeApp && "w-full sm:w-auto h-11 text-base font-semibold rounded-xl"
+            )}>
+              Go Back
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={executeCancellation} 
+              disabled={isCancelling}
+              className={cn(
+                isNativeApp && "w-full sm:w-auto h-11 text-base font-semibold rounded-xl active:scale-[0.98] transition-transform"
+              )}
+            >
               {isCancelling ? "Cancelling..." : "Yes, Cancel Subscription"}
             </AlertDialogAction>
           </AlertDialogFooter>
