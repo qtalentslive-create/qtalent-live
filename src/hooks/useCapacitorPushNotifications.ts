@@ -76,10 +76,10 @@ export const useCapacitorPushNotifications = () => {
           (notification) => {
             console.log("Push notification action performed:", notification);
 
-            // Navigate to the relevant page if URL is provided
-            const data = notification.notification.data;
-            if (data?.url) {
-              window.location.href = data.url;
+            const url = notification.notification.data?.url;
+            if (url) {
+              console.log(`Saving pending notification URL: ${url}`);
+              sessionStorage.setItem("pending_notification_url", url);
             }
           }
         );
