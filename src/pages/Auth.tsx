@@ -20,7 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEmailNotifications } from "@/hooks/useEmailNotifications";
 import { useAutoScrollOnInput } from "@/hooks/useAutoScrollOnInput";
 import { Capacitor } from "@capacitor/core";
-import { ArrowLeft, Mail } from "lucide-react";
+import { ArrowLeft, Loader2, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 // import { registerDeviceForNotifications } from "@/hooks/usePushNotifications"; // 👈 REMOVED
 
@@ -33,6 +33,7 @@ const Auth = () => {
   const [authMethod, setAuthMethod] = useState<"password" | "magiclink">(
     "password"
   );
+  const [autoSignInPending, setAutoSignInPending] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -49,6 +50,7 @@ const Auth = () => {
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const autoSubmitAttemptedRef = useRef(false);
+  const autoSubmitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Auto-scroll when inputs are focused - use the active tab's submit button
   // GENTLE auto-scrolling: small scroll to show next field, not aggressive
@@ -109,6 +111,11 @@ const Auth = () => {
     
     // Only auto-submit on native app, login tab, password method
     if (!isNativeApp || activeTab !== "login" || authMethod !== "password" || loading) {
+      if (!loading && autoSubmitTimerRef.current) {
+        clearTimeout(autoSubmitTimerRef.current);
+        autoSubmitTimerRef.current = null;
+        setAutoSignInPending(false);
+      }
       return;
     }
 
@@ -119,21 +126,34 @@ const Auth = () => {
     // Auto-submit if both fields are filled and we haven't attempted yet
     if (emailFilled && passwordFilled && !autoSubmitAttemptedRef.current) {
       autoSubmitAttemptedRef.current = true;
+      setAutoSignInPending(true);
       
       // Small delay to ensure autofill is complete
-      const autoSubmitTimer = setTimeout(() => {
+      autoSubmitTimerRef.current = setTimeout(() => {
+        autoSubmitTimerRef.current = null;
         console.log("[Auth] Auto-submitting after biometric autofill");
         handleAuthAction(false);
       }, 500); // 500ms delay to ensure autofill is complete
-
-      return () => clearTimeout(autoSubmitTimer);
     }
+
+    return () => {
+      if (autoSubmitTimerRef.current) {
+        clearTimeout(autoSubmitTimerRef.current);
+        autoSubmitTimerRef.current = null;
+        setAutoSignInPending(false);
+      }
+    };
   }, [email, password, activeTab, authMethod, loading]);
 
   // Reset auto-submit flag when tab/method changes or fields are cleared
   useEffect(() => {
-    if (activeTab !== "login" || authMethod !== "password" || (!email && !password)) {
+    if (
+      activeTab !== "login" ||
+      authMethod !== "password" ||
+      (!email && !password)
+    ) {
       autoSubmitAttemptedRef.current = false;
+      setAutoSignInPending(false);
     }
   }, [activeTab, authMethod, email, password]);
 
@@ -142,6 +162,7 @@ const Auth = () => {
     // Only reset if fields are cleared (user manually cleared them to retry)
     if (!loading && autoSubmitAttemptedRef.current && activeTab === "login" && !email && !password) {
       autoSubmitAttemptedRef.current = false;
+      setAutoSignInPending(false);
     }
   }, [loading, activeTab, email, password]);
 
@@ -405,6 +426,7 @@ const Auth = () => {
       });
     } finally {
       setLoading(false);
+      setAutoSignInPending(false);
     }
   };
 
@@ -574,6 +596,13 @@ const Auth = () => {
                   className="space-y-4 pt-4"
                 >
                   <div className="space-y-4 p-4 bg-muted/30 rounded-lg border">
+                  {isNativeApp && autoSignInPending && (
+                    <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/10 p-3 text-sm text-primary">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Signing you in securely…</span>
+                    </div>
+                  )}
+
                     <div className="flex items-center justify-between">
                       <Label className="text-sm font-medium">
                         Sign In Method
