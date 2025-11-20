@@ -1,21 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 
 const MOBILE_QUERY = "(max-width: 768px)";
 const MOBILE_CLASS = "mobile-unified";
 
+const hasMobileUnifiedClass = () => {
+  if (typeof document === "undefined") return false;
+  return (
+    document.documentElement.classList.contains(MOBILE_CLASS) ||
+    document.body.classList.contains(MOBILE_CLASS)
+  );
+};
+
 export function useNativeExperience() {
   const isCapacitorNative = Capacitor.isNativePlatform();
-  const [isUnifiedMobile, setIsUnifiedMobile] = useState(() => {
-    if (typeof document === "undefined") return false;
-    const matchesQuery =
-      typeof window !== "undefined" &&
-      "matchMedia" in window &&
-      window.matchMedia(MOBILE_QUERY).matches;
-    return (
-      document.documentElement.classList.contains(MOBILE_CLASS) && matchesQuery
-    );
-  });
+  const [isUnifiedMobile, setIsUnifiedMobile] = useState(() =>
+    hasMobileUnifiedClass()
+  );
 
   useEffect(() => {
     if (isCapacitorNative) {
@@ -30,13 +31,8 @@ export function useNativeExperience() {
     const media = window.matchMedia ? window.matchMedia(MOBILE_QUERY) : null;
 
     const updateState = () => {
-      if (!media) {
-        setIsUnifiedMobile(false);
-        return;
-      }
-      const hasClass =
-        document.documentElement.classList.contains(MOBILE_CLASS);
-      setIsUnifiedMobile(hasClass && media.matches);
+      const hasClass = hasMobileUnifiedClass();
+      setIsUnifiedMobile(hasClass || (media?.matches ?? false));
     };
 
     updateState();
@@ -52,6 +48,16 @@ export function useNativeExperience() {
     window.addEventListener("orientationchange", updateState);
     window.addEventListener("resize", updateState);
 
+    const observer = new MutationObserver(updateState);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
     return () => {
       if (media) {
         if (media.removeEventListener) {
@@ -62,6 +68,7 @@ export function useNativeExperience() {
       }
       window.removeEventListener("orientationchange", updateState);
       window.removeEventListener("resize", updateState);
+      observer.disconnect();
     };
   }, [isCapacitorNative]);
 
