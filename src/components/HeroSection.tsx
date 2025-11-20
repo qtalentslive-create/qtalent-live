@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Autoplay from "embla-carousel-autoplay";
 import { Capacitor } from "@capacitor/core";
 import { TalentCard } from "@/components/TalentCard";
+import { useNativeExperience } from "@/hooks/useNativeExperience";
 
 
 const talentTypes = [
@@ -67,7 +68,8 @@ export function HeroSection() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { detectedLocation, userLocation } = useLocationDetection();
-  const isNativeApp = Capacitor.isNativePlatform(); // <-- ADD THIS LINE
+  const isNativeApp = Capacitor.isNativePlatform();
+  const isNativeExperience = useNativeExperience();
   const heroCarouselAutoplay = useRef(
     Autoplay({
       delay: isNativeApp ? 2600 : 3200,
@@ -249,7 +251,9 @@ export function HeroSection() {
                     className={`w-full ${isNativeApp ? 'h-10 bg-primary text-primary-foreground font-semibold text-sm shadow-sm' : 'h-11 sm:h-12 bg-primary text-primary-foreground font-bold text-sm sm:text-base shadow-minimal hover:shadow-elevated'} transition-all duration-300 hover:bg-primary/90 ${isNativeApp ? 'rounded-lg' : 'rounded-xl hover:scale-[1.02]'}`}
                     onClick={handleSearch}
                   >
-                    {!isNativeApp && <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />}
+                    {!isNativeExperience && (
+                      <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+                    )}
                     <span className="truncate">Explore</span>
                   </Button>
                 </div>
@@ -281,7 +285,7 @@ export function HeroSection() {
                 <div className={`${isNativeApp ? 'text-xs text-primary font-medium' : 'text-sm text-accent font-medium'}`}>
                   🎯 {isNativeApp ? 'Search results below' : 'Your search will show results below in the talent section'}
                 </div>
-                {!isNativeApp && (
+            {!isNativeExperience && (
                   <div className="text-xs text-muted-foreground mt-1">
                     Looking for{" "}
                     {searchFilters.talentType !== "all" && searchFilters.talentType ? (
