@@ -13,6 +13,10 @@ import { setupIonicReact } from "@ionic/react";
 import App from "./App.tsx";
 import "./index.css";
 
+const htmlElement = document.documentElement;
+const bodyElement = document.body;
+const MOBILE_UNIFIED_CLASS = "mobile-unified";
+
 // Setup Ionic React for native look
 setupIonicReact({
   mode: Capacitor.isNativePlatform()
@@ -22,14 +26,21 @@ setupIonicReact({
     : "md", // Material Design for web, iOS for iOS, MD for Android
 });
 
+const applyMobileUnifiedClassForWeb = () => {
+  if (Capacitor.isNativePlatform()) {
+    return;
+  }
+
+  const isMobileViewport = window.matchMedia("(max-width: 768px)").matches;
+  htmlElement.classList.toggle(MOBILE_UNIFIED_CLASS, isMobileViewport);
+  bodyElement.classList.toggle(MOBILE_UNIFIED_CLASS, isMobileViewport);
+};
+
 // Add platform-specific classes for Capacitor native apps
 if (Capacitor.isNativePlatform()) {
-  const htmlElement = document.documentElement;
-  const bodyElement = document.body;
-
-  // Add generic native class
-  htmlElement.classList.add("capacitor-native");
-  bodyElement.classList.add("capacitor-native");
+  // Add generic native classes to match CSS expectations
+  htmlElement.classList.add("capacitor-native", MOBILE_UNIFIED_CLASS);
+  bodyElement.classList.add("capacitor-native", MOBILE_UNIFIED_CLASS);
 
   // Add platform-specific classes
   const platform = Capacitor.getPlatform();
@@ -42,6 +53,11 @@ if (Capacitor.isNativePlatform()) {
   }
 
   console.log("✅ Capacitor native platform detected:", platform);
+} else {
+  // Apply unified mobile class for responsive web experience
+  applyMobileUnifiedClassForWeb();
+  window.addEventListener("resize", applyMobileUnifiedClassForWeb);
+  window.addEventListener("orientationchange", applyMobileUnifiedClassForWeb);
 }
 
 // Check version and clear caches if needed (MUST be first)
