@@ -99,7 +99,7 @@ export function MobileMenu({ children, onTriggerClick }: MobileMenuProps) {
           )}
         >
           <MobileMenuContext.Provider value={{ closeMenu, openMenu, isOpen: open }}>
-            <div className="flex flex-col space-y-0 pt-2">
+            <div className="flex flex-col min-h-full gap-4 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+32px)]">
               {children}
             </div>
           </MobileMenuContext.Provider>
@@ -128,7 +128,7 @@ export function MobileMenu({ children, onTriggerClick }: MobileMenuProps) {
         )}
       >
         <MobileMenuContext.Provider value={{ closeMenu, openMenu, isOpen: open }}>
-          <div className="flex flex-col space-y-4 py-4">
+          <div className="flex flex-col min-h-full gap-4 py-4 pb-10">
             {children}
           </div>
         </MobileMenuContext.Provider>

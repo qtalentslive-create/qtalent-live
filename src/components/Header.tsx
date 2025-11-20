@@ -448,7 +448,7 @@ export function Header() {
                     {/* Sheet component - controlled by shared state */}
                     <MobileMenu>
                 {user && (
-                  <>
+                  <div className="flex flex-col gap-4 flex-1 w-full">
                     {/* User Section - Consistent styling for all users */}
                     <div className={cn(
                       "border-b border-border/50",
@@ -686,10 +686,13 @@ export function Header() {
                     </div>
 
                     {/* Delete Account and Logout Buttons - Consistent styling */}
-                    <div className={cn(
-                      "border-t border-border/50",
-                      isNativeExperience ? "pt-5 mt-5 space-y-3" : "pt-4 mt-4 space-y-2"
-                    )}>
+                    <div
+                      className={cn(
+                        "border-t border-border/50",
+                        isNativeExperience ? "pt-5 mt-5 space-y-3" : "pt-4 mt-4 space-y-2",
+                        "mt-auto"
+                      )}
+                    >
                       <DeleteAccountButton />
                       <Button
                         variant="outline"
@@ -705,11 +708,16 @@ export function Header() {
                         Logout
                       </Button>
                     </div>
-                  </>
+                  </div>
                 )}
 
                 {!user && (
-                  <div className={cn("space-y-2", isNativeExperience && "space-y-3 -mx-2")}>
+                  <div
+                    className={cn(
+                      "space-y-2 mt-auto",
+                      isNativeExperience && "space-y-3 -mx-2"
+                    )}
+                  >
                     <Button
                       variant="outline"
                       className={cn(
