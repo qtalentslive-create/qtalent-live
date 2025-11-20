@@ -6,6 +6,42 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
     />
+    <script>
+      (function () {
+        var MOBILE_CLASS = "mobile-unified";
+        var QUERY = "(max-width: 768px)";
+        var html = document.documentElement;
+        var media = window.matchMedia ? window.matchMedia(QUERY) : null;
+
+        function syncMobileClass() {
+          if (!media) return;
+          if (media.matches) {
+            html.classList.add(MOBILE_CLASS);
+          } else {
+            html.classList.remove(MOBILE_CLASS);
+          }
+        }
+
+        if (media) {
+          if (media.addEventListener) {
+            media.addEventListener("change", syncMobileClass);
+          } else if (media.addListener) {
+            media.addListener(syncMobileClass);
+          }
+          syncMobileClass();
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          var body = document.body;
+          if (!body || !media) return;
+          if (media.matches) {
+            body.classList.add(MOBILE_CLASS);
+          } else {
+            body.classList.remove(MOBILE_CLASS);
+          }
+        });
+      })();
+    </script>
     
     <!-- Primary Meta Tags -->
     <title>Qtalent.live | Book Live Talent, Performers & Artists for Events</title>
