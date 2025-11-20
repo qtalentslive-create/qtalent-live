@@ -217,8 +217,9 @@ All colors MUST be HSL.
 
 
   /* ============================================
-     CAPACITOR NATIVE APP STYLES
-     Only applies when running in Capacitor container
+     NATIVE & MOBILE-UNIFIED EXPERIENCE
+     Applies to Capacitor apps + Chrome mobile (mobile-unified class)
+     Keep this block aligned with native UI decisions.
      ============================================ */
 
   /* Fixed Header with Safe Area - Native Apps Only */
