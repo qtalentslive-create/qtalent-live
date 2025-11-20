@@ -93,11 +93,13 @@ export function MobileMenu({ children, onTriggerClick }: MobileMenuProps) {
         <SheetContent
           side="right"
           className={cn(
-            "w-[380px] pt-4 px-1 [&>button]:top-4 [&>button]:right-4 [&>button]:opacity-100 [&>button]:h-9 [&>button]:w-9 [&>button>svg]:h-6 [&>button>svg]:w-6"
+            "w-[380px] px-1 [&>button]:top-4 [&>button]:right-4 [&>button]:opacity-100 [&>button]:h-9 [&>button]:w-9 [&>button>svg]:h-6 [&>button>svg]:w-6",
+            "h-full max-h-[100dvh] overflow-y-auto",
+            "pt-[calc(env(safe-area-inset-top,0px)+16px)] pb-[calc(env(safe-area-inset-bottom,0px)+96px)]"
           )}
         >
           <MobileMenuContext.Provider value={{ closeMenu, openMenu, isOpen: open }}>
-            <div className="flex flex-col space-y-0 pt-2 pb-6">
+            <div className="flex flex-col space-y-0 pt-2">
               {children}
             </div>
           </MobileMenuContext.Provider>
@@ -121,7 +123,8 @@ export function MobileMenu({ children, onTriggerClick }: MobileMenuProps) {
       <SheetContent
         side="right"
         className={cn(
-          "w-[280px] sm:w-[400px]"
+          "w-[280px] sm:w-[400px]",
+          "max-h-[100dvh] overflow-y-auto pb-10"
         )}
       >
         <MobileMenuContext.Provider value={{ closeMenu, openMenu, isOpen: open }}>
