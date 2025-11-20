@@ -10,8 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import { Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
-import { Capacitor } from "@capacitor/core";
 import { cn } from "@/lib/utils";
+import { useNativeExperience } from "@/hooks/useNativeExperience";
 
 interface MobileMenuProps {
   children: React.ReactNode;
@@ -70,7 +70,7 @@ export function MobileMenu({ children, onTriggerClick }: MobileMenuProps) {
   
   const isMobile = useIsMobile();
   const { unreadCount } = useUnreadNotifications();
-  const isNativeApp = Capacitor.isNativePlatform();
+  const isNativeExperience = useNativeExperience();
 
   // Define closeMenu and openMenu before any conditional returns (React Hook rules)
   const closeMenu = React.useCallback(() => {
@@ -87,7 +87,7 @@ export function MobileMenu({ children, onTriggerClick }: MobileMenuProps) {
   }
 
   // For native apps: Sheet WITHOUT trigger - button is rendered separately in Header
-  if (isNativeApp) {
+  if (isNativeExperience) {
     return (
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent

@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { DeleteAccountModal } from "@/components/DeleteAccountModal";
 import { Trash2 } from "lucide-react";
 import { SheetClose } from "@/components/ui/sheet";
+import { useNativeExperience } from "@/hooks/useNativeExperience";
 
 export function Header() {
   const navigate = useNavigate();
@@ -49,7 +50,8 @@ export function Header() {
 
   const isMobile = useIsMobile();
   const location = useLocation();
-  const isNativeApp = Capacitor.isNativePlatform();
+  const isCapacitorNative = Capacitor.isNativePlatform();
+  const isNativeExperience = useNativeExperience();
   const { unreadCount } = useUnreadNotifications();
 
   // Mobile menu button component (only for native apps - rendered outside Sheet)
@@ -124,7 +126,7 @@ export function Header() {
   // Remove or comment out these lines since DashboardHeader was removed:
   // Hide hamburger menu in main header when on dashboard pages in Capacitor
   // (DashboardHeader will show its own hamburger menu instead)
-  // const isOnDashboardPage = isNativeApp && (
+  // const isOnDashboardPage = isNativeExperience && (
   //   location.pathname === "/booker-dashboard" || 
   //   location.pathname === "/talent-dashboard"
   // );
@@ -256,11 +258,9 @@ export function Header() {
   // Create a wrapper component for Upgrade to Pro button in mobile menu
   const UpgradeToProButton = () => {
     const navigate = useNavigate();
-    const isNativeApp = Capacitor.isNativePlatform();
-
     const handleNavigate = () => {
       // Use window.location for more reliable navigation in Capacitor
-      if (isNativeApp) {
+      if (isCapacitorNative) {
         window.location.href = "/pricing";
       } else {
         navigate("/pricing");
@@ -272,12 +272,12 @@ export function Header() {
         onClick={handleNavigate}
         className={cn(
           "w-full text-left transition-all font-medium flex items-center gap-2",
-          isNativeApp
+          isNativeExperience
             ? "py-3.5 px-4 rounded-xl hover:bg-muted/60 active:bg-muted text-foreground text-base"
             : "py-2 text-foreground hover:text-accent"
         )}
       >
-        <Crown className={cn("h-4 w-4", isNativeApp && "h-5 w-5")} />
+        <Crown className={cn("h-4 w-4", isNativeExperience && "h-5 w-5")} />
         Upgrade to Pro
       </MenuNavigationButton>
     );
@@ -302,7 +302,7 @@ export function Header() {
         variant="outline"
         className={cn(
           "w-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50",
-          isNativeApp
+          isNativeExperience
             ? "h-11 font-semibold"
             : ""
         )}
@@ -441,7 +441,7 @@ export function Header() {
             {/* Mobile Menu - Always show (DashboardHeader was removed) */}
             <div className="md:hidden">
               <MobileMenuProvider>
-                {isNativeApp ? (
+                {isNativeExperience ? (
                   <>
                     {/* Separate hamburger button - OUTSIDE Sheet component tree - NEVER covered */}
                     <MobileMenuButton />
@@ -452,13 +452,13 @@ export function Header() {
                     {/* User Section - Consistent styling for all users */}
                     <div className={cn(
                       "border-b border-border/50",
-                      isNativeApp ? "pb-5 mb-5" : "pb-4 mb-4"
+                      isNativeExperience ? "pb-5 mb-5" : "pb-4 mb-4"
                     )}>
                       {/* User Welcome Card - Consistent styling */}
                       <div
                         className={cn(
                           "rounded-2xl p-4 shadow-sm border border-border/30",
-                          isNativeApp
+                          isNativeExperience
                             ? "bg-gradient-to-br from-muted/40 to-muted/20"
                             : "bg-muted/30"
                         )}
@@ -469,7 +469,7 @@ export function Header() {
                           talentName ? "justify-between gap-3" : "justify-start"
                         )}>
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            {isNativeApp && (
+                            {isNativeExperience && (
                               <Avatar className="w-12 h-12 flex-shrink-0 border-2 border-primary/20">
                                 <AvatarImage 
                                   src={profilePictureUrl || undefined} 
@@ -487,17 +487,17 @@ export function Header() {
                               <p
                                 className={cn(
                                   "text-muted-foreground",
-                                  isNativeApp
+                                  isNativeExperience
                                     ? "text-xs font-medium mb-0.5"
                                     : "text-xs mb-1"
                                 )}
                               >
-                                {isNativeApp ? "Welcome back" : "Welcome"}
+                                {isNativeExperience ? "Welcome back" : "Welcome"}
                               </p>
                               <p
                                 className={cn(
                                   "font-bold truncate text-foreground",
-                                  isNativeApp ? "text-base" : "text-sm"
+                                  isNativeExperience ? "text-base" : "text-sm"
                                 )}
                               >
                                 {talentName ||
@@ -517,7 +517,7 @@ export function Header() {
                             }}
                             className={cn(
                               "w-full rounded-xl shadow-md transition-all flex items-center justify-center gap-3 font-bold relative",
-                              isNativeApp
+                              isNativeExperience
                                 ? "bg-primary text-white hover:bg-primary/90 active:scale-95 py-4 px-5 text-base"
                                 : "bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 py-2.5 px-3 text-sm"
                             )}
@@ -525,7 +525,7 @@ export function Header() {
                             <span className="whitespace-nowrap">
                               View bookings & messages
                             </span>
-                            {isNativeApp && (
+                            {isNativeExperience && (
                               <svg
                                 className="w-5 h-5 flex-shrink-0"
                                 fill="none"
@@ -544,7 +544,7 @@ export function Header() {
                             {unreadCount > 0 && (
                               <span className={cn(
                                 "absolute flex items-center justify-center rounded-full bg-red-500 text-white font-bold",
-                                isNativeApp
+                                isNativeExperience
                                   ? "-top-2 -right-2 min-w-[20px] h-5 px-1.5 text-xs"
                                   : "-top-1 -right-1 min-w-[18px] h-4.5 px-1 text-[10px]"
                               )}>
@@ -559,7 +559,7 @@ export function Header() {
                       {talentName && mode === "artist" && (
                         <div className={cn(
                           "mt-3",
-                          isNativeApp ? "mt-4" : "mt-3"
+                          isNativeExperience ? "mt-4" : "mt-3"
                         )}>
                           <SubscriptionButton
                             isProSubscriber={isProTalent}
@@ -570,7 +570,7 @@ export function Header() {
                             size="sm"
                             className={cn(
                               "w-full",
-                              isNativeApp ? "h-11 font-semibold" : ""
+                              isNativeExperience ? "h-11 font-semibold" : ""
                             )}
                           />
                         </div>
@@ -580,15 +580,15 @@ export function Header() {
                     {/* Navigation Items - Consistent spacing and styling */}
                     <div className={cn(
                       "space-y-2",
-                      isNativeApp ? "mt-2" : ""
+                      isNativeExperience ? "mt-2" : ""
                     )}>
                       {/* Add Edit Profile for talent users in Capacitor */}
-                      {isNativeApp && talentName && mode === "artist" && (
+                      {isNativeExperience && talentName && mode === "artist" && (
                         <MenuNavigationButton
                           onClick={() => navigate("/talent-profile-edit")}
                           className={cn(
                             "w-full text-left transition-all font-medium",
-                            isNativeApp
+                            isNativeExperience
                               ? "py-3.5 px-4 rounded-xl hover:bg-muted/60 active:bg-muted text-foreground text-base"
                               : "py-2 text-foreground hover:text-accent"
                           )}
@@ -612,7 +612,7 @@ export function Header() {
                           }}
                           className={cn(
                             "w-full text-left transition-all font-medium",
-                            isNativeApp
+                            isNativeExperience
                               ? "py-3.5 px-4 rounded-xl hover:bg-muted/60 active:bg-muted text-foreground text-base"
                               : "py-2 text-foreground hover:text-accent"
                           )}
@@ -641,7 +641,7 @@ export function Header() {
                             }}
                             className={cn(
                               "w-full text-left transition-all font-medium",
-                              isNativeApp
+                              isNativeExperience
                                 ? "py-3.5 px-4 rounded-xl hover:bg-muted/60 active:bg-muted text-foreground text-base"
                                 : "py-2 text-foreground hover:text-accent"
                             )}
@@ -654,7 +654,7 @@ export function Header() {
                               onClick={() => navigate("/gigs")}
                               className={cn(
                                 "w-full text-left transition-all font-medium",
-                                isNativeApp
+                                isNativeExperience
                                   ? "py-3.5 px-4 rounded-xl hover:bg-muted/60 active:bg-muted text-foreground text-base"
                                   : "py-2 text-foreground hover:text-accent"
                               )}
@@ -669,7 +669,7 @@ export function Header() {
                               onClick={() => setShowHowItWorksModal(true)}
                               className={cn(
                                 "w-full text-left transition-all font-medium",
-                                isNativeApp
+                                isNativeExperience
                                   ? "py-3.5 px-4 rounded-xl hover:bg-muted/60 active:bg-muted text-foreground text-base"
                                   : "py-2 text-foreground hover:text-accent"
                               )}
@@ -688,14 +688,14 @@ export function Header() {
                     {/* Delete Account and Logout Buttons - Consistent styling */}
                     <div className={cn(
                       "border-t border-border/50",
-                      isNativeApp ? "pt-5 mt-5 space-y-3" : "pt-4 mt-4 space-y-2"
+                      isNativeExperience ? "pt-5 mt-5 space-y-3" : "pt-4 mt-4 space-y-2"
                     )}>
                       <DeleteAccountButton />
                       <Button
                         variant="outline"
                         className={cn(
                           "w-full",
-                          isNativeApp
+                          isNativeExperience
                             ? "h-11 font-semibold border-border/50"
                             : ""
                         )}
@@ -709,12 +709,12 @@ export function Header() {
                 )}
 
                 {!user && (
-                  <div className={cn("space-y-2", isNativeApp && "space-y-3 -mx-2")}>
+                  <div className={cn("space-y-2", isNativeExperience && "space-y-3 -mx-2")}>
                     <Button
                       variant="outline"
                       className={cn(
-                        isNativeApp ? "" : "w-full",
-                        isNativeApp
+                        isNativeExperience ? "" : "w-full",
+                        isNativeExperience
                           ? "h-14 text-base font-semibold border-2 shadow-sm px-8 w-[calc(100%+1rem)]"
                           : ""
                       )}
@@ -725,8 +725,8 @@ export function Header() {
 
                     <Button
                       className={cn(
-                        isNativeApp ? "" : "w-full hero-button",
-                        isNativeApp
+                        isNativeExperience ? "" : "w-full hero-button",
+                        isNativeExperience
                           ? "h-14 text-base font-semibold shadow-md px-8 w-[calc(100%+1rem)] hero-button"
                           : ""
                       )}
