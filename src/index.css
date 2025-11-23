@@ -3939,3 +3939,22 @@ header [data-radix-sheet-trigger] {
       0 6px 16px hsl(var(--color-brand-green) / 0.4);
   }
 }
+
+/* Hide large search icon on mobile web and native apps - only show on desktop */
+/* Target the container div with w-32 h-32 that contains the large search icon in TalentGrid */
+:is(.capacitor-native, .mobile-unified) [class*="TalentGrid"] div.w-32.h-32,
+.mobile-unified [class*="TalentGrid"] div.w-32.h-32 {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Hide large search icon container on mobile web (max-width: 767px) */
+@media (max-width: 767px) {
+  [class*="TalentGrid"] div.w-32.h-32,
+  [class*="TalentGrid"] div.w-32.h-32 svg {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+}
