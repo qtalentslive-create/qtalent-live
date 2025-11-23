@@ -140,7 +140,6 @@ serve(async (req) => {
                 title: reminderTitle,
                 body: reminderBody,
                 url: `/talent-dashboard?eventRequestId=${request.id}`,
-                bookingId: request.id,
                 eventRequestId: request.id,
                 reminder: true,
               }),

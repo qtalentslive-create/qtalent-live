@@ -75,14 +75,87 @@ const AppContent = () => {
   useModalBackdrop();
 
   useEffect(() => {
-    // This is your hook for the white page crash
-    const pendingUrl = sessionStorage.getItem("pending_notification_url");
-    if (pendingUrl) {
-      console.log(`Found pending URL, navigating to: ${pendingUrl}`);
+    // Handle push notification navigation - wait for user to be authenticated
+    const handlePendingNotification = async () => {
+      const pendingUrl = sessionStorage.getItem("pending_notification_url");
+
+      if (!pendingUrl) {
+        return;
+      }
+
+      console.log(`[App] Found pending notification URL: ${pendingUrl}`);
+
+      // Wait for user to be authenticated before navigating
+      if (!user) {
+        console.log(
+          "[App] Waiting for user authentication before navigating..."
+        );
+        return;
+      }
+
+      // Check if we're already on the target page (avoid unnecessary navigation)
+      const currentPath = window.location.pathname;
+      // Handle both absolute URLs and relative paths
+      let targetPath = pendingUrl;
+      if (pendingUrl.startsWith("http")) {
+        try {
+          targetPath = new URL(pendingUrl).pathname;
+        } catch {
+          targetPath = pendingUrl;
+        }
+      } else if (!pendingUrl.startsWith("/")) {
+        targetPath = `/${pendingUrl}`;
+      }
+
+      if (currentPath === targetPath) {
+        console.log(
+          `[App] Already on target page: ${targetPath}, clearing pending URL`
+        );
+        sessionStorage.removeItem("pending_notification_url");
+        return;
+      }
+
+      // Small delay to ensure app is fully ready and routes are loaded
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      console.log(
+        `[App] Navigating to pending notification URL: ${pendingUrl}`
+      );
       sessionStorage.removeItem("pending_notification_url");
-      navigate(pendingUrl);
-    }
-  }, [navigate]);
+
+      // Use replace: true to avoid adding to history
+      try {
+        // Ensure URL is a relative path for React Router
+        const routePath = pendingUrl.startsWith("http")
+          ? new URL(pendingUrl).pathname + new URL(pendingUrl).search
+          : pendingUrl;
+        navigate(routePath, { replace: true });
+      } catch (error) {
+        console.error("[App] Error navigating to pending URL:", error);
+        // Fallback: try using window.location
+        window.location.href = pendingUrl;
+      }
+    };
+
+    handlePendingNotification();
+
+    // Also listen for custom event when notification is tapped while app is open
+    const handleNotificationUpdate = () => {
+      handlePendingNotification();
+    };
+
+    window.addEventListener(
+      "pendingNotificationUrlUpdated",
+      handleNotificationUpdate
+    );
+
+    return () => {
+      window.removeEventListener(
+        "pendingNotificationUrlUpdated",
+        handleNotificationUpdate
+      );
+    };
+  }, [navigate, user]);
 
   //
   // ▼▼▼ THIS IS THE FIX (Part 2) ▼▼▼

@@ -70,16 +70,39 @@ export const useCapacitorPushNotifications = () => {
           }
         );
 
-        // Listen for notification actions
+        // Listen for notification actions (when user taps notification)
         await PushNotifications.addListener(
           "pushNotificationActionPerformed",
           (notification) => {
             console.log("Push notification action performed:", notification);
+            console.log(
+              "Full notification data:",
+              JSON.stringify(notification, null, 2)
+            );
 
-            const url = notification.notification.data?.url;
+            // Try multiple ways to extract the URL
+            const url =
+              notification.notification?.data?.url ||
+              notification.notification?.data?.URL;
+
             if (url) {
-              console.log(`Saving pending notification URL: ${url}`);
+              console.log(
+                `[PushNotification] Saving pending notification URL: ${url}`
+              );
               sessionStorage.setItem("pending_notification_url", url);
+
+              // Trigger a custom event to notify App.tsx that a notification was tapped
+              // This helps when app is already open in background
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(
+                  new CustomEvent("pendingNotificationUrlUpdated")
+                );
+              }
+            } else {
+              console.warn(
+                "[PushNotification] No URL found in notification data:",
+                notification
+              );
             }
           }
         );

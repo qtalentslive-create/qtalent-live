@@ -14,7 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -77,16 +81,23 @@ export function EventRequestForm() {
     "private party",
     "other",
   ];
+  // Talent types matching TalentOnboarding form (ACTS) + additional common types from HeroSection
+  // Using lowercase values to match database format, but displaying with proper capitalization
   const talentTypes = [
-    "Singer",
-    "Guitarist",
-    "Pianist",
-    "DJ",
-    "Band",
-    "Violinist",
-    "Saxophonist",
-    "Drummer",
-    "Other",
+    { value: "dj", label: "DJ" },
+    { value: "band", label: "Band" },
+    { value: "singer", label: "Singer" },
+    { value: "saxophonist", label: "Saxophonist" },
+    { value: "keyboardist", label: "Keyboardist" },
+    { value: "drummer", label: "Drummer" },
+    { value: "percussionist", label: "Percussionist" },
+    { value: "guitarist", label: "Guitarist" },
+    { value: "violinist", label: "Violinist" },
+    { value: "pianist", label: "Pianist" },
+    { value: "magician", label: "Magician" },
+    { value: "gogo_dancer", label: "Gogo Dancer" },
+    { value: "belly_dancer", label: "Belly Dancer" },
+    { value: "other", label: "Other" },
   ];
 
   // Get current location for form validation and submission - prioritize manually selected location
@@ -199,6 +210,11 @@ export function EventRequestForm() {
         );
 
         // 3. Loop through each matching talent and send them a notification
+        // Get the display label for the talent type
+        const talentTypeLabel =
+          talentTypes.find((t) => t.value === talentTypeNeeded)?.label ||
+          talentTypeNeeded;
+
         for (const talent of tokenData) {
           const recipientUserId = talent.id;
 
@@ -212,7 +228,7 @@ export function EventRequestForm() {
               body: {
                 userId: recipientUserId,
                 title: "New Event Request!",
-                body: `A new event request matches your profile: ${talentTypeNeeded} in ${currentLocation}.`,
+                body: `A new event request matches your profile: ${talentTypeLabel} in ${currentLocation}.`,
                 url: `/talent-dashboard?eventRequestId=${newRequest.id}`,
                 bookingId: newRequest.id,
                 eventRequestId: newRequest.id,
@@ -294,8 +310,8 @@ export function EventRequestForm() {
 
       <div className="space-y-2">
         <Label htmlFor="eventType">Event Type *</Label>
-        <Select 
-          value={eventType} 
+        <Select
+          value={eventType}
           onValueChange={(value) => {
             setEventType(value);
             // Auto-close handled by Select component
@@ -347,7 +363,10 @@ export function EventRequestForm() {
         <Label>Event Location *</Label>
         <LocationSelector onLocationChange={handleLocationChange} />
         <p className="text-sm text-muted-foreground">
-          Selected: {currentLocation === "Worldwide" ? "Please select a country" : currentLocation}
+          Selected:{" "}
+          {currentLocation === "Worldwide"
+            ? "Please select a country"
+            : currentLocation}
         </p>
       </div>
 
@@ -375,8 +394,8 @@ export function EventRequestForm() {
 
       <div className="space-y-2">
         <Label htmlFor="talentTypeNeeded">Talent Type Needed *</Label>
-        <Select 
-          value={talentTypeNeeded} 
+        <Select
+          value={talentTypeNeeded}
           onValueChange={(value) => {
             setTalentTypeNeeded(value);
             // Auto-close handled by Select component
@@ -387,8 +406,8 @@ export function EventRequestForm() {
           </SelectTrigger>
           <SelectContent>
             {talentTypes.map((type) => (
-              <SelectItem key={type} value={type}>
-                {type}
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
               </SelectItem>
             ))}
           </SelectContent>

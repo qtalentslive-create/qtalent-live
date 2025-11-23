@@ -86,13 +86,30 @@ export const registerDeviceForNotifications = async (userId: string) => {
       "pushNotificationActionPerformed",
       (action: ActionPerformed) => {
         console.log("!!!!!!!!!! PUSH TAPPED (APP CLOSED) !!!!!!!!!!", action);
-        const url = action.notification.data?.url;
+        console.log("Full action data:", JSON.stringify(action, null, 2));
+
+        // Try multiple ways to extract the URL
+        const url =
+          action.notification?.data?.url || action.notification?.data?.URL;
+
         if (url) {
-          console.log(`Saving navigation URL to storage: ${url}`);
+          console.log(
+            `[PushNotification] Saving navigation URL to storage: ${url}`
+          );
           // We use sessionStorage to store where we want to go.
           sessionStorage.setItem("pending_notification_url", url);
+
+          // Trigger a custom event to notify App.tsx that a notification was tapped
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(
+              new CustomEvent("pendingNotificationUrlUpdated")
+            );
+          }
         } else {
-          console.log("No URL in push notification data.");
+          console.warn(
+            "[PushNotification] No URL found in notification data:",
+            action
+          );
         }
       }
     );

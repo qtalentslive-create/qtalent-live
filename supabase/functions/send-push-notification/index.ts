@@ -45,6 +45,7 @@ serve(async (req) => {
       await req.json();
     console.log("Sending push notification to user:", userId);
 
+    // Check if this is a reminder and if user has already responded
     if (eventRequestId) {
       const { data: eventRequest, error: eventRequestError } = await supabase
         .from("event_requests")
@@ -65,6 +66,43 @@ serve(async (req) => {
         if (responded) {
           console.log(
             `Skipping reminder because user ${userId} already responded to event request ${eventRequestId}`
+          );
+          return new Response(
+            JSON.stringify({
+              success: true,
+              skipped: true,
+              reason: "talent_already_responded",
+            }),
+            {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+              status: 200,
+            }
+          );
+        }
+      }
+    }
+
+    // Check if this is a booking reminder and if user has already responded
+    if (bookingId) {
+      const { data: booking, error: bookingError } = await supabase
+        .from("bookings")
+        .select("status")
+        .eq("id", bookingId)
+        .maybeSingle();
+
+      if (bookingError) {
+        console.error(
+          "Unable to fetch booking response state:",
+          bookingError.message
+        );
+      } else if (booking) {
+        // If booking status is not pending or pending_approval, talent has responded
+        const hasResponded =
+          booking.status !== "pending" && booking.status !== "pending_approval";
+
+        if (hasResponded) {
+          console.log(
+            `Skipping reminder because user ${userId} already responded to booking ${bookingId} (status: ${booking.status})`
           );
           return new Response(
             JSON.stringify({

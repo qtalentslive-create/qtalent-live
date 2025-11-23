@@ -18,12 +18,13 @@ All colors MUST be HSL.
     --ion-color-primary-contrast-rgb: 255, 255, 255;
     --ion-color-primary-shade: #3365d5;
     --ion-color-primary-tint: #4f8ff7;
-    
-    --ion-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+    --ion-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+      system-ui, sans-serif;
     --ion-font-size-base: 16px;
     --ion-safe-area-top: env(safe-area-inset-top);
     --ion-safe-area-bottom: env(safe-area-inset-bottom);
-    
+
     /* Your existing design system */
     --background: 0 0% 4%;
     --foreground: 0 0% 98%;
@@ -42,7 +43,7 @@ All colors MUST be HSL.
     --brand-success: 142 76% 36%; /* Success states */
     --brand-warning: 38 92% 50%; /* Warning states */
     --brand-error: 0 84% 60%; /* Error states */
-    
+
     /* New Color Palette - Professional Design System */
     --color-brand-green: 142 76% 36%; /* Primary brand green for buttons */
     --color-accent-blue: 217 91% 60%; /* Accent blue for tags */
@@ -215,7 +216,6 @@ All colors MUST be HSL.
     width: 100%;
   }
 
-
   /* ============================================
      NATIVE & MOBILE-UNIFIED EXPERIENCE
      Applies to Capacitor apps + Chrome mobile (mobile-unified class)
@@ -314,7 +314,7 @@ All colors MUST be HSL.
     height: auto !important;
     line-height: 1.5 !important;
   }
-  
+
   /* Dashboard buttons - Override with compact sizing */
   :is(.capacitor-native, .mobile-unified) .dashboard-buttons button,
   .plt-ios .dashboard-buttons button,
@@ -325,9 +325,11 @@ All colors MUST be HSL.
     height: 2.25rem !important;
     line-height: 1.4 !important;
   }
-  
+
   /* Chat dialog buttons - Override with compact sizing */
-  :is(.capacitor-native, .mobile-unified) [role="dialog"] button:not([class*="Close"]):not([size="icon"]),
+  :is(.capacitor-native, .mobile-unified)
+    [role="dialog"]
+    button:not([class*="Close"]):not([size="icon"]),
   .plt-ios [role="dialog"] button:not([class*="Close"]):not([size="icon"]),
   .plt-android [role="dialog"] button:not([class*="Close"]):not([size="icon"]) {
     padding: 0.375rem 0.625rem !important;
@@ -336,7 +338,7 @@ All colors MUST be HSL.
     height: 1.75rem !important;
     line-height: 1.3 !important;
   }
-  
+
   /* Small toggle buttons exception */
   :is(.capacitor-native, .mobile-unified) button.is-small-toggle,
   .plt-ios button.is-small-toggle,
@@ -517,10 +519,8 @@ All colors MUST be HSL.
   .plt-ios .card-3d-effect {
     border: 1.5px solid hsl(var(--color-brand-green) / 0.4) !important;
     border-width: 1.5px !important;
-    box-shadow: 
-      0 4px 20px hsl(var(--color-brand-green) / 0.15),
-      0 2px 8px rgba(0, 0, 0, 0.1),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    box-shadow: 0 4px 20px hsl(var(--color-brand-green) / 0.15),
+      0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     transition: all 0.3s ease !important;
@@ -538,8 +538,10 @@ All colors MUST be HSL.
   }
 
   /* Remove borders from bordered divs on native apps (but keep internal structure) */
-  :is(.capacitor-native, .mobile-unified) .border:not([class*="Card"]):not([class*="rounded"]),
-  :is(.capacitor-native, .mobile-unified) .border-2:not([class*="Card"]):not([class*="rounded"]),
+  :is(.capacitor-native, .mobile-unified)
+    .border:not([class*="Card"]):not([class*="rounded"]),
+  :is(.capacitor-native, .mobile-unified)
+    .border-2:not([class*="Card"]):not([class*="rounded"]),
   .plt-android .border:not([class*="Card"]):not([class*="rounded"]),
   .plt-android .border-2:not([class*="Card"]):not([class*="rounded"]),
   .plt-ios .border:not([class*="Card"]):not([class*="rounded"]),
@@ -651,7 +653,9 @@ All colors MUST be HSL.
 
   /* HeroSection container - Add proper padding for native apps */
   :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] .container,
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="px-4"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="px-4"],
   .plt-android [class*="HeroSection"] .container,
   .plt-android [class*="HeroSection"] [class*="px-4"],
   .plt-ios [class*="HeroSection"] .container,
@@ -659,7 +663,7 @@ All colors MUST be HSL.
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
-  
+
   /* HeroSection main section - Ensure proper spacing */
   :is(.capacitor-native, .mobile-unified) [class*="HeroSection"],
   .plt-android [class*="HeroSection"],
@@ -680,7 +684,9 @@ All colors MUST be HSL.
   }
 
   /* Search filter card - Better padding and spacing for native apps */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="Card"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="Card"],
   .plt-android [class*="HeroSection"] [class*="Card"],
   .plt-ios [class*="HeroSection"] [class*="Card"] {
     padding: 1.25rem !important;
@@ -692,33 +698,48 @@ All colors MUST be HSL.
   }
 
   /* Ensure search filter grid has proper spacing - More breathing room */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="Card"] [class*="grid"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="Card"]
+    [class*="grid"],
   .plt-android [class*="HeroSection"] [class*="Card"] [class*="grid"],
   .plt-ios [class*="HeroSection"] [class*="Card"] [class*="grid"] {
     gap: 1rem !important;
     padding: 0 !important;
   }
-  
+
   /* Search filter form fields - Better spacing between label and input */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="Card"] [class*="space-y-1.5"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="Card"]
+    [class*="space-y-1.5"],
   .plt-android [class*="HeroSection"] [class*="Card"] [class*="space-y-1.5"],
   .plt-ios [class*="HeroSection"] [class*="Card"] [class*="space-y-1.5"] {
     gap: 0.75rem !important;
   }
-  
+
   /* Search filter labels - Better spacing */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="Card"] label,
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="Card"]
+    label,
   .plt-android [class*="HeroSection"] [class*="Card"] label,
   .plt-ios [class*="HeroSection"] [class*="Card"] label {
     margin-bottom: 0.5rem !important;
     display: block !important;
   }
-  
+
   /* Search filter input fields - Better height and spacing */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="Card"] [class*="SelectTrigger"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="Card"]
+    [class*="SelectTrigger"],
   .plt-android [class*="HeroSection"] [class*="Card"] [class*="SelectTrigger"],
   .plt-ios [class*="HeroSection"] [class*="Card"] [class*="SelectTrigger"],
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="Card"] button,
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="Card"]
+    button,
   .plt-android [class*="HeroSection"] [class*="Card"] button,
   .plt-ios [class*="HeroSection"] [class*="Card"] button {
     margin-top: 0 !important;
@@ -726,8 +747,12 @@ All colors MUST be HSL.
 
   /* Fix filter labels and text on native apps - center labels and prevent overlap */
   :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] label,
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="text-xs"],
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="text-sm"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="text-xs"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="text-sm"],
   .plt-android [class*="HeroSection"] label,
   .plt-android [class*="HeroSection"] [class*="text-xs"],
   .plt-android [class*="HeroSection"] [class*="text-sm"],
@@ -750,7 +775,10 @@ All colors MUST be HSL.
   }
 
   /* Ensure labels in space-y-2 containers are centered and have proper spacing */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="space-y-2"] > label,
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="space-y-2"]
+    > label,
   .plt-android [class*="HeroSection"] [class*="space-y-2"] > label,
   .plt-ios [class*="HeroSection"] [class*="space-y-2"] > label {
     text-align: center !important;
@@ -763,8 +791,12 @@ All colors MUST be HSL.
   }
 
   /* Fix filter select and input text on native apps - ensure text is visible and icons don't overlap */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="SelectTrigger"],
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="SelectValue"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="SelectTrigger"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="SelectValue"],
   :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] input,
   :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] button,
   .plt-android [class*="HeroSection"] [class*="SelectTrigger"],
@@ -785,7 +817,10 @@ All colors MUST be HSL.
   }
 
   /* Ensure icons in select triggers don't overlap with text */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="relative"] svg,
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="relative"]
+    svg,
   .plt-android [class*="HeroSection"] [class*="relative"] svg,
   .plt-ios [class*="HeroSection"] [class*="relative"] svg {
     position: absolute !important;
@@ -797,8 +832,12 @@ All colors MUST be HSL.
   }
 
   /* Ensure SelectTrigger has proper padding to avoid icon overlap */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="SelectTrigger"][class*="pl-10"],
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="SelectTrigger"][class*="pl-12"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="SelectTrigger"][class*="pl-10"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="SelectTrigger"][class*="pl-12"],
   .plt-android [class*="HeroSection"] [class*="SelectTrigger"][class*="pl-10"],
   .plt-android [class*="HeroSection"] [class*="SelectTrigger"][class*="pl-12"],
   .plt-ios [class*="HeroSection"] [class*="SelectTrigger"][class*="pl-10"],
@@ -808,7 +847,10 @@ All colors MUST be HSL.
   }
 
   /* Ensure SelectValue text is visible and properly positioned */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="SelectValue"] span,
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="SelectValue"]
+    span,
   .plt-android [class*="HeroSection"] [class*="SelectValue"] span,
   .plt-ios [class*="HeroSection"] [class*="SelectValue"] span {
     display: block !important;
@@ -819,8 +861,12 @@ All colors MUST be HSL.
   }
 
   /* Fix active filters display in TalentGrid on native apps */
-  :is(.capacitor-native, .mobile-unified) [class*="TalentGrid"] [class*="Badge"],
-  :is(.capacitor-native, .mobile-unified) [class*="TalentGrid"] [class*="flex"][class*="items-center"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="TalentGrid"]
+    [class*="Badge"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="TalentGrid"]
+    [class*="flex"][class*="items-center"],
   .plt-android [class*="TalentGrid"] [class*="Badge"],
   .plt-android [class*="TalentGrid"] [class*="flex"][class*="items-center"],
   .plt-ios [class*="TalentGrid"] [class*="Badge"],
@@ -833,13 +879,16 @@ All colors MUST be HSL.
   }
 
   /* HeroSection spacing - Better spacing for native apps */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] > div > div:first-child,
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    > div
+    > div:first-child,
   .plt-android [class*="HeroSection"] > div > div:first-child,
   .plt-ios [class*="HeroSection"] > div > div:first-child {
     padding-top: 1rem !important;
     padding-bottom: 1rem !important;
   }
-  
+
   /* Title and bio spacing on native apps */
   :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] h1,
   .plt-android [class*="HeroSection"] h1,
@@ -847,16 +896,18 @@ All colors MUST be HSL.
     margin-bottom: 1rem !important;
     line-height: 1.2 !important;
   }
-  
+
   :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] p,
   .plt-android [class*="HeroSection"] p,
   .plt-ios [class*="HeroSection"] p {
     margin-top: 0.75rem !important;
     margin-bottom: 0.75rem !important;
   }
-  
+
   /* Carousel cards spacing on native apps - Better width utilization */
-  :is(.capacitor-native, .mobile-unified) [class*="Carousel"] [class*="CarouselItem"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="Carousel"]
+    [class*="CarouselItem"],
   .plt-android [class*="Carousel"] [class*="CarouselItem"],
   .plt-ios [class*="Carousel"] [class*="CarouselItem"] {
     padding-left: 0.75rem !important;
@@ -865,19 +916,23 @@ All colors MUST be HSL.
     width: calc(50% - 0.75rem) !important;
     min-width: calc(50% - 0.75rem) !important;
   }
-  
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="Card"][class*="glass-card"],
+
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="Card"][class*="glass-card"],
   .plt-android [class*="HeroSection"] [class*="Card"][class*="glass-card"],
   .plt-ios [class*="HeroSection"] [class*="Card"][class*="glass-card"] {
     margin-bottom: 1rem !important;
     width: 100% !important;
   }
-  
+
   /* Featured talent cards - Better spacing on native */
   :is(.capacitor-native, .mobile-unified) [class*="FeaturedTalentCard"],
   .plt-android [class*="FeaturedTalentCard"],
   .plt-ios [class*="FeaturedTalentCard"],
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="Card"]:has(img),
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="Card"]:has(img),
   .plt-android [class*="HeroSection"] [class*="Card"]:has(img),
   .plt-ios [class*="HeroSection"] [class*="Card"]:has(img) {
     padding: 1rem !important;
@@ -885,7 +940,7 @@ All colors MUST be HSL.
     width: 100% !important;
     max-width: 100% !important;
   }
-  
+
   /* Improve overall HeroSection layout spacing */
   :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] section,
   .plt-android [class*="HeroSection"] section,
@@ -893,7 +948,7 @@ All colors MUST be HSL.
     padding-top: 1.5rem !important;
     padding-bottom: 1.5rem !important;
   }
-  
+
   /* Better grid gap on native for two-column layout */
   :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] .grid,
   .plt-android [class*="HeroSection"] .grid,
@@ -922,7 +977,9 @@ All colors MUST be HSL.
   }
 
   /* Ensure TalentOnboarding card is full width on native */
-  :is(.capacitor-native, .mobile-unified) .min-h-screen [class*="Card"][class*="w-full"],
+  :is(.capacitor-native, .mobile-unified)
+    .min-h-screen
+    [class*="Card"][class*="w-full"],
   .plt-android .min-h-screen [class*="Card"][class*="w-full"],
   .plt-ios .min-h-screen [class*="Card"][class*="w-full"] {
     width: 100% !important;
@@ -979,7 +1036,8 @@ All colors MUST be HSL.
   }
 
   /* Make sure button container doesn't block clicks */
-  :is(.capacitor-native, .mobile-unified) div:has(button:has(svg[class*="arrow-left"])),
+  :is(.capacitor-native, .mobile-unified)
+    div:has(button:has(svg[class*="arrow-left"])),
   .plt-android div:has(button:has(svg[class*="arrow-left"])),
   .plt-ios div:has(button:has(svg[class*="arrow-left"])) {
     pointer-events: auto !important;
@@ -988,7 +1046,8 @@ All colors MUST be HSL.
   }
 
   /* Keep 3D shadows on native - Don't remove shadow-lg for cards */
-  :is(.capacitor-native, .mobile-unified) .shadow-lg:not([class*="Card"]):not(.card):not(.card-3d-effect),
+  :is(.capacitor-native, .mobile-unified)
+    .shadow-lg:not([class*="Card"]):not(.card):not(.card-3d-effect),
   .plt-android .shadow-lg:not([class*="Card"]):not(.card):not(.card-3d-effect),
   .plt-ios .shadow-lg:not([class*="Card"]):not(.card):not(.card-3d-effect) {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
@@ -1119,7 +1178,9 @@ All colors MUST be HSL.
     color: hsl(var(--primary-foreground)) !important;
   }
 
-  :is(.capacitor-native, .mobile-unified) [data-radix-dialog-content] button[class*="outline"],
+  :is(.capacitor-native, .mobile-unified)
+    [data-radix-dialog-content]
+    button[class*="outline"],
   .plt-android [data-radix-dialog-content] button[class*="outline"],
   .plt-ios [data-radix-dialog-content] button[class*="outline"] {
     background: transparent !important;
@@ -1137,12 +1198,16 @@ All colors MUST be HSL.
   }
 
   /* Popover and Select Backdrop for Native Apps - Use body class when open */
-  :is(.capacitor-native, .mobile-unified) body:has([data-radix-popover-content][data-state="open"])::before,
+  :is(.capacitor-native, .mobile-unified)
+    body:has([data-radix-popover-content][data-state="open"])::before,
   .plt-ios body:has([data-radix-popover-content][data-state="open"])::before,
-  .plt-android body:has([data-radix-popover-content][data-state="open"])::before,
-  :is(.capacitor-native, .mobile-unified) body:has([data-radix-select-content][data-state="open"])::before,
+  .plt-android
+    body:has([data-radix-popover-content][data-state="open"])::before,
+  :is(.capacitor-native, .mobile-unified)
+    body:has([data-radix-select-content][data-state="open"])::before,
   .plt-ios body:has([data-radix-select-content][data-state="open"])::before,
-  .plt-android body:has([data-radix-select-content][data-state="open"])::before {
+  .plt-android
+    body:has([data-radix-select-content][data-state="open"])::before {
     content: "";
     position: fixed;
     inset: 0;
@@ -1164,7 +1229,9 @@ All colors MUST be HSL.
   }
 
   /* Native App Search Filter - Professional and Compact */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="Card"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="Card"],
   .plt-ios [class*="HeroSection"] [class*="Card"],
   .plt-android [class*="HeroSection"] [class*="Card"] {
     background: hsl(var(--card)) !important;
@@ -1187,7 +1254,9 @@ All colors MUST be HSL.
   }
 
   /* Native App Search Filter Inputs - Compact sizing */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] [class*="SelectTrigger"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    [class*="SelectTrigger"],
   .plt-ios [class*="HeroSection"] [class*="SelectTrigger"],
   .plt-android [class*="HeroSection"] [class*="SelectTrigger"] {
     height: 2.5rem !important;
@@ -1197,10 +1266,14 @@ All colors MUST be HSL.
   }
 
   /* Native App Search Button - Compact */
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] button[class*="bg-primary"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    button[class*="bg-primary"],
   .plt-ios [class*="HeroSection"] button[class*="bg-primary"],
   .plt-android [class*="HeroSection"] button[class*="bg-primary"],
-  :is(.capacitor-native, .mobile-unified) [class*="HeroSection"] button[class*="hero-button"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="HeroSection"]
+    button[class*="hero-button"],
   .plt-ios [class*="HeroSection"] button[class*="hero-button"],
   .plt-android [class*="HeroSection"] button[class*="hero-button"] {
     height: 2.5rem !important;
@@ -1221,7 +1294,7 @@ All colors MUST be HSL.
     height: 0.875rem !important;
     flex-shrink: 0 !important;
   }
-  
+
   :is(.capacitor-native, .mobile-unified) .dashboard-buttons button,
   .plt-ios .dashboard-buttons button,
   .plt-android .dashboard-buttons button {
@@ -1290,13 +1363,18 @@ All colors MUST be HSL.
   }
 
   /* Card spacing in tabs - More compact */
-  :is(.capacitor-native, .mobile-unified) [class*="TabsContent"] [class*="space-y-4"],
+  :is(.capacitor-native, .mobile-unified)
+    [class*="TabsContent"]
+    [class*="space-y-4"],
   .plt-ios [class*="TabsContent"] [class*="space-y-4"],
   .plt-android [class*="TabsContent"] [class*="space-y-4"] {
     gap: 0.75rem !important;
   }
 
-  :is(.capacitor-native, .mobile-unified) [class*="TabsContent"] [class*="space-y-4"] > *,
+  :is(.capacitor-native, .mobile-unified)
+    [class*="TabsContent"]
+    [class*="space-y-4"]
+    > *,
   .plt-ios [class*="TabsContent"] [class*="space-y-4"] > *,
   .plt-android [class*="TabsContent"] [class*="space-y-4"] > * {
     margin-top: 0.75rem !important;
@@ -1340,7 +1418,7 @@ All colors MUST be HSL.
     line-height: 1.4 !important;
     border-radius: 0.5rem !important;
   }
-  
+
   /* Chat Send Button - Proper sizing */
   :is(.capacitor-native, .mobile-unified) [role="dialog"] button[size="icon"],
   .plt-ios [role="dialog"] button[size="icon"],
@@ -1353,7 +1431,9 @@ All colors MUST be HSL.
   }
 
   /* Chat Upgrade Prompt - Compact on native */
-  :is(.capacitor-native, .mobile-unified) [role="dialog"] div:has(svg[class*="lucide-crown"]),
+  :is(.capacitor-native, .mobile-unified)
+    [role="dialog"]
+    div:has(svg[class*="lucide-crown"]),
   .plt-ios [role="dialog"] div:has(svg[class*="lucide-crown"]),
   .plt-android [role="dialog"] div:has(svg[class*="lucide-crown"]) {
     padding: 0.5rem !important;
@@ -1361,7 +1441,10 @@ All colors MUST be HSL.
     margin-bottom: 0.5rem !important;
   }
 
-  :is(.capacitor-native, .mobile-unified) [role="dialog"] div:has(svg[class*="lucide-crown"]) button,
+  :is(.capacitor-native, .mobile-unified)
+    [role="dialog"]
+    div:has(svg[class*="lucide-crown"])
+    button,
   .plt-ios [role="dialog"] div:has(svg[class*="lucide-crown"]) button,
   .plt-android [role="dialog"] div:has(svg[class*="lucide-crown"]) button {
     min-height: 1.75rem !important;
@@ -1371,7 +1454,9 @@ All colors MUST be HSL.
   }
 
   /* Chat Alert Messages - Compact on native */
-  :is(.capacitor-native, .mobile-unified) [role="dialog"] div:has(svg[class*="lucide-alert-triangle"]),
+  :is(.capacitor-native, .mobile-unified)
+    [role="dialog"]
+    div:has(svg[class*="lucide-alert-triangle"]),
   .plt-ios [role="dialog"] div:has(svg[class*="lucide-alert-triangle"]),
   .plt-android [role="dialog"] div:has(svg[class*="lucide-alert-triangle"]) {
     padding: 0.5rem !important;
@@ -1380,7 +1465,9 @@ All colors MUST be HSL.
   }
 
   /* SubscriptionButton - Better sizing on native */
-  :is(.capacitor-native, .mobile-unified) .dashboard-buttons button:has(svg[class*="lucide-crown"]),
+  :is(.capacitor-native, .mobile-unified)
+    .dashboard-buttons
+    button:has(svg[class*="lucide-crown"]),
   .plt-ios .dashboard-buttons button:has(svg[class*="lucide-crown"]),
   .plt-android .dashboard-buttons button:has(svg[class*="lucide-crown"]) {
     min-height: 2.25rem !important;
@@ -1420,7 +1507,7 @@ All colors MUST be HSL.
     gap: 0.625rem !important;
     row-gap: 0.5rem !important;
   }
-  
+
   /* On very small screens, ensure footer items stay centered when wrapping */
   @media (max-width: 360px) {
     :is(.capacitor-native, .mobile-unified) .native-footer-content,
@@ -1461,7 +1548,7 @@ All colors MUST be HSL.
     color: hsl(var(--foreground)) !important;
     border: none !important;
   }
-  
+
   /* Ensure footer buttons never get green styling - HIGH SPECIFICITY */
   footer button,
   footer button[class*="bg-primary"],
@@ -1534,7 +1621,10 @@ All colors MUST be HSL.
   }
 
   /* Web version - slightly more padding */
-  body:not(:is(.capacitor-native, .mobile-unified)):not(.mobile-unified):not(.plt-ios):not(.plt-android) .search-select-trigger {
+  body:not(:is(.capacitor-native, .mobile-unified)):not(.mobile-unified):not(
+      .plt-ios
+    ):not(.plt-android)
+    .search-select-trigger {
     padding-left: 2.875rem !important; /* 46px for web */
   }
 
@@ -1588,8 +1678,10 @@ All colors MUST be HSL.
   }
 
   /* Hide browser autocomplete graphics on native apps */
-  :is(.capacitor-native, .mobile-unified) input::-webkit-contacts-auto-fill-button,
-  :is(.capacitor-native, .mobile-unified) input::-webkit-credentials-auto-fill-button,
+  :is(.capacitor-native, .mobile-unified)
+    input::-webkit-contacts-auto-fill-button,
+  :is(.capacitor-native, .mobile-unified)
+    input::-webkit-credentials-auto-fill-button,
   .plt-ios input::-webkit-contacts-auto-fill-button,
   .plt-ios input::-webkit-credentials-auto-fill-button,
   .plt-android input::-webkit-contacts-auto-fill-button,
@@ -1612,8 +1704,10 @@ All colors MUST be HSL.
   }
 
   /* Hide autocomplete suggestions graphics */
-  :is(.capacitor-native, .mobile-unified) input[autocomplete]::-webkit-contacts-auto-fill-button,
-  :is(.capacitor-native, .mobile-unified) input[autocomplete]::-webkit-credentials-auto-fill-button,
+  :is(.capacitor-native, .mobile-unified)
+    input[autocomplete]::-webkit-contacts-auto-fill-button,
+  :is(.capacitor-native, .mobile-unified)
+    input[autocomplete]::-webkit-credentials-auto-fill-button,
   .plt-ios input[autocomplete]::-webkit-contacts-auto-fill-button,
   .plt-ios input[autocomplete]::-webkit-credentials-auto-fill-button,
   .plt-android input[autocomplete]::-webkit-contacts-auto-fill-button,
@@ -1641,14 +1735,17 @@ All colors MUST be HSL.
   /* Ensure regular page content stays below header and has proper spacing */
   /* Pages with fixed header need padding-top to account for header height */
   /* This targets containers directly inside min-h-screen divs (like TalentOnboarding) */
-  :is(.capacitor-native, .mobile-unified) .min-h-screen:not([data-radix-dialog-content]) > .container,
+  :is(.capacitor-native, .mobile-unified)
+    .min-h-screen:not([data-radix-dialog-content])
+    > .container,
   .plt-ios .min-h-screen:not([data-radix-dialog-content]) > .container,
   .plt-android .min-h-screen:not([data-radix-dialog-content]) > .container {
     padding-top: calc(4rem + env(safe-area-inset-top)) !important;
   }
 
   /* Notification Popover - Native App Compact Styling - FORCE SMALL TEXT */
-  :is(.capacitor-native, .mobile-unified) [data-radix-popover-content].notification-popover-native,
+  :is(.capacitor-native, .mobile-unified)
+    [data-radix-popover-content].notification-popover-native,
   .plt-ios [data-radix-popover-content].notification-popover-native,
   .plt-android [data-radix-popover-content].notification-popover-native {
     font-size: 11px !important;
@@ -1657,15 +1754,20 @@ All colors MUST be HSL.
   }
 
   /* Notification Popover inside Sheet/Mobile Menu - Higher z-index and proper positioning */
-  [data-radix-dialog-content] [data-radix-popover-content].notification-popover-native,
-  [data-radix-sheet-content] [data-radix-popover-content].notification-popover-native,
-  [data-radix-sheet-content] ~ [data-radix-popover-content].notification-popover-native {
+  [data-radix-dialog-content]
+    [data-radix-popover-content].notification-popover-native,
+  [data-radix-sheet-content]
+    [data-radix-popover-content].notification-popover-native,
+  [data-radix-sheet-content]
+    ~ [data-radix-popover-content].notification-popover-native {
     z-index: 10001 !important;
     position: fixed !important;
   }
 
   /* Ensure popover portal renders above Sheet */
-  body > [data-radix-portal] [data-radix-popover-content].notification-popover-native {
+  body
+    > [data-radix-portal]
+    [data-radix-popover-content].notification-popover-native {
     z-index: 10001 !important;
   }
 
@@ -1679,7 +1781,9 @@ All colors MUST be HSL.
   }
 
   /* Notification item container */
-  :is(.capacitor-native, .mobile-unified) .notification-popover-native .notification-item-native,
+  :is(.capacitor-native, .mobile-unified)
+    .notification-popover-native
+    .notification-item-native,
   .plt-ios .notification-popover-native .notification-item-native,
   .plt-android .notification-popover-native .notification-item-native {
     padding: 0.75rem !important;
@@ -1691,12 +1795,20 @@ All colors MUST be HSL.
   }
 
   /* Title text - FORCE SMALL */
-  :is(.capacitor-native, .mobile-unified) .notification-popover-native .notification-title-native,
+  :is(.capacitor-native, .mobile-unified)
+    .notification-popover-native
+    .notification-title-native,
   .plt-ios .notification-popover-native .notification-title-native,
   .plt-android .notification-popover-native .notification-title-native,
-  :is(.capacitor-native, .mobile-unified) [data-radix-popover-content].notification-popover-native .notification-title-native,
-  .plt-ios [data-radix-popover-content].notification-popover-native .notification-title-native,
-  .plt-android [data-radix-popover-content].notification-popover-native .notification-title-native {
+  :is(.capacitor-native, .mobile-unified)
+    [data-radix-popover-content].notification-popover-native
+    .notification-title-native,
+  .plt-ios
+    [data-radix-popover-content].notification-popover-native
+    .notification-title-native,
+  .plt-android
+    [data-radix-popover-content].notification-popover-native
+    .notification-title-native {
     font-size: 12px !important;
     font-weight: 600 !important;
     line-height: 1.4 !important;
@@ -1706,12 +1818,20 @@ All colors MUST be HSL.
   }
 
   /* Message text - FORCE SMALL */
-  :is(.capacitor-native, .mobile-unified) .notification-popover-native .notification-message-native,
+  :is(.capacitor-native, .mobile-unified)
+    .notification-popover-native
+    .notification-message-native,
   .plt-ios .notification-popover-native .notification-message-native,
   .plt-android .notification-popover-native .notification-message-native,
-  :is(.capacitor-native, .mobile-unified) [data-radix-popover-content].notification-popover-native .notification-message-native,
-  .plt-ios [data-radix-popover-content].notification-popover-native .notification-message-native,
-  .plt-android [data-radix-popover-content].notification-popover-native .notification-message-native {
+  :is(.capacitor-native, .mobile-unified)
+    [data-radix-popover-content].notification-popover-native
+    .notification-message-native,
+  .plt-ios
+    [data-radix-popover-content].notification-popover-native
+    .notification-message-native,
+  .plt-android
+    [data-radix-popover-content].notification-popover-native
+    .notification-message-native {
     font-size: 11px !important;
     line-height: 1.5 !important;
     color: hsl(var(--muted-foreground)) !important;
@@ -1723,12 +1843,20 @@ All colors MUST be HSL.
   }
 
   /* Time text - FORCE SMALLEST */
-  :is(.capacitor-native, .mobile-unified) .notification-popover-native .notification-time-native,
+  :is(.capacitor-native, .mobile-unified)
+    .notification-popover-native
+    .notification-time-native,
   .plt-ios .notification-popover-native .notification-time-native,
   .plt-android .notification-popover-native .notification-time-native,
-  :is(.capacitor-native, .mobile-unified) [data-radix-popover-content].notification-popover-native .notification-time-native,
-  .plt-ios [data-radix-popover-content].notification-popover-native .notification-time-native,
-  .plt-android [data-radix-popover-content].notification-popover-native .notification-time-native {
+  :is(.capacitor-native, .mobile-unified)
+    [data-radix-popover-content].notification-popover-native
+    .notification-time-native,
+  .plt-ios
+    [data-radix-popover-content].notification-popover-native
+    .notification-time-native,
+  .plt-android
+    [data-radix-popover-content].notification-popover-native
+    .notification-time-native {
     font-size: 10px !important;
     line-height: 1.3 !important;
     margin-top: 0.25rem !important;
@@ -1737,7 +1865,10 @@ All colors MUST be HSL.
   }
 
   /* Empty state text */
-  :is(.capacitor-native, .mobile-unified) .notification-popover-native > div > p,
+  :is(.capacitor-native, .mobile-unified)
+    .notification-popover-native
+    > div
+    > p,
   .plt-ios .notification-popover-native > div > p,
   .plt-android .notification-popover-native > div > p {
     font-size: 10px !important;
@@ -1758,7 +1889,9 @@ All colors MUST be HSL.
   .plt-ios .dashboard-header,
   .plt-android .dashboard-header {
     position: fixed !important;
-    top: calc(3rem + env(safe-area-inset-top)) !important; /* Position below main header (3rem = ~48px header height) */
+    top: calc(
+      3rem + env(safe-area-inset-top)
+    ) !important; /* Position below main header (3rem = ~48px header height) */
     left: 0 !important;
     right: 0 !important;
     z-index: 10000 !important;
@@ -1774,22 +1907,33 @@ All colors MUST be HSL.
   :is(.capacitor-native, .mobile-unified):has(.dashboard-header) .container,
   .plt-ios:has(.dashboard-header) .container,
   .plt-android:has(.dashboard-header) .container {
-    padding-top: calc(3.5rem + 1rem) !important; /* Dashboard header height + spacing */
+    padding-top: calc(
+      3.5rem + 1rem
+    ) !important; /* Dashboard header height + spacing */
   }
 
   /* Sheet (Mobile Menu) - Position below header in Capacitor */
-  :is(.capacitor-native, .mobile-unified) [data-radix-sheet-content][data-side="right"],
+  :is(.capacitor-native, .mobile-unified)
+    [data-radix-sheet-content][data-side="right"],
   .plt-ios [data-radix-sheet-content][data-side="right"],
   .plt-android [data-radix-sheet-content][data-side="right"] {
     top: calc(3rem + env(safe-area-inset-top)) !important;
-    height: calc(100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+    height: calc(
+      100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+    ) !important;
     padding-top: 1rem !important;
   }
 
   /* Ensure Sheet close button is positioned correctly */
-  :is(.capacitor-native, .mobile-unified) [data-radix-sheet-content][data-side="right"] > button[class*="absolute"],
-  .plt-ios [data-radix-sheet-content][data-side="right"] > button[class*="absolute"],
-  .plt-android [data-radix-sheet-content][data-side="right"] > button[class*="absolute"] {
+  :is(.capacitor-native, .mobile-unified)
+    [data-radix-sheet-content][data-side="right"]
+    > button[class*="absolute"],
+  .plt-ios
+    [data-radix-sheet-content][data-side="right"]
+    > button[class*="absolute"],
+  .plt-android
+    [data-radix-sheet-content][data-side="right"]
+    > button[class*="absolute"] {
     top: 1rem !important;
     right: 1rem !important;
   }
@@ -1829,13 +1973,13 @@ All colors MUST be HSL.
   .hero-button svg {
     pointer-events: none !important;
   }
-  
+
   /* Primary Button Focus Ring for Accessibility */
   .hero-button:focus-visible {
     outline: 3px solid hsl(var(--color-accent-blue)) !important;
     outline-offset: 2px !important;
   }
-  
+
   /* Tags/Badges - Accent Blue Styling */
   [class*="Badge"][class*="outline"],
   .badge[class*="outline"],
@@ -1844,7 +1988,7 @@ All colors MUST be HSL.
   .badge[class*="default"],
   [class*="badge"][class*="default"] {
     background-color: hsl(var(--color-accent-blue)) !important;
-    color: #FFFFFF !important;
+    color: #ffffff !important;
     border-radius: 4px !important;
     border: none !important;
   }
@@ -1865,7 +2009,7 @@ All colors MUST be HSL.
     border-radius: 6px !important;
     box-shadow: none !important;
   }
-  
+
   /* Remove any pseudo-elements that might create overlays (only ::after) */
   :is(.capacitor-native, .mobile-unified) .hero-button::after,
   .plt-android .hero-button::after,
@@ -1895,7 +2039,7 @@ All colors MUST be HSL.
     color: hsl(var(--color-text-primary-light)) !important;
     opacity: 1 !important;
   }
-  
+
   /* PRO Badge - Accent Gold Styling */
   [class*="ProBadge"],
   .pro-badge,
@@ -1904,25 +2048,29 @@ All colors MUST be HSL.
     color: hsl(var(--color-text-primary-light)) !important;
     border: none !important;
   }
-  
+
   /* Primary Button Variant - Brand Green (all default variant buttons) */
   /* EXCLUDE footer-link buttons from this rule */
   button[class*="bg-primary"]:not(.footer-link):not(.genre-bubble),
   button[class*="variant-default"]:not(.footer-link):not(.genre-bubble),
   .btn-primary:not(.footer-link):not(.genre-bubble),
   [class*="button"][class*="primary"]:not(.footer-link):not(.genre-bubble),
-  button:not(.footer-link):not([class*="outline"]):not([class*="ghost"]):not([class*="secondary"]):not([class*="destructive"]):not([class*="link"]):not(.genre-bubble) {
+  button:not(.footer-link):not([class*="outline"]):not([class*="ghost"]):not(
+      [class*="secondary"]
+    ):not([class*="destructive"]):not([class*="link"]):not(.genre-bubble) {
     background-color: hsl(var(--color-brand-green)) !important;
     color: hsl(var(--color-text-primary-light)) !important;
     border-radius: 6px !important;
     border: none !important;
   }
-  
+
   button[class*="bg-primary"]:not(.footer-link):focus-visible,
   button[class*="variant-default"]:not(.footer-link):focus-visible,
   .btn-primary:not(.footer-link):focus-visible,
   [class*="button"][class*="primary"]:not(.footer-link):focus-visible,
-  button:not(.footer-link):not([class*="outline"]):not([class*="ghost"]):not([class*="secondary"]):not([class*="destructive"]):not([class*="link"]):focus-visible {
+  button:not(.footer-link):not([class*="outline"]):not([class*="ghost"]):not(
+      [class*="secondary"]
+    ):not([class*="destructive"]):not([class*="link"]):focus-visible {
     outline: 3px solid hsl(var(--color-accent-blue)) !important;
     outline-offset: 2px !important;
   }
@@ -1980,25 +2128,31 @@ All colors MUST be HSL.
     outline: none !important;
     box-shadow: none !important;
   }
-  
+
   /* Ensure primary buttons have green background on hover */
   button[class*="bg-primary"]:not(.footer-link):hover,
   button[class*="variant-default"]:not(.footer-link):hover,
   .btn-primary:not(.footer-link):hover {
     background-color: hsl(var(--color-brand-green) / 0.9) !important;
   }
-  
+
   /* Primary buttons in HeroSection */
   [class*="HeroSection"] button[class*="hero-button"],
-  [class*="HeroSection"] button:not(.footer-link):not([class*="outline"]):not([class*="ghost"]):not(.genre-bubble) {
+  [class*="HeroSection"]
+    button:not(.footer-link):not([class*="outline"]):not([class*="ghost"]):not(
+      .genre-bubble
+    ) {
     background-color: hsl(var(--color-brand-green)) !important;
     color: hsl(var(--color-text-primary-light)) !important;
     border-radius: 6px !important;
     border: none !important;
   }
-  
+
   [class*="HeroSection"] button[class*="hero-button"]:focus-visible,
-  [class*="HeroSection"] button:not(.footer-link):not([class*="outline"]):not([class*="ghost"]):focus-visible {
+  [class*="HeroSection"]
+    button:not(.footer-link):not([class*="outline"]):not(
+      [class*="ghost"]
+    ):focus-visible {
     outline: 3px solid hsl(var(--color-accent-blue)) !important;
     outline-offset: 2px !important;
   }
@@ -2113,7 +2267,8 @@ All colors MUST be HSL.
     background-image: none !important;
     color: white !important;
     font-weight: 600 !important;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2), 0 2px 8px rgba(34, 197, 94, 0.3) !important;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2),
+      0 2px 8px rgba(34, 197, 94, 0.3) !important;
     transform: none !important;
   }
 
@@ -2137,7 +2292,8 @@ All colors MUST be HSL.
   }
 
   /* Ensure proper viewport sizing for Capacitor native apps */
-  html, body {
+  html,
+  body {
     width: 100dvw;
     height: 100dvh;
     max-width: 100dvw;
@@ -2222,12 +2378,17 @@ All colors MUST be HSL.
 .plt-android [data-radix-toast-viewport] {
   z-index: 100001 !important; /* Above header (99999) */
   position: fixed !important;
-  top: calc(3.5rem + env(safe-area-inset-top)) !important; /* Below header with spacing */
+  top: calc(
+    3.5rem + env(safe-area-inset-top)
+  ) !important; /* Below header with spacing */
   left: 50% !important;
   transform: translateX(-50%) !important;
   right: auto !important;
   width: auto !important;
-  max-width: min(calc(100vw - 2rem), 320px) !important; /* Centered, max 320px wide */
+  max-width: min(
+    calc(100vw - 2rem),
+    320px
+  ) !important; /* Centered, max 320px wide */
   padding: 0 !important;
   margin: 0 !important;
   display: flex !important;
@@ -2243,7 +2404,10 @@ All colors MUST be HSL.
   padding-right: 1.75rem !important; /* Space for close button */
   min-height: auto !important;
   width: 100% !important;
-  max-width: min(calc(100vw - 2rem), 320px) !important; /* Centered, max 320px */
+  max-width: min(
+    calc(100vw - 2rem),
+    320px
+  ) !important; /* Centered, max 320px */
   border-radius: 0.5rem !important; /* 8px - modern rounded */
   font-size: 11px !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
@@ -2417,7 +2581,9 @@ All colors MUST be HSL.
 }
 
 /* AlertDialog Buttons - Compact size */
-:is(.capacitor-native, .mobile-unified) [data-radix-alert-dialog-content] button,
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-alert-dialog-content]
+  button,
 .plt-ios [data-radix-alert-dialog-content] button,
 .plt-android [data-radix-alert-dialog-content] button {
   height: 2.25rem !important; /* 36px - more compact */
@@ -2461,20 +2627,30 @@ All colors MUST be HSL.
 }
 
 /* AlertDialog spacing containers - Reduce gaps */
-:is(.capacitor-native, .mobile-unified) [data-radix-alert-dialog-content] .space-y-3 > * + *,
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-alert-dialog-content]
+  .space-y-3
+  > *
+  + *,
 .plt-ios [data-radix-alert-dialog-content] .space-y-3 > * + *,
 .plt-android [data-radix-alert-dialog-content] .space-y-3 > * + * {
   margin-top: 0.5rem !important;
 }
 
-:is(.capacitor-native, .mobile-unified) [data-radix-alert-dialog-content] .space-y-2 > * + *,
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-alert-dialog-content]
+  .space-y-2
+  > *
+  + *,
 .plt-ios [data-radix-alert-dialog-content] .space-y-2 > * + *,
 .plt-android [data-radix-alert-dialog-content] .space-y-2 > * + * {
   margin-top: 0.375rem !important;
 }
 
 /* AlertDialog Icon containers - Smaller */
-:is(.capacitor-native, .mobile-unified) [data-radix-alert-dialog-content] .rounded-full,
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-alert-dialog-content]
+  .rounded-full,
 .plt-ios [data-radix-alert-dialog-content] .rounded-full,
 .plt-android [data-radix-alert-dialog-content] .rounded-full {
   padding: 0.375rem !important;
@@ -2483,7 +2659,10 @@ All colors MUST be HSL.
   flex-shrink: 0 !important;
 }
 
-:is(.capacitor-native, .mobile-unified) [data-radix-alert-dialog-content] .rounded-full svg,
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-alert-dialog-content]
+  .rounded-full
+  svg,
 .plt-ios [data-radix-alert-dialog-content] .rounded-full svg,
 .plt-android [data-radix-alert-dialog-content] .rounded-full svg {
   width: 1rem !important; /* 16px */
@@ -2494,17 +2673,25 @@ All colors MUST be HSL.
 :is(.capacitor-native, .mobile-unified) [data-radix-alert-dialog-content] .p-4,
 .plt-ios [data-radix-alert-dialog-content] .p-4,
 .plt-android [data-radix-alert-dialog-content] .p-4,
-:is(.capacitor-native, .mobile-unified) [data-radix-alert-dialog-content] .p-2\.5,
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-alert-dialog-content]
+  .p-2\.5,
 .plt-ios [data-radix-alert-dialog-content] .p-2\.5,
 .plt-android [data-radix-alert-dialog-content] .p-2\.5 {
   padding: 0.625rem !important; /* 10px - very compact */
 }
 
 /* AlertDialog text in warning boxes */
-:is(.capacitor-native, .mobile-unified) [data-radix-alert-dialog-content] .p-4 p,
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-alert-dialog-content]
+  .p-4
+  p,
 .plt-ios [data-radix-alert-dialog-content] .p-4 p,
 .plt-android [data-radix-alert-dialog-content] .p-4 p,
-:is(.capacitor-native, .mobile-unified) [data-radix-alert-dialog-content] .p-2\.5 p,
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-alert-dialog-content]
+  .p-2\.5
+  p,
 .plt-ios [data-radix-alert-dialog-content] .p-2\.5 p,
 .plt-android [data-radix-alert-dialog-content] .p-2\.5 p {
   margin-bottom: 0.375rem !important;
@@ -2517,62 +2704,54 @@ All colors MUST be HSL.
 /* Card 3D Effect Class - Applied directly to Card component */
 .card-3d-effect {
   border: 1.5px solid hsl(var(--color-brand-green) / 0.4) !important;
-  box-shadow: 
-    0 4px 20px hsl(var(--color-brand-green) / 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+  box-shadow: 0 4px 20px hsl(var(--color-brand-green) / 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
   transition: all 0.3s ease !important;
 }
 
 .card-3d-effect:hover {
   border-color: hsl(var(--color-brand-green) / 0.6) !important;
-  box-shadow: 
-    0 6px 30px hsl(var(--color-brand-green) / 0.25),
-    0 4px 16px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+  box-shadow: 0 6px 30px hsl(var(--color-brand-green) / 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
   transform: translateY(-2px) !important;
 }
 
 /* All Cards - Thin green edge with light green backshadow */
 [class*="Card"]:not(.card-3d-effect),
 .card:not(.card-3d-effect),
-[class*="card"]:not([class*="avatar"]):not([class*="badge"]):not(.card-3d-effect) {
+[class*="card"]:not([class*="avatar"]):not([class*="badge"]):not(
+    .card-3d-effect
+  ) {
   border: 1.5px solid hsl(var(--color-brand-green) / 0.4) !important;
-  box-shadow: 
-    0 4px 20px hsl(var(--color-brand-green) / 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+  box-shadow: 0 4px 20px hsl(var(--color-brand-green) / 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
   transition: all 0.3s ease !important;
 }
 
 [class*="Card"]:not(.card-3d-effect):hover,
 .card:not(.card-3d-effect):hover,
-[class*="card"]:not([class*="avatar"]):not([class*="badge"]):not(.card-3d-effect):hover {
+[class*="card"]:not([class*="avatar"]):not([class*="badge"]):not(
+    .card-3d-effect
+  ):hover {
   border-color: hsl(var(--color-brand-green) / 0.6) !important;
-  box-shadow: 
-    0 6px 30px hsl(var(--color-brand-green) / 0.25),
-    0 4px 16px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+  box-shadow: 0 6px 30px hsl(var(--color-brand-green) / 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
   transform: translateY(-2px) !important;
 }
 
 /* Glass Card - Enhanced 3D effect with green edge and shadow */
 .glass-card {
   border: 1.5px solid hsl(var(--color-brand-green) / 0.4) !important;
-  box-shadow: 
-    0 4px 20px hsl(var(--color-brand-green) / 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+  box-shadow: 0 4px 20px hsl(var(--color-brand-green) / 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
 }
 
 .glass-card:hover {
   border-color: hsl(var(--color-brand-green) / 0.6) !important;
-  box-shadow: 
-    0 6px 30px hsl(var(--color-brand-green) / 0.25),
-    0 4px 16px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+  box-shadow: 0 6px 30px hsl(var(--color-brand-green) / 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
   transform: translateY(-2px) !important;
 }
 
@@ -2581,8 +2760,7 @@ All colors MUST be HSL.
 [data-radix-sheet-content] [class*="MenuNavigationButton"],
 [data-radix-sheet-content] [class*="button"]:not([class*="icon"]) {
   border: 1px solid hsl(var(--border) / 0.3) !important;
-  box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.06),
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06),
     0 0 0 1px rgba(255, 255, 255, 0.03) inset !important;
   transition: all 0.2s ease !important;
 }
@@ -2591,8 +2769,7 @@ All colors MUST be HSL.
 [data-radix-sheet-content] [class*="MenuNavigationButton"]:hover,
 [data-radix-sheet-content] [class*="button"]:not([class*="icon"]):hover {
   border-color: hsl(var(--border) / 0.5) !important;
-  box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.1),
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
   transform: translateY(-1px) !important;
 }
@@ -2601,8 +2778,7 @@ All colors MUST be HSL.
 [data-radix-sheet-content] [class*="rounded-2xl"][class*="p-4"],
 [data-radix-sheet-content] [class*="rounded-2xl"][class*="shadow-sm"] {
   border: 1px solid hsl(var(--border) / 0.4) !important;
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.1),
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
 }
 
@@ -2611,20 +2787,16 @@ All colors MUST be HSL.
 [class*="Dashboard"] [class*="Card"],
 [class*="dashboard"] [class*="card"] {
   border: 1.5px solid hsl(var(--color-brand-green) / 0.4) !important;
-  box-shadow: 
-    0 4px 20px hsl(var(--color-brand-green) / 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+  box-shadow: 0 4px 20px hsl(var(--color-brand-green) / 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
 }
 
 .dashboard-card:hover,
 [class*="Dashboard"] [class*="Card"]:hover,
 [class*="dashboard"] [class*="card"]:hover {
   border-color: hsl(var(--color-brand-green) / 0.6) !important;
-  box-shadow: 
-    0 6px 30px hsl(var(--color-brand-green) / 0.25),
-    0 4px 16px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+  box-shadow: 0 6px 30px hsl(var(--color-brand-green) / 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
   transform: translateY(-2px) !important;
 }
 
@@ -2633,20 +2805,16 @@ All colors MUST be HSL.
 [class*="TalentGrid"] [class*="Card"],
 [class*="FeaturedTalentCard"] {
   border: 1.5px solid hsl(var(--color-brand-green) / 0.4) !important;
-  box-shadow: 
-    0 4px 20px hsl(var(--color-brand-green) / 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+  box-shadow: 0 4px 20px hsl(var(--color-brand-green) / 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
 }
 
 [class*="TalentCard"]:hover,
 [class*="TalentGrid"] [class*="Card"]:hover,
 [class*="FeaturedTalentCard"]:hover {
   border-color: hsl(var(--color-brand-green) / 0.6) !important;
-  box-shadow: 
-    0 6px 30px hsl(var(--color-brand-green) / 0.25),
-    0 4px 16px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+  box-shadow: 0 6px 30px hsl(var(--color-brand-green) / 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
   transform: translateY(-2px) !important;
 }
 
@@ -2654,19 +2822,15 @@ All colors MUST be HSL.
 [class*="BookingCard"],
 [class*="EventRequestCard"] {
   border: 1.5px solid hsl(var(--color-brand-green) / 0.4) !important;
-  box-shadow: 
-    0 4px 20px hsl(var(--color-brand-green) / 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+  box-shadow: 0 4px 20px hsl(var(--color-brand-green) / 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
 }
 
 [class*="BookingCard"]:hover,
 [class*="EventRequestCard"]:hover {
   border-color: hsl(var(--color-brand-green) / 0.6) !important;
-  box-shadow: 
-    0 6px 30px hsl(var(--color-brand-green) / 0.25),
-    0 4px 16px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+  box-shadow: 0 6px 30px hsl(var(--color-brand-green) / 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
   transform: translateY(-2px) !important;
 }
 
@@ -2682,10 +2846,8 @@ All colors MUST be HSL.
 .plt-android .card-3d-effect {
   border: 1.5px solid hsl(var(--color-brand-green) / 0.4) !important;
   border-width: 1.5px !important;
-  box-shadow: 
-    0 4px 20px hsl(var(--color-brand-green) / 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+  box-shadow: 0 4px 20px hsl(var(--color-brand-green) / 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
   transition: all 0.3s ease !important;
 }
 
@@ -2699,8 +2861,7 @@ All colors MUST be HSL.
 .plt-ios .card-3d-effect:active,
 .plt-android .card-3d-effect:active {
   border-color: hsl(var(--border) / 0.7) !important;
-  box-shadow: 
-    0 1px 4px rgba(0, 0, 0, 0.12),
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12),
     0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
   transform: translateY(0) !important;
 }
@@ -2708,16 +2869,14 @@ All colors MUST be HSL.
 /* Mobile Menu Sheet - Enhanced separation */
 [data-radix-sheet-content] {
   border-left: 1px solid hsl(var(--border) / 0.4) !important;
-  box-shadow: 
-    -4px 0 16px rgba(0, 0, 0, 0.1),
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
 }
 
 /* Menu Navigation Buttons - Separation */
 [data-radix-sheet-content] [class*="MenuNavigationButton"] {
   border: 1px solid hsl(var(--border) / 0.3) !important;
-  box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.06),
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06),
     0 0 0 1px rgba(255, 255, 255, 0.03) inset !important;
   margin-bottom: 0.5rem !important;
 }
@@ -2725,8 +2884,7 @@ All colors MUST be HSL.
 [data-radix-sheet-content] [class*="MenuNavigationButton"]:hover,
 [data-radix-sheet-content] [class*="MenuNavigationButton"]:active {
   border-color: hsl(var(--border) / 0.5) !important;
-  box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.1),
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
 }
 
@@ -2734,8 +2892,7 @@ All colors MUST be HSL.
 [class*="ProfileEdit"] [class*="Card"],
 [class*="TalentProfileEdit"] [class*="Card"] {
   border: 1px solid hsl(var(--border) / 0.5) !important;
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.1),
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
 }
 
@@ -2743,25 +2900,21 @@ All colors MUST be HSL.
 [data-radix-dialog-content],
 [data-radix-alert-dialog-content] {
   border: 1px solid hsl(var(--border) / 0.5) !important;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
-    0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset, 0 4px 16px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Select Dropdown - 3D effect */
 [data-radix-select-content] {
   border: 1px solid hsl(var(--border) / 0.5) !important;
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.12),
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12),
     0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
 }
 
 /* Popover - 3D effect */
 [data-radix-popover-content] {
   border: 1px solid hsl(var(--border) / 0.5) !important;
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.1),
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
 }
 
@@ -2879,7 +3032,8 @@ header [data-radix-sheet-trigger][data-state="open"]:hover {
   background-color: transparent !important;
   border: none !important;
   border-color: transparent !important;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4), 0 0 6px rgba(255, 255, 255, 0.3), 0 0 3px rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4),
+    0 0 6px rgba(255, 255, 255, 0.3), 0 0 3px rgba(255, 255, 255, 0.2) !important;
   opacity: 1 !important;
   visibility: visible !important;
   display: flex !important;
@@ -2894,7 +3048,8 @@ header [data-radix-sheet-trigger][data-state="open"]:active {
   background-color: transparent !important;
   border: none !important;
   border-color: transparent !important;
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.5), 0 0 8px rgba(255, 255, 255, 0.4), 0 0 4px rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.5),
+    0 0 8px rgba(255, 255, 255, 0.4), 0 0 4px rgba(255, 255, 255, 0.3) !important;
   opacity: 1 !important;
   visibility: visible !important;
   display: flex !important;
@@ -2907,7 +3062,8 @@ header [data-radix-sheet-trigger]:focus {
   background-color: transparent !important;
   border: none !important;
   border-color: transparent !important;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.3), 0 0 6px rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.3),
+    0 0 6px rgba(255, 255, 255, 0.2) !important;
   outline: none !important;
   opacity: 1 !important;
   visibility: visible !important;
@@ -2923,16 +3079,24 @@ header [data-radix-sheet-trigger]:focus {
 :is(.capacitor-native, .mobile-unified) header [data-radix-sheet-trigger],
 .plt-ios header [data-radix-sheet-trigger],
 .plt-android header [data-radix-sheet-trigger],
-:is(.capacitor-native, .mobile-unified) header button[class*="md:hidden"][data-state="open"],
+:is(.capacitor-native, .mobile-unified)
+  header
+  button[class*="md:hidden"][data-state="open"],
 .plt-ios header button[class*="md:hidden"][data-state="open"],
 .plt-android header button[class*="md:hidden"][data-state="open"],
-:is(.capacitor-native, .mobile-unified) header [data-radix-sheet-trigger][data-state="open"],
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-radix-sheet-trigger][data-state="open"],
 .plt-ios header [data-radix-sheet-trigger][data-state="open"],
 .plt-android header [data-radix-sheet-trigger][data-state="open"],
-:is(.capacitor-native, .mobile-unified) header button[class*="md:hidden"][data-state="closed"],
+:is(.capacitor-native, .mobile-unified)
+  header
+  button[class*="md:hidden"][data-state="closed"],
 .plt-ios header button[class*="md:hidden"][data-state="closed"],
 .plt-android header button[class*="md:hidden"][data-state="closed"],
-:is(.capacitor-native, .mobile-unified) header [data-radix-sheet-trigger][data-state="closed"],
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-radix-sheet-trigger][data-state="closed"],
 .plt-ios header [data-radix-sheet-trigger][data-state="closed"],
 .plt-android header [data-radix-sheet-trigger][data-state="closed"] {
   border: none !important;
@@ -2954,16 +3118,21 @@ header [data-radix-sheet-trigger]:focus {
 :is(.capacitor-native, .mobile-unified) header [data-radix-sheet-trigger]:hover,
 .plt-ios header [data-radix-sheet-trigger]:hover,
 .plt-android header [data-radix-sheet-trigger]:hover,
-:is(.capacitor-native, .mobile-unified) header button[class*="md:hidden"][data-state="open"]:hover,
+:is(.capacitor-native, .mobile-unified)
+  header
+  button[class*="md:hidden"][data-state="open"]:hover,
 .plt-ios header button[class*="md:hidden"][data-state="open"]:hover,
 .plt-android header button[class*="md:hidden"][data-state="open"]:hover,
-:is(.capacitor-native, .mobile-unified) header [data-radix-sheet-trigger][data-state="open"]:hover,
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-radix-sheet-trigger][data-state="open"]:hover,
 .plt-ios header [data-radix-sheet-trigger][data-state="open"]:hover,
 .plt-android header [data-radix-sheet-trigger][data-state="open"]:hover {
   background-color: transparent !important;
   border: none !important;
   border-color: transparent !important;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4), 0 0 6px rgba(255, 255, 255, 0.3), 0 0 3px rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4),
+    0 0 6px rgba(255, 255, 255, 0.3), 0 0 3px rgba(255, 255, 255, 0.2) !important;
   opacity: 1 !important;
   visibility: visible !important;
   display: flex !important;
@@ -2971,22 +3140,31 @@ header [data-radix-sheet-trigger]:focus {
   z-index: 100002 !important;
 }
 
-:is(.capacitor-native, .mobile-unified) header button[class*="md:hidden"]:active,
+:is(.capacitor-native, .mobile-unified)
+  header
+  button[class*="md:hidden"]:active,
 .plt-ios header button[class*="md:hidden"]:active,
 .plt-android header button[class*="md:hidden"]:active,
-:is(.capacitor-native, .mobile-unified) header [data-radix-sheet-trigger]:active,
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-radix-sheet-trigger]:active,
 .plt-ios header [data-radix-sheet-trigger]:active,
 .plt-android header [data-radix-sheet-trigger]:active,
-:is(.capacitor-native, .mobile-unified) header button[class*="md:hidden"][data-state="open"]:active,
+:is(.capacitor-native, .mobile-unified)
+  header
+  button[class*="md:hidden"][data-state="open"]:active,
 .plt-ios header button[class*="md:hidden"][data-state="open"]:active,
 .plt-android header button[class*="md:hidden"][data-state="open"]:active,
-:is(.capacitor-native, .mobile-unified) header [data-radix-sheet-trigger][data-state="open"]:active,
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-radix-sheet-trigger][data-state="open"]:active,
 .plt-ios header [data-radix-sheet-trigger][data-state="open"]:active,
 .plt-android header [data-radix-sheet-trigger][data-state="open"]:active {
   background-color: transparent !important;
   border: none !important;
   border-color: transparent !important;
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.5), 0 0 8px rgba(255, 255, 255, 0.4), 0 0 4px rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.5),
+    0 0 8px rgba(255, 255, 255, 0.4), 0 0 4px rgba(255, 255, 255, 0.3) !important;
   opacity: 1 !important;
   visibility: visible !important;
   display: flex !important;
@@ -2997,8 +3175,12 @@ header [data-radix-sheet-trigger]:focus {
 /* Ensure hamburger button stays visible when Sheet is open - above overlay */
 [data-radix-dialog-root][data-state="open"] header button[class*="md:hidden"],
 [data-radix-dialog-root][data-state="open"] header [data-radix-sheet-trigger],
-body:has([data-radix-dialog-content][data-state="open"]) header button[class*="md:hidden"],
-body:has([data-radix-dialog-content][data-state="open"]) header [data-radix-sheet-trigger],
+body:has([data-radix-dialog-content][data-state="open"])
+  header
+  button[class*="md:hidden"],
+body:has([data-radix-dialog-content][data-state="open"])
+  header
+  [data-radix-sheet-trigger],
 header button[class*="md:hidden"][aria-hidden="true"],
 header [data-radix-sheet-trigger][aria-hidden="true"] {
   opacity: 1 !important;
@@ -3041,7 +3223,9 @@ header {
 }
 
 /* Web overlay - also start below header */
-[data-radix-dialog-overlay]:not(:is(.capacitor-native, .mobile-unified)):not(.mobile-unified):not(.plt-ios):not(.plt-android) {
+[data-radix-dialog-overlay]:not(:is(.capacitor-native, .mobile-unified)):not(
+    .mobile-unified
+  ):not(.plt-ios):not(.plt-android) {
   top: 3rem !important;
   height: calc(100vh - 3rem) !important;
   z-index: 50 !important; /* Below header */
@@ -3106,16 +3290,22 @@ header [data-radix-sheet-trigger].variant-ghost {
 
 /* Ensure Sheet content is positioned correctly and doesn't overlap header */
 /* CRITICAL: Remove inset-y-0 and h-full that make sheet cover header */
-:is(.capacitor-native, .mobile-unified) [data-radix-dialog-content][data-state="open"],
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-dialog-content][data-state="open"],
 .plt-ios [data-radix-dialog-content][data-state="open"],
 .plt-android [data-radix-dialog-content][data-state="open"],
-:is(.capacitor-native, .mobile-unified) [data-radix-sheet-content][data-state="open"],
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-sheet-content][data-state="open"],
 .plt-ios [data-radix-sheet-content][data-state="open"],
 .plt-android [data-radix-sheet-content][data-state="open"] {
   top: calc(3rem + env(safe-area-inset-top)) !important;
   bottom: auto !important; /* CRITICAL: Override inset-y-0 bottom: 0 */
-  height: calc(100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
-  max-height: calc(100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+  height: calc(
+    100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  ) !important;
+  max-height: calc(
+    100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  ) !important;
   z-index: 10001 !important; /* Above overlay (10000) but below header (100003) */
   /* Ensure it doesn't extend into header */
   margin-top: 0 !important;
@@ -3124,22 +3314,32 @@ header [data-radix-sheet-trigger].variant-ghost {
 
 /* FORCE SheetContent to NOT use inset-y-0 for native apps */
 /* CRITICAL: Ensure SheetContent NEVER visually appears in header area */
-:is(.capacitor-native, .mobile-unified) [data-radix-sheet-content][data-side="right"],
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-sheet-content][data-side="right"],
 .plt-ios [data-radix-sheet-content][data-side="right"],
 .plt-android [data-radix-sheet-content][data-side="right"],
-:is(.capacitor-native, .mobile-unified) [data-radix-sheet-content][data-side="right"][data-state="open"],
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-sheet-content][data-side="right"][data-state="open"],
 .plt-ios [data-radix-sheet-content][data-side="right"][data-state="open"],
 .plt-android [data-radix-sheet-content][data-side="right"][data-state="open"],
-:is(.capacitor-native, .mobile-unified) [data-radix-sheet-content][data-side="right"][data-state="closed"],
+:is(.capacitor-native, .mobile-unified)
+  [data-radix-sheet-content][data-side="right"][data-state="closed"],
 .plt-ios [data-radix-sheet-content][data-side="right"][data-state="closed"],
-.plt-android [data-radix-sheet-content][data-side="right"][data-state="closed"] {
+.plt-android
+  [data-radix-sheet-content][data-side="right"][data-state="closed"] {
   top: calc(3rem + env(safe-area-inset-top)) !important;
   bottom: auto !important; /* CRITICAL: Remove bottom: 0 from inset-y-0 */
   left: auto !important;
   right: 0 !important;
-  height: calc(100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
-  max-height: calc(100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
-  min-height: calc(100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+  height: calc(
+    100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  ) !important;
+  max-height: calc(
+    100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  ) !important;
+  min-height: calc(
+    100vh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  ) !important;
   /* Remove any top: 0 or bottom: 0 that might be set */
   margin-top: 0 !important;
   padding-top: 0 !important;
@@ -3150,8 +3350,20 @@ header [data-radix-sheet-trigger].variant-ghost {
   /* Ensure background doesn't extend beyond bounds */
   background-clip: padding-box !important;
   /* CRITICAL: Use mask-image to create transparent area for header - prevents ANY visual coverage */
-  mask-image: linear-gradient(to bottom, transparent 0%, transparent calc(3rem + env(safe-area-inset-top)), black calc(3rem + env(safe-area-inset-top) + 1px), black 100%) !important;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent calc(3rem + env(safe-area-inset-top)), black calc(3rem + env(safe-area-inset-top) + 1px), black 100%) !important;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent calc(3rem + env(safe-area-inset-top)),
+    black calc(3rem + env(safe-area-inset-top) + 1px),
+    black 100%
+  ) !important;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent calc(3rem + env(safe-area-inset-top)),
+    black calc(3rem + env(safe-area-inset-top) + 1px),
+    black 100%
+  ) !important;
 }
 
 /* FORCE HAMBURGER BUTTON TO BE ALWAYS VISIBLE - AGGRESSIVE FIX */
@@ -3159,10 +3371,14 @@ header [data-radix-sheet-trigger].variant-ghost {
 :is(.capacitor-native, .mobile-unified) header [data-hamburger-button],
 .plt-ios header [data-hamburger-button],
 .plt-android header [data-hamburger-button],
-:is(.capacitor-native, .mobile-unified) header [data-hamburger-button][data-state="open"],
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-hamburger-button][data-state="open"],
 .plt-ios header [data-hamburger-button][data-state="open"],
 .plt-android header [data-hamburger-button][data-state="open"],
-:is(.capacitor-native, .mobile-unified) header [data-hamburger-button][data-state="closed"],
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-hamburger-button][data-state="closed"],
 .plt-ios header [data-hamburger-button][data-state="closed"],
 .plt-android header [data-hamburger-button][data-state="closed"],
 :is(.capacitor-native, .mobile-unified) header [data-hamburger-button]:hover,
@@ -3198,16 +3414,24 @@ header [data-radix-sheet-trigger].variant-ghost {
 :is(.capacitor-native, .mobile-unified) header [data-hamburger-button]::after,
 .plt-ios header [data-hamburger-button]::after,
 .plt-android header [data-hamburger-button]::after,
-:is(.capacitor-native, .mobile-unified) header [data-hamburger-button]:hover::before,
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-hamburger-button]:hover::before,
 .plt-ios header [data-hamburger-button]:hover::before,
 .plt-android header [data-hamburger-button]:hover::before,
-:is(.capacitor-native, .mobile-unified) header [data-hamburger-button]:hover::after,
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-hamburger-button]:hover::after,
 .plt-ios header [data-hamburger-button]:hover::after,
 .plt-android header [data-hamburger-button]:hover::after,
-:is(.capacitor-native, .mobile-unified) header [data-hamburger-button]:active::before,
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-hamburger-button]:active::before,
 .plt-ios header [data-hamburger-button]:active::before,
 .plt-android header [data-hamburger-button]:active::before,
-:is(.capacitor-native, .mobile-unified) header [data-hamburger-button]:active::after,
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-hamburger-button]:active::after,
 .plt-ios header [data-hamburger-button]:active::after,
 .plt-android header [data-hamburger-button]:active::after {
   display: none !important;
@@ -3253,13 +3477,19 @@ header [data-hamburger-button]:focus,
 :is(.capacitor-native, .mobile-unified) header [data-hamburger-button],
 .plt-ios header [data-hamburger-button],
 .plt-android header [data-hamburger-button],
-:is(.capacitor-native, .mobile-unified) header button[class*="md:hidden"][data-state="open"],
+:is(.capacitor-native, .mobile-unified)
+  header
+  button[class*="md:hidden"][data-state="open"],
 .plt-ios header button[class*="md:hidden"][data-state="open"],
 .plt-android header button[class*="md:hidden"][data-state="open"],
-:is(.capacitor-native, .mobile-unified) header [data-radix-sheet-trigger][data-state="open"],
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-radix-sheet-trigger][data-state="open"],
 .plt-ios header [data-radix-sheet-trigger][data-state="open"],
 .plt-android header [data-radix-sheet-trigger][data-state="open"],
-:is(.capacitor-native, .mobile-unified) header [data-hamburger-button][data-state="open"],
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-hamburger-button][data-state="open"],
 .plt-ios header [data-hamburger-button][data-state="open"],
 .plt-android header [data-hamburger-button][data-state="open"] {
   z-index: 999999 !important; /* EXTREMELY HIGH - above everything */
@@ -3298,10 +3528,14 @@ header [data-hamburger-button]:active::before,
 header button[class*="md:hidden"]:active::after,
 header [data-radix-sheet-trigger]:active::after,
 header [data-hamburger-button]:active::after,
-:is(.capacitor-native, .mobile-unified) header button[class*="md:hidden"]::before,
+:is(.capacitor-native, .mobile-unified)
+  header
+  button[class*="md:hidden"]::before,
 .plt-ios header button[class*="md:hidden"]::before,
 .plt-android header button[class*="md:hidden"]::before,
-:is(.capacitor-native, .mobile-unified) header button[class*="md:hidden"]::after,
+:is(.capacitor-native, .mobile-unified)
+  header
+  button[class*="md:hidden"]::after,
 .plt-ios header button[class*="md:hidden"]::after,
 .plt-android header button[class*="md:hidden"]::after {
   display: none !important;
@@ -3393,11 +3627,14 @@ header [data-hamburger-button] svg::after {
 
 /* Smooth glow animation when menu is open */
 @keyframes hamburger-glow {
-  0%, 100% {
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3), 0 0 4px rgba(255, 255, 255, 0.2);
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3),
+      0 0 4px rgba(255, 255, 255, 0.2);
   }
   50% {
-    box-shadow: 0 0 16px rgba(255, 255, 255, 0.5), 0 0 8px rgba(255, 255, 255, 0.4), 0 0 4px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.5),
+      0 0 8px rgba(255, 255, 255, 0.4), 0 0 4px rgba(255, 255, 255, 0.3);
   }
 }
 
@@ -3408,22 +3645,43 @@ header button[class*="md:hidden"][aria-expanded="true"],
 header [data-radix-sheet-trigger][aria-expanded="true"],
 header [data-hamburger-button] {
   animation: hamburger-glow 2s ease-in-out infinite !important;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4), 0 0 6px rgba(255, 255, 255, 0.3), 0 0 3px rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4),
+    0 0 6px rgba(255, 255, 255, 0.3), 0 0 3px rgba(255, 255, 255, 0.2) !important;
   transition: box-shadow 0.3s ease-in-out !important;
 }
 
 /* CRITICAL FIX: Force hamburger button to ALWAYS be visible when Sheet is open */
 /* This prevents the button from disappearing after menu slides open */
-body:has([data-radix-sheet-content][data-state="open"]) header [data-hamburger-button],
-body:has([data-radix-sheet-content][data-state="open"]) header button[class*="md:hidden"],
+body:has([data-radix-sheet-content][data-state="open"])
+  header
+  [data-hamburger-button],
+body:has([data-radix-sheet-content][data-state="open"])
+  header
+  button[class*="md:hidden"],
 [data-radix-sheet-root][data-state="open"] ~ header [data-hamburger-button],
 [data-radix-sheet-root][data-state="open"] ~ header button[class*="md:hidden"],
-:is(.capacitor-native, .mobile-unified):has([data-radix-sheet-content][data-state="open"]) header [data-hamburger-button],
-.plt-ios:has([data-radix-sheet-content][data-state="open"]) header [data-hamburger-button],
-.plt-android:has([data-radix-sheet-content][data-state="open"]) header [data-hamburger-button],
-:is(.capacitor-native, .mobile-unified):has([data-radix-sheet-content][data-state="open"]) header button[class*="md:hidden"],
-.plt-ios:has([data-radix-sheet-content][data-state="open"]) header button[class*="md:hidden"],
-.plt-android:has([data-radix-sheet-content][data-state="open"]) header button[class*="md:hidden"] {
+:is(.capacitor-native, .mobile-unified):has(
+    [data-radix-sheet-content][data-state="open"]
+  )
+  header
+  [data-hamburger-button],
+.plt-ios:has([data-radix-sheet-content][data-state="open"])
+  header
+  [data-hamburger-button],
+.plt-android:has([data-radix-sheet-content][data-state="open"])
+  header
+  [data-hamburger-button],
+:is(.capacitor-native, .mobile-unified):has(
+    [data-radix-sheet-content][data-state="open"]
+  )
+  header
+  button[class*="md:hidden"],
+.plt-ios:has([data-radix-sheet-content][data-state="open"])
+  header
+  button[class*="md:hidden"],
+.plt-android:has([data-radix-sheet-content][data-state="open"])
+  header
+  button[class*="md:hidden"] {
   opacity: 1 !important;
   visibility: visible !important;
   display: flex !important;
@@ -3438,16 +3696,47 @@ body:has([data-radix-sheet-content][data-state="open"]) header button[class*="md
 }
 
 /* Force SVG icon inside hamburger button to ALWAYS be visible when Sheet is open */
-body:has([data-radix-sheet-content][data-state="open"]) header [data-hamburger-button] svg,
-body:has([data-radix-sheet-content][data-state="open"]) header button[class*="md:hidden"] svg,
+body:has([data-radix-sheet-content][data-state="open"])
+  header
+  [data-hamburger-button]
+  svg,
+body:has([data-radix-sheet-content][data-state="open"])
+  header
+  button[class*="md:hidden"]
+  svg,
 [data-radix-sheet-root][data-state="open"] ~ header [data-hamburger-button] svg,
-[data-radix-sheet-root][data-state="open"] ~ header button[class*="md:hidden"] svg,
-:is(.capacitor-native, .mobile-unified):has([data-radix-sheet-content][data-state="open"]) header [data-hamburger-button] svg,
-.plt-ios:has([data-radix-sheet-content][data-state="open"]) header [data-hamburger-button] svg,
-.plt-android:has([data-radix-sheet-content][data-state="open"]) header [data-hamburger-button] svg,
-:is(.capacitor-native, .mobile-unified):has([data-radix-sheet-content][data-state="open"]) header button[class*="md:hidden"] svg,
-.plt-ios:has([data-radix-sheet-content][data-state="open"]) header button[class*="md:hidden"] svg,
-.plt-android:has([data-radix-sheet-content][data-state="open"]) header button[class*="md:hidden"] svg {
+[data-radix-sheet-root][data-state="open"]
+  ~ header
+  button[class*="md:hidden"]
+  svg,
+:is(.capacitor-native, .mobile-unified):has(
+    [data-radix-sheet-content][data-state="open"]
+  )
+  header
+  [data-hamburger-button]
+  svg,
+.plt-ios:has([data-radix-sheet-content][data-state="open"])
+  header
+  [data-hamburger-button]
+  svg,
+.plt-android:has([data-radix-sheet-content][data-state="open"])
+  header
+  [data-hamburger-button]
+  svg,
+:is(.capacitor-native, .mobile-unified):has(
+    [data-radix-sheet-content][data-state="open"]
+  )
+  header
+  button[class*="md:hidden"]
+  svg,
+.plt-ios:has([data-radix-sheet-content][data-state="open"])
+  header
+  button[class*="md:hidden"]
+  svg,
+.plt-android:has([data-radix-sheet-content][data-state="open"])
+  header
+  button[class*="md:hidden"]
+  svg {
   opacity: 1 !important;
   visibility: visible !important;
   display: flex !important;
@@ -3464,10 +3753,14 @@ body:has([data-radix-sheet-content][data-state="open"]) header button[class*="md
 /* ADDITIONAL FIX: Target hamburger button by data-menu-open attribute (more reliable than :has()) */
 header [data-hamburger-button][data-menu-open="true"],
 header [data-hamburger-button][data-menu-open="false"],
-:is(.capacitor-native, .mobile-unified) header [data-hamburger-button][data-menu-open="true"],
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-hamburger-button][data-menu-open="true"],
 .plt-ios header [data-hamburger-button][data-menu-open="true"],
 .plt-android header [data-hamburger-button][data-menu-open="true"],
-:is(.capacitor-native, .mobile-unified) header [data-hamburger-button][data-menu-open="false"],
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-hamburger-button][data-menu-open="false"],
 .plt-ios header [data-hamburger-button][data-menu-open="false"],
 .plt-android header [data-hamburger-button][data-menu-open="false"] {
   opacity: 1 !important;
@@ -3486,10 +3779,16 @@ header [data-hamburger-button][data-menu-open="false"],
 /* Force SVG visibility when menu is open (using data-menu-open) */
 header [data-hamburger-button][data-menu-open="true"] svg,
 header [data-hamburger-button][data-menu-open="false"] svg,
-:is(.capacitor-native, .mobile-unified) header [data-hamburger-button][data-menu-open="true"] svg,
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-hamburger-button][data-menu-open="true"]
+  svg,
 .plt-ios header [data-hamburger-button][data-menu-open="true"] svg,
 .plt-android header [data-hamburger-button][data-menu-open="true"] svg,
-:is(.capacitor-native, .mobile-unified) header [data-hamburger-button][data-menu-open="false"] svg,
+:is(.capacitor-native, .mobile-unified)
+  header
+  [data-hamburger-button][data-menu-open="false"]
+  svg,
 .plt-ios header [data-hamburger-button][data-menu-open="false"] svg,
 .plt-android header [data-hamburger-button][data-menu-open="false"] svg {
   opacity: 1 !important;
@@ -3511,7 +3810,9 @@ header {
   position: fixed !important; /* Fixed positioning */
   isolation: isolate !important; /* Create new stacking context */
   /* Ensure header is always above overlay */
-  transform: translateZ(0) !important; /* Force hardware acceleration and new stacking context */
+  transform: translateZ(
+    0
+  ) !important; /* Force hardware acceleration and new stacking context */
 }
 
 /* Prevent any element from covering header */
@@ -3528,7 +3829,9 @@ header [data-radix-sheet-trigger] {
   pointer-events: auto !important;
   /* Ensure it's always clickable even when overlay is present */
   isolation: isolate !important;
-  transform: translateZ(0) !important; /* Force hardware acceleration and new stacking context */
+  transform: translateZ(
+    0
+  ) !important; /* Force hardware acceleration and new stacking context */
   /* Force it to be above everything */
   will-change: transform !important;
 }
@@ -3538,45 +3841,101 @@ header [data-radix-sheet-trigger] {
   animation: searchFormPulse 2s ease-in-out;
   border-color: hsl(var(--color-brand-green)) !important;
   box-shadow: 0 0 0 4px hsl(var(--color-brand-green) / 0.2),
-              0 0 20px hsl(var(--color-brand-green) / 0.3) !important;
+    0 0 20px hsl(var(--color-brand-green) / 0.3) !important;
 }
 
 @keyframes searchFormPulse {
   0% {
     transform: scale(1);
     box-shadow: 0 0 0 0 hsl(var(--color-brand-green) / 0.4),
-                0 0 20px hsl(var(--color-brand-green) / 0.3);
+      0 0 20px hsl(var(--color-brand-green) / 0.3);
   }
   50% {
     transform: scale(1.02);
     box-shadow: 0 0 0 8px hsl(var(--color-brand-green) / 0.1),
-                0 0 30px hsl(var(--color-brand-green) / 0.4);
+      0 0 30px hsl(var(--color-brand-green) / 0.4);
   }
   100% {
     transform: scale(1);
     box-shadow: 0 0 0 4px hsl(var(--color-brand-green) / 0.2),
-                0 0 20px hsl(var(--color-brand-green) / 0.3);
+      0 0 20px hsl(var(--color-brand-green) / 0.3);
   }
 }
 
+/* Enhanced card highlight with button animation */
 .card-focus-highlight {
-  animation: cardFocusPulse 1.2s ease-in-out 2;
+  animation: cardFocusPulse 1.5s ease-in-out 3;
   border-color: hsl(var(--color-brand-green)) !important;
-  box-shadow: 0 0 0 4px hsl(var(--color-brand-green) / 0.15),
-              0 12px 24px hsl(var(--color-brand-green) / 0.25) !important;
+  box-shadow: 0 0 0 4px hsl(var(--color-brand-green) / 0.2),
+    0 12px 24px hsl(var(--color-brand-green) / 0.3) !important;
+  position: relative;
+}
+
+/* Highlight buttons inside focused card */
+.card-focus-highlight button:not(:disabled) {
+  animation: buttonPulse 1.5s ease-in-out 3;
+  box-shadow: 0 0 0 2px hsl(var(--color-brand-green) / 0.3) !important;
+}
+
+/* Special highlight for Accept/Decline buttons */
+.card-focus-highlight button[class*="Accept"],
+.card-focus-highlight button:has-text("Accept"),
+.card-focus-highlight button:has-text("Decline") {
+  animation: buttonPulse 1.5s ease-in-out 3;
+  box-shadow: 0 0 0 3px hsl(var(--color-brand-green) / 0.4),
+    0 4px 12px hsl(var(--color-brand-green) / 0.3) !important;
+}
+
+/* Button focus highlight class */
+.button-focus-highlight {
+  animation: buttonPulse 1.5s ease-in-out 3;
+  position: relative;
+}
+
+.button-focus-highlight::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    45deg,
+    hsl(var(--color-brand-green) / 0.6),
+    hsl(var(--color-brand-green) / 0.3)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: buttonPulse 1.5s ease-in-out 3;
+  pointer-events: none;
+  z-index: -1;
 }
 
 @keyframes cardFocusPulse {
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 hsl(var(--color-brand-green) / 0.0);
+    box-shadow: 0 0 0 0 hsl(var(--color-brand-green) / 0);
   }
   50% {
-    transform: scale(1.01);
-    box-shadow: 0 10px 24px hsl(var(--color-brand-green) / 0.35);
+    transform: scale(1.02);
+    box-shadow: 0 0 0 6px hsl(var(--color-brand-green) / 0.25),
+      0 16px 32px hsl(var(--color-brand-green) / 0.4);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 hsl(var(--color-brand-green) / 0.0);
+    box-shadow: 0 0 0 0 hsl(var(--color-brand-green) / 0);
+  }
+}
+
+@keyframes buttonPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 2px hsl(var(--color-brand-green) / 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 4px hsl(var(--color-brand-green) / 0.5),
+      0 6px 16px hsl(var(--color-brand-green) / 0.4);
   }
 }
