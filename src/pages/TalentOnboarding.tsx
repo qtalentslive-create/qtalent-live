@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -795,7 +796,7 @@ export default function TalentOnboarding() {
 
   if (signupMessageVisible) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">
@@ -830,7 +831,7 @@ export default function TalentOnboarding() {
       "[TalentOnboarding] Rendering native form with YourEvent pattern"
     );
     return (
-      <div className="min-h-screen bg-background" ref={formContainerRef}>
+      <div className="min-h-screen" ref={formContainerRef}>
         <Header />
         <div className={cn(
           "container mx-auto px-4 py-8",
@@ -954,9 +955,8 @@ export default function TalentOnboarding() {
                         >
                           Password *
                         </Label>
-                        <Input
+                        <PasswordInput
                           id="password"
-                          type="password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="Min 6 characters"
@@ -1375,7 +1375,7 @@ export default function TalentOnboarding() {
   return (
     <div
       className={cn(
-        "min-h-screen w-full bg-background",
+        "min-h-screen w-full",
         "overflow-y-auto pb-6"
       )}
     >
@@ -1502,9 +1502,8 @@ export default function TalentOnboarding() {
                     >
                       Password *
                     </Label>
-                    <Input
+                    <PasswordInput
                       id="password"
-                      type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Min 6 characters"

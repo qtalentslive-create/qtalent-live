@@ -16,10 +16,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background w-full max-w-full overflow-x-hidden">
+    <div className="page-wrapper min-h-screen">
       <Header />
       <PullToRefresh onRefresh={handleRefresh}>
-        <main className="w-full max-w-full overflow-x-hidden">
+        <main className="main-content">
           <HeroSection />
           <TalentGrid key={refreshKey} />
         </main>

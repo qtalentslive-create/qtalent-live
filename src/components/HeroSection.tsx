@@ -175,23 +175,24 @@ export function HeroSection() {
 
   return (
     <section
-      className={`relative min-h-screen flex items-center justify-center ${
+      className={`hero-section relative min-h-screen flex items-center justify-center ${
         isNativeApp ? "pt-4" : "pt-24"
-      } pb-16 w-full max-w-full overflow-x-hidden`}
+      } pb-16`}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-brand-primary/5" />
+      {/* Subtle overlay - transparent to show body gradient */}
+      <div className="hero-overlay absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-brand-primary/3 pointer-events-none" />
 
-      <div className="container mx-auto px-4 relative z-10 w-full max-w-full">
+      <div className="hero-container container mx-auto px-4 relative z-10">
         <div
-          className={`grid ${
+          className={`hero-grid grid ${
             isNativeApp ? "lg:grid-cols-1 gap-8" : "lg:grid-cols-2 gap-12"
-          } items-center w-full`}
+          } items-center`}
         >
           {/* Left Content */}
           <div
-            className={`${
+            className={`hero-content ${
               isNativeApp ? "space-y-5" : "space-y-8"
-            } animate-fadeIn w-full max-w-full overflow-x-hidden`}
+            } animate-fadeIn`}
           >
             <div
               className={isNativeApp ? "space-y-3" : "space-y-4 sm:space-y-6"}
@@ -247,23 +248,23 @@ export function HeroSection() {
             {/* Search Form */}
             <Card
               id="hero-search-form"
-              className={`${
+              className={`hero-search-form ${
                 isNativeApp
                   ? "p-5 border border-border/30 shadow-sm bg-card/80 backdrop-blur-sm"
                   : "p-4 sm:p-6 md:p-8 glass-card border border-border/50 shadow-elevated"
-              } w-full max-w-full overflow-hidden`}
+              } overflow-hidden`}
             >
               <div
                 className={`grid ${
                   isNativeApp
                     ? "grid-cols-1 gap-4"
                     : "grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
-                } w-full`}
+                }`}
               >
                 <div
                   className={`${
                     isNativeApp ? "space-y-2" : "space-y-1.5"
-                  } w-full`}
+                  }`}
                 >
                   <label
                     className={`${
@@ -274,7 +275,7 @@ export function HeroSection() {
                   >
                     {isNativeApp ? "Location" : "WHERE"}
                   </label>
-                  <div className="relative w-full">
+                  <div className="relative">
                     <MapPin
                       className={`absolute ${
                         isNativeApp
@@ -334,7 +335,7 @@ export function HeroSection() {
                   >
                     {isNativeApp ? "Talent Type" : "TALENT TYPE"}
                   </label>
-                  <div className="relative w-full">
+                  <div className="relative">
                     <Music
                       className={`absolute ${
                         isNativeApp
@@ -382,7 +383,7 @@ export function HeroSection() {
                 <div
                   className={`flex ${
                     isNativeApp ? "items-end" : "items-end"
-                  } w-full`}
+                  }`}
                 >
                   <Button
                     className={`w-full ${
@@ -407,7 +408,7 @@ export function HeroSection() {
 
             {/* Social Proof */}
             <div
-              className={`flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm w-full ${
+              className={`hero-social-proof flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm ${
                 isNativeApp ? "px-2" : ""
               }`}
             >
@@ -440,7 +441,7 @@ export function HeroSection() {
                   isNativeApp
                     ? "p-2.5 bg-primary/5 border border-primary/20 rounded-lg"
                     : "p-3 bg-accent/10 border border-accent/20 rounded-lg"
-                } w-full max-w-full`}
+                }`}
               >
                 <div
                   className={`${
@@ -483,9 +484,9 @@ export function HeroSection() {
 
           {/* Right Content - Pro Artists Carousel */}
           <div
-            className={`${
+            className={`hero-carousel ${
               isNativeApp ? "space-y-4 mt-8" : "space-y-6"
-            } w-full max-w-full overflow-x-hidden`}
+            } overflow-x-hidden`}
           >
             <div
               className={`text-center ${
@@ -517,7 +518,7 @@ export function HeroSection() {
 
             {featuredTalents.length > 0 ? (
               <div
-                className="w-full max-w-full overflow-hidden relative"
+                className="hero-carousel-wrapper overflow-hidden relative"
                 onMouseEnter={() => heroCarouselAutoplay.current?.stop()}
                 onMouseLeave={() => heroCarouselAutoplay.current?.reset()}
               >
@@ -527,7 +528,7 @@ export function HeroSection() {
                     loop: true,
                   }}
                   plugins={[heroCarouselAutoplay.current]}
-                  className="w-full max-w-full"
+                  className="w-full"
                 >
                   <CarouselContent className="-ml-2 md:-ml-4">
                     {(featuredTalents.length > (isNativeApp ? 4 : 6)
@@ -563,10 +564,10 @@ export function HeroSection() {
               </div>
             ) : (
               // Loading state
-              <div className="space-y-4 w-full max-w-full">
+              <div className="space-y-4">
                 {[...Array(2)].map((_, i) => (
-                  <div key={i} className="animate-pulse w-full">
-                    <Card className="p-4 glass-card h-32 bg-muted/50 w-full"></Card>
+                  <div key={i} className="animate-pulse">
+                    <Card className="p-4 glass-card h-32 bg-muted/50"></Card>
                   </div>
                 ))}
               </div>
@@ -576,14 +577,14 @@ export function HeroSection() {
 
         {/* Booker Help Section */}
         <div
-          className={`${isNativeApp ? "mt-12" : "mt-24"} text-center ${
+          className={`hero-help-section ${isNativeApp ? "mt-12" : "mt-24"} text-center ${
             isNativeApp ? "space-y-6" : "space-y-8"
-          } w-full max-w-full`}
+          }`}
         >
           <div
             className={`${
               isNativeApp ? "space-y-3" : "space-y-4"
-            } w-full max-w-full`}
+            }`}
           >
             <div
               className={`inline-flex items-center justify-center ${
@@ -621,11 +622,11 @@ export function HeroSection() {
           <div
             className={`flex ${
               isNativeApp ? "flex-col gap-3" : "flex-col sm:flex-row gap-4"
-            } items-center justify-center w-full max-w-full`}
+            } items-center justify-center`}
           >
             <Button
               size="lg"
-              className="hero-button px-6 sm:px-8 py-4 text-sm sm:text-base font-semibold w-full sm:w-auto max-w-full"
+              className="hero-button px-6 sm:px-8 py-4 text-sm sm:text-base font-semibold w-full sm:w-auto"
               onClick={() => {
                 if (user) {
                   navigate("/your-event");

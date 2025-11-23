@@ -1,9 +1,20 @@
 import { useState, useRef } from "react";
-import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
+import { Upload, X, ImageIcon, Loader2, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useProStatus } from "@/contexts/ProStatusContext";
+import AvatarEditor from "react-avatar-editor";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 
 interface SimpleGalleryUploadProps {
   currentImages: string[];
@@ -20,8 +31,15 @@ export function SimpleGalleryUpload({
 }: SimpleGalleryUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<File | null>(null);
+  const [scale, setScale] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [applyingCrop, setApplyingCrop] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const editorRef = useRef<AvatarEditor>(null);
   const { toast } = useToast();
   const { isProUser } = useProStatus();
 
@@ -95,6 +113,100 @@ export function SimpleGalleryUpload({
     });
   };
 
+  const handleCropComplete = async () => {
+    if (!editorRef.current || !imageToCrop || applyingCrop) return;
+
+    try {
+      setApplyingCrop(true);
+
+      // Get the canvas with the cropped image
+      const canvas = editorRef.current.getImageScaledToCanvas();
+
+      // Convert canvas to blob asynchronously
+      canvas.toBlob(
+        async (blob) => {
+          if (!blob) {
+            setApplyingCrop(false);
+            toast({
+              title: "Error",
+              description: "Failed to crop image. Please try again.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          // Defer heavy operations to prevent UI blocking
+          await new Promise<void>((resolve) => {
+            Promise.resolve().then(() => {
+              setTimeout(
+                () => {
+                  resolve();
+                },
+                Capacitor.isNativePlatform() ? 50 : 0
+              );
+            });
+          });
+
+          // Convert blob to file
+          const croppedFile = new File([blob], `gallery-${Date.now()}.jpg`, {
+            type: "image/jpeg",
+            lastModified: Date.now(),
+          });
+
+          // Clean up dialog first
+          setCropDialogOpen(false);
+          setImageToCrop(null);
+          setApplyingCrop(false);
+
+          // Upload the cropped image
+          await uploadImage(croppedFile);
+
+          // Process next file in queue if any
+          if (pendingFiles.length > 0) {
+            const nextFile = pendingFiles[0];
+            setPendingFiles((prev) => prev.slice(1));
+            // Small delay before opening next crop dialog
+            setTimeout(() => {
+              setImageToCrop(nextFile);
+              setScale(1);
+              setRotation(0);
+              setCropDialogOpen(true);
+            }, 300);
+          }
+        },
+        "image/jpeg",
+        0.9
+      );
+    } catch (error) {
+      console.error("Error cropping image:", error);
+      setApplyingCrop(false);
+      toast({
+        title: "Error",
+        description: "Failed to crop image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCropCancel = () => {
+    setCropDialogOpen(false);
+    setImageToCrop(null);
+    setScale(1);
+    setRotation(0);
+
+    // Process next file in queue if any
+    if (pendingFiles.length > 0) {
+      const nextFile = pendingFiles[0];
+      setPendingFiles((prev) => prev.slice(1));
+      setTimeout(() => {
+        setImageToCrop(nextFile);
+        setScale(1);
+        setRotation(0);
+        setCropDialogOpen(true);
+      }, 300);
+    }
+  };
+
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
       // Get current user ID for proper file organization
@@ -105,9 +217,6 @@ export function SimpleGalleryUpload({
         throw new Error("User not authenticated");
       }
 
-      // Process image to square format
-      const processedFile = await processImageToSquare(file);
-
       // Create organized file path
       const timestamp = Date.now();
       const randomId = Math.random().toString(36).substring(2);
@@ -116,7 +225,7 @@ export function SimpleGalleryUpload({
 
       const { error: uploadError } = await supabase.storage
         .from("talent-pictures")
-        .upload(filePath, processedFile);
+        .upload(filePath, file);
 
       if (uploadError) {
         throw uploadError;
@@ -126,10 +235,81 @@ export function SimpleGalleryUpload({
         .from("talent-pictures")
         .getPublicUrl(filePath);
 
+      // Add to current images
+      const newImages = [...currentImages, data.publicUrl];
+      onImagesChange(newImages);
+
+      toast({
+        title: "Upload Successful",
+        description: "Image uploaded and added to gallery",
+      });
+
       return data.publicUrl;
     } catch (error) {
       console.error("Error uploading image:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
       throw error;
+    }
+  };
+
+  const handleFile = async (file: File) => {
+    if (uploading || disabled) {
+      console.log(
+        "[SimpleGalleryUpload] Already processing or disabled, ignoring"
+      );
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      // 10MB limit
+      toast({
+        title: "File Too Large",
+        description: "Please select an image under 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setUploading(true);
+
+      // Defer state updates to next event loop to prevent UI blocking
+      const delay = Capacitor.isNativePlatform() ? 150 : 50;
+      await new Promise<void>((resolve) => {
+        Promise.resolve().then(() => {
+          setTimeout(() => {
+            resolve();
+          }, delay);
+        });
+      });
+
+      // Open the crop dialog after async delay
+      setImageToCrop(file);
+      setScale(1);
+      setRotation(0);
+      setCropDialogOpen(true);
+      setUploading(false);
+    } catch (error) {
+      console.error("Error processing file:", error);
+      setUploading(false);
+      toast({
+        title: "Error",
+        description: "Failed to process image. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -177,37 +357,17 @@ export function SimpleGalleryUpload({
 
     if (validFiles.length === 0) return;
 
-    setUploading(true);
-
-    try {
-      // Process and upload all valid files
-      const uploadPromises = validFiles.map((file) => uploadImage(file));
-      const uploadedUrls = await Promise.all(uploadPromises);
-
-      // Filter out any null results and add to current images
-      const successfulUploads = uploadedUrls.filter(
-        (url) => url !== null
-      ) as string[];
-
-      if (successfulUploads.length > 0) {
-        const newImages = [...currentImages, ...successfulUploads];
-        onImagesChange(newImages);
-
-        toast({
-          title: "Upload Successful",
-          description: `${successfulUploads.length} image(s) uploaded and optimized`,
-        });
-      }
-    } catch (error) {
-      console.error("Error uploading images:", error);
-      toast({
-        title: "Upload Failed",
-        description: "Failed to upload some images. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setUploading(false);
+    // If crop dialog is already open, queue the files
+    if (cropDialogOpen || imageToCrop) {
+      setPendingFiles((prev) => [...prev, ...validFiles]);
+      return;
     }
+
+    // Process first file immediately, queue the rest
+    if (validFiles.length > 1) {
+      setPendingFiles(validFiles.slice(1));
+    }
+    await handleFile(validFiles[0]);
   };
 
   const removeImage = (indexToRemove: number) => {
@@ -291,8 +451,11 @@ export function SimpleGalleryUpload({
                   : "Drag & drop or click to browse files"}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Auto-cropped to squares • Multiple files OK • JPG, PNG • Max
-                10MB each
+                📸 You'll be able to crop and adjust each photo perfectly before
+                saving
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Multiple files OK • JPG, PNG • Max 10MB each
               </p>
             </div>
           </div>
@@ -345,6 +508,195 @@ export function SimpleGalleryUpload({
           <span className="ml-2 text-primary">• Gallery full</span>
         )}
       </div>
+
+      {/* Crop Dialog */}
+      <Dialog open={cropDialogOpen} onOpenChange={handleCropCancel}>
+        <DialogContent
+          className={cn(
+            "max-w-2xl",
+            Capacitor.isNativePlatform() &&
+              "max-w-full h-[90vh] max-h-[90vh] rounded-t-2xl rounded-b-none z-[10001]"
+          )}
+          style={
+            Capacitor.isNativePlatform()
+              ? {
+                  paddingTop: `calc(1rem + env(safe-area-inset-top))`,
+                  paddingBottom: `calc(1rem + env(safe-area-inset-bottom))`,
+                  zIndex: 10001,
+                }
+              : undefined
+          }
+        >
+          <DialogHeader
+            className={cn(Capacitor.isNativePlatform() && "px-4 pt-2 pb-2")}
+          >
+            <DialogTitle
+              className={cn(
+                Capacitor.isNativePlatform() && "text-lg font-bold"
+              )}
+            >
+              Adjust Your Gallery Photo
+            </DialogTitle>
+            <DialogDescription>
+              Crop and adjust your photo before adding to gallery
+            </DialogDescription>
+          </DialogHeader>
+
+          <div
+            className={cn(
+              "space-y-6",
+              Capacitor.isNativePlatform() &&
+                "px-4 pb-4 overflow-y-auto max-h-[calc(90vh-8rem)]"
+            )}
+          >
+            <div
+              className={cn(
+                "bg-primary/10 p-3 rounded-lg border border-primary/20",
+                Capacitor.isNativePlatform() && "p-2.5 rounded-xl"
+              )}
+            >
+              <p
+                className={cn(
+                  "text-sm font-medium mb-1",
+                  Capacitor.isNativePlatform() && "text-xs"
+                )}
+              >
+                💡 How to adjust:
+              </p>
+              <ul
+                className={cn(
+                  "text-xs text-muted-foreground space-y-1 ml-4 list-disc",
+                  Capacitor.isNativePlatform() && "text-[10px] leading-relaxed"
+                )}
+              >
+                <li>
+                  <strong>Drag</strong> the image to reposition it inside the
+                  square
+                </li>
+                <li>
+                  <strong>Pinch</strong> on mobile or use the zoom slider below
+                </li>
+                <li>Your photo will be perfectly square</li>
+              </ul>
+            </div>
+
+            {imageToCrop && (
+              <div
+                className={cn(
+                  "flex flex-col items-center space-y-4",
+                  Capacitor.isNativePlatform() && "space-y-3"
+                )}
+              >
+                <div
+                  className={cn(
+                    "border-4 border-primary/20 rounded-lg overflow-hidden",
+                    Capacitor.isNativePlatform() && "border-2"
+                  )}
+                >
+                  <AvatarEditor
+                    ref={editorRef}
+                    image={imageToCrop}
+                    width={Capacitor.isNativePlatform() ? 250 : 300}
+                    height={Capacitor.isNativePlatform() ? 250 : 300}
+                    border={0}
+                    borderRadius={0}
+                    color={[255, 255, 255, 0.6]}
+                    scale={scale}
+                    rotate={rotation}
+                    className="cursor-move touch-pan-x touch-pan-y"
+                  />
+                </div>
+
+                {/* Zoom Controls */}
+                <div
+                  className={cn(
+                    "w-full max-w-md space-y-2",
+                    Capacitor.isNativePlatform() && "px-2"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "flex items-center justify-between text-sm text-muted-foreground",
+                      Capacitor.isNativePlatform() && "text-xs"
+                    )}
+                  >
+                    <span className="flex items-center gap-1">
+                      <ZoomOut
+                        className={cn(
+                          Capacitor.isNativePlatform()
+                            ? "h-3.5 w-3.5"
+                            : "h-4 w-4"
+                        )}
+                      />
+                      Zoom
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <ZoomIn
+                        className={cn(
+                          Capacitor.isNativePlatform()
+                            ? "h-3.5 w-3.5"
+                            : "h-4 w-4"
+                        )}
+                      />
+                    </span>
+                  </div>
+                  <Slider
+                    value={[scale]}
+                    onValueChange={(values) => setScale(values[0])}
+                    min={1}
+                    max={3}
+                    step={0.01}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div
+              className={cn(
+                "flex space-x-2 pt-4",
+                Capacitor.isNativePlatform() && "pt-3 gap-2"
+              )}
+            >
+              <Button
+                variant="outline"
+                onClick={handleCropCancel}
+                className={cn(
+                  "flex-1",
+                  Capacitor.isNativePlatform() &&
+                    "h-11 text-base font-semibold rounded-xl"
+                )}
+              >
+                <X
+                  className={cn(
+                    "h-4 w-4 mr-2",
+                    Capacitor.isNativePlatform() && "h-4 w-4"
+                  )}
+                />
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCropComplete}
+                disabled={applyingCrop}
+                className={cn(
+                  "flex-1",
+                  Capacitor.isNativePlatform() &&
+                    "h-11 text-base font-semibold rounded-xl"
+                )}
+              >
+                {applyingCrop ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  "Apply & Upload"
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

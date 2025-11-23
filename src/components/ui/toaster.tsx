@@ -7,19 +7,19 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast"
-import { Capacitor } from "@capacitor/core"
+import { useNativeExperience } from "@/hooks/useNativeExperience"
 import { cn } from "@/lib/utils"
 
 export function Toaster() {
   const { toasts } = useToast()
-  const isNativeApp = Capacitor.isNativePlatform()
+  const isNativeExperience = useNativeExperience()
 
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
-            <div className={cn("grid", isNativeApp ? "gap-0.5" : "gap-1")}>
+            <div className={cn("grid", isNativeExperience ? "gap-0" : "gap-1")}>
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
                 <ToastDescription>{description}</ToastDescription>

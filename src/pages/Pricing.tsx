@@ -104,7 +104,7 @@ export default function () {
   };
 
   return (
-    <div className={cn("min-h-screen bg-background", isNativeApp && "pb-8")}>
+    <div className={cn("min-h-screen", isNativeApp && "pb-8")}>
       {/* Header */}
       <div className={cn("container mx-auto px-4 pb-8", isNativeApp ? "pt-28" : "pt-24")}>
         <Button 

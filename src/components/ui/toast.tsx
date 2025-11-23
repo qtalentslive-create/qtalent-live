@@ -2,7 +2,7 @@ import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
-import { Capacitor } from "@capacitor/core"
+import { useNativeExperience } from "@/hooks/useNativeExperience"
 
 import { cn } from "@/lib/utils"
 
@@ -12,14 +12,14 @@ const ToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Viewport>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
 >(({ className, ...props }, ref) => {
-  const isNativeApp = Capacitor.isNativePlatform()
+  const isNativeExperience = useNativeExperience()
   return (
     <ToastPrimitives.Viewport
       ref={ref}
       className={cn(
-        "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
-        // Native app: centered, smaller, positioned at top
-        isNativeApp && "pt-14 px-4 max-w-[min(calc(100vw-2rem),320px)] z-[100001] top-0 left-1/2 -translate-x-1/2 right-auto items-center",
+        "fixed top-0 z-[100004] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
+        // Native/mobile: centered in middle of screen, smaller, better visibility
+        isNativeExperience && "pt-0 px-3 max-w-[min(calc(100vw-1.5rem),300px)] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 right-auto items-center justify-center z-[100004]",
         className
       )}
       {...props}
@@ -49,14 +49,14 @@ const Toast = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
     VariantProps<typeof toastVariants>
 >(({ className, variant, ...props }, ref) => {
-  const isNativeApp = Capacitor.isNativePlatform()
+  const isNativeExperience = useNativeExperience()
   return (
     <ToastPrimitives.Root
       ref={ref}
       className={cn(
         toastVariants({ variant }),
-        // Native app: compact size, smaller padding, centered
-        isNativeApp && "p-2.5 pr-7 max-w-[min(calc(100vw-2rem),320px)] rounded-lg shadow-md border-border/50 text-xs mx-auto",
+        // Native/mobile: compact size, smaller padding, centered
+        isNativeExperience && "p-2 pr-6 max-w-[min(calc(100vw-1.5rem),300px)] rounded-lg shadow-lg border-border/60 text-[10px] mx-auto min-h-[auto]",
         className
       )}
       {...props}
@@ -69,13 +69,13 @@ const ToastAction = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Action>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Action>
 >(({ className, ...props }, ref) => {
-  const isNativeApp = Capacitor.isNativePlatform()
+  const isNativeExperience = useNativeExperience()
   return (
     <ToastPrimitives.Action
       ref={ref}
       className={cn(
         "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
-        isNativeApp && "h-6 px-2 text-xs rounded",
+        isNativeExperience && "h-5 px-1.5 text-[10px] rounded",
         className
       )}
       {...props}
@@ -88,19 +88,19 @@ const ToastClose = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Close>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Close>
 >(({ className, ...props }, ref) => {
-  const isNativeApp = Capacitor.isNativePlatform()
+  const isNativeExperience = useNativeExperience()
   return (
     <ToastPrimitives.Close
       ref={ref}
       className={cn(
         "absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600",
-        isNativeApp && "right-1.5 top-1.5 p-0.5 opacity-70",
+        isNativeExperience && "right-1 top-1 p-0.5 opacity-70",
         className
       )}
       toast-close=""
       {...props}
     >
-      <X className={cn("h-4 w-4", isNativeApp && "h-3 w-3")} />
+      <X className={cn("h-4 w-4", isNativeExperience && "h-2.5 w-2.5")} />
     </ToastPrimitives.Close>
   )
 })
@@ -110,14 +110,14 @@ const ToastTitle = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Title>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>
 >(({ className, ...props }, ref) => {
-  const isNativeApp = Capacitor.isNativePlatform()
+  const isNativeExperience = useNativeExperience()
   return (
     <ToastPrimitives.Title
       ref={ref}
       className={cn(
         "text-sm font-semibold",
-        // Native app: smaller, tighter spacing
-        isNativeApp && "text-[11px] font-medium leading-tight mb-0",
+        // Native/mobile: smaller, tighter spacing
+        isNativeExperience && "text-[10px] font-semibold leading-tight mb-0",
         className
       )}
       {...props}
@@ -130,14 +130,14 @@ const ToastDescription = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Description>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Description>
 >(({ className, ...props }, ref) => {
-  const isNativeApp = Capacitor.isNativePlatform()
+  const isNativeExperience = useNativeExperience()
   return (
     <ToastPrimitives.Description
       ref={ref}
       className={cn(
         "text-sm opacity-90",
-        // Native app: smaller text, minimal spacing
-        isNativeApp && "text-[10px] leading-tight mt-0.5 opacity-80",
+        // Native/mobile: smaller text, minimal spacing
+        isNativeExperience && "text-[9px] leading-tight mt-0 opacity-75",
         className
       )}
       {...props}

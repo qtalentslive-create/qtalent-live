@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client"; // ✅ USE SHARED CLIENT
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -131,7 +132,7 @@ const UpdatePassword = () => {
   // Main content logic
   if (!isReady) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <CardTitle>{message ? 'Link Issue' : 'Verifying Link'}</CardTitle>
@@ -173,7 +174,7 @@ const UpdatePassword = () => {
 
   // Password update form is shown when `isReady` is true
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card ref={formCardRef}>
           <CardHeader className="text-center">
@@ -187,9 +188,8 @@ const UpdatePassword = () => {
             <form onSubmit={handleUpdatePassword} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="new-password">New Password</Label>
-                <Input
+                <PasswordInput
                   id="new-password"
-                  type="password"
                   autoComplete="new-password"
                   placeholder="••••••••"
                   value={password}
@@ -201,9 +201,8 @@ const UpdatePassword = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="confirm-password">Confirm New Password</Label>
-                <Input
+                <PasswordInput
                   id="confirm-password"
-                  type="password"
                   autoComplete="new-password"
                   placeholder="••••••••"
                   value={confirmPassword}

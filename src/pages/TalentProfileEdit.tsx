@@ -1,6 +1,6 @@
 // FILE: src/pages/TalentProfileEdit.tsx
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -83,16 +83,10 @@ const TalentProfileEdit = () => {
   const [lastSaveStatus, setLastSaveStatus] = useState<
     "success" | "error" | null
   >(null);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-    fetchTalentProfile();
-  }, [user, navigate]);
-
-  const fetchTalentProfile = async () => {
+  const fetchTalentProfile = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -121,7 +115,15 @@ const TalentProfileEdit = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    fetchTalentProfile();
+  }, [user, navigate, fetchTalentProfile]);
 
   // Helper: append or replace a 't' timestamp query param to bust caches
   const appendCacheBuster = (url: string) => {
@@ -211,12 +213,13 @@ const TalentProfileEdit = () => {
         ? prev.filter((g) => g !== genre)
         : [...prev, genre];
       setHasUnsavedChanges(true);
+      setLastSaveStatus(null);
       return newGenres;
     });
   }, []);
 
   const handleFieldChange = useCallback(
-    (field: string, value: any) => {
+    (field: string, value: string | number | undefined) => {
       if (!profile) return;
 
       setProfile((prev) => (prev ? { ...prev, [field]: value } : null));
@@ -227,11 +230,50 @@ const TalentProfileEdit = () => {
   );
 
   const saveChanges = useCallback(
-    async (specificUpdates?: Record<string, any>) => {
+    async (
+      specificUpdates?: Record<
+        string,
+        string | number | string[] | null | undefined
+      >
+    ) => {
       if (!profile) return;
 
+      // Validate and normalize act type to ensure it matches database enum
+      let normalizedAct = profile.act;
+      if (profile.act) {
+        // Convert to lowercase and ensure it matches expected format
+        const actLower = profile.act.toLowerCase().trim();
+        // Map frontend act types to database enum values
+        const actTypeMap: Record<string, string> = {
+          "solo artist": "solo artist",
+          band: "band",
+          dj: "dj",
+          producer: "producer",
+          vocalist: "vocalist",
+          instrumentalist: "instrumentalist",
+          songwriter: "songwriter",
+          composer: "composer",
+          "sound engineer": "sound engineer",
+          "music teacher": "music teacher",
+          // Legacy values that might still exist
+          saxophonist: "saxophonist",
+          percussionist: "percussionist",
+          singer: "singer",
+          keyboardist: "keyboardist",
+          drummer: "drummer",
+        };
+
+        if (actTypeMap[actLower]) {
+          normalizedAct = actTypeMap[actLower];
+        } else {
+          console.warn(
+            `Unknown act type: ${profile.act}, keeping original value`
+          );
+        }
+      }
+
       const updates = specificUpdates || {
-        act: profile.act,
+        act: normalizedAct,
         location: profile.location,
         nationality: profile.nationality,
         music_genres: [
@@ -252,18 +294,66 @@ const TalentProfileEdit = () => {
         onSuccess: () => {
           setHasUnsavedChanges(false);
           setLastSaveStatus("success");
-          toast({
-            title: "Success",
-            description: "Profile updated successfully!",
-          });
+          // Only show toast for manual saves, not auto-saves
+          if (!isAutoSaving) {
+            toast({
+              title: "Success",
+              description: "Profile updated successfully!",
+            });
+          }
         },
         onError: () => {
           setLastSaveStatus("error");
         },
       });
     },
-    [profile, selectedGenres, customGenre, galleryImages, saveProfile, toast]
+    [
+      profile,
+      selectedGenres,
+      customGenre,
+      galleryImages,
+      saveProfile,
+      toast,
+      isAutoSaving,
+    ]
   );
+
+  // Auto-save effect: debounced save when there are unsaved changes
+  useEffect(() => {
+    if (!hasUnsavedChanges || !profile || saving) return;
+
+    // Clear existing timer
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    // Set new timer for auto-save (1.5 seconds after last change)
+    autoSaveTimerRef.current = setTimeout(async () => {
+      setIsAutoSaving(true);
+      try {
+        await saveChanges();
+      } catch (error) {
+        console.error("Auto-save error:", error);
+      } finally {
+        setIsAutoSaving(false);
+      }
+    }, 1500); // 1.5 second debounce
+
+    // Cleanup timer on unmount or when dependencies change
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [
+    hasUnsavedChanges,
+    profile,
+    selectedGenres,
+    customGenre,
+    galleryImages,
+    saving,
+    saveChanges,
+  ]);
 
   const handleGalleryChange = useCallback(
     async (newImages: string[]) => {
@@ -288,7 +378,7 @@ const TalentProfileEdit = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
@@ -296,7 +386,7 @@ const TalentProfileEdit = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Profile not found</h1>
           <Button onClick={() => navigate("/talent-onboarding")}>
@@ -308,7 +398,7 @@ const TalentProfileEdit = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Add Header component */}
       <Header />
 
@@ -372,17 +462,17 @@ const TalentProfileEdit = () => {
             {hasUnsavedChanges ? (
               <Button
                 onClick={handleSaveProfile}
-                disabled={saving}
+                disabled={saving || isAutoSaving}
                 className={cn(
                   "flex-shrink-0 hero-button",
                   Capacitor.isNativePlatform() && "h-10 text-sm"
                 )}
                 variant="default"
               >
-                {saving ? (
+                {saving || isAutoSaving ? (
                   <>
                     <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    Saving...
+                    {isAutoSaving ? "Auto-saving..." : "Saving..."}
                   </>
                 ) : lastSaveStatus === "success" ? (
                   <>
@@ -404,7 +494,7 @@ const TalentProfileEdit = () => {
             ) : (
               <span className="text-muted-foreground text-sm flex items-center">
                 <CheckCircle className="h-4 w-4 mr-2" />
-                All Saved
+                {isAutoSaving ? "Auto-saving..." : "All Saved"}
               </span>
             )}
           </div>
@@ -473,13 +563,18 @@ const TalentProfileEdit = () => {
                   </div>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Act Type</Label>
+                  <Label className="text-sm font-medium">
+                    Act Type (Talent Type)
+                  </Label>
                   <Select
                     value={profile.act}
-                    onValueChange={(value) => handleFieldChange("act", value)}
+                    onValueChange={(value) => {
+                      // Ensure the value is properly set - use the value as-is from SelectItem
+                      handleFieldChange("act", value);
+                    }}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select your talent type" />
                     </SelectTrigger>
                     <SelectContent>
                       {actTypes.map((act) => (
@@ -489,6 +584,9 @@ const TalentProfileEdit = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Changes are saved automatically
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">
@@ -602,6 +700,7 @@ const TalentProfileEdit = () => {
                       onChange={(e) => {
                         setCustomGenre(e.target.value);
                         setHasUnsavedChanges(true);
+                        setLastSaveStatus(null);
                       }}
                     />
                   </div>

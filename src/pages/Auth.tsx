@@ -6,6 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -432,7 +433,7 @@ const Auth = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
@@ -440,7 +441,7 @@ const Auth = () => {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md text-center space-y-4">
           <Mail className="mx-auto h-12 w-12 text-primary" />
           <h1 className="mt-4 text-2xl font-bold">📧 Check Your Email</h1>
@@ -480,7 +481,7 @@ const Auth = () => {
   return (
     <div 
       className={cn(
-        "min-h-screen bg-background flex items-center justify-center p-4",
+        "min-h-screen flex items-center justify-center p-4",
         isNativeApp && "pb-[calc(4rem+env(safe-area-inset-bottom))]"
       )}
       ref={formContainerRef}
@@ -661,10 +662,9 @@ const Auth = () => {
                           Forgot password?
                         </button>
                       </div>
-                      <Input
+                      <PasswordInput
                         ref={passwordInputRef}
                         id="login-password"
-                        type="password"
                         autoComplete="current-password"
                         placeholder="••••••••"
                         value={password}
@@ -732,9 +732,8 @@ const Auth = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
-                    <Input
+                    <PasswordInput
                       id="signup-password"
-                      type="password"
                       autoComplete="new-password"
                       placeholder="At least 6 characters"
                       value={password}

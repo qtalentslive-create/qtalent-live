@@ -329,7 +329,21 @@ export function Header() {
                 <>
                   <button
                     onClick={() => navigate("/talent-dashboard")}
-                    className="text-foreground hover:text-accent transition-colors font-medium"
+                    data-nav-button="dashboard"
+                    className="text-foreground hover:text-foreground/80 transition-colors font-medium"
+                    style={{
+                      color: 'hsl(var(--foreground))',
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'hsl(var(--foreground) / 0.8)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = 'hsl(var(--foreground))';
+                    }}
                   >
                     Dashboard
                   </button>

@@ -60,7 +60,7 @@ const BookerDashboard = () => {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         {/* Use a consistent spinner */}
         <Loader2 className="animate-spin h-8 w-8 text-primary" />
       </div>
@@ -70,7 +70,7 @@ const BookerDashboard = () => {
   // --- If we get here, isLoading is false AND we have a user ---
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <Header /> {/* Keep main header */}
       {isNativeApp ? (
         <div className="w-full px-4 pt-20 pb-[calc(5rem+env(safe-area-inset-bottom))]">
