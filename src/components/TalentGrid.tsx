@@ -247,8 +247,9 @@ export function TalentGrid() {
       >
         <div className="container mx-auto px-4 w-full max-w-full">
           <div className="text-center py-20">
+            {/* Only show large search icon on desktop website (not mobile web, not native app) */}
             {!isNativeApp && (
-              <div className="w-32 h-32 bg-gradient-to-br from-accent/20 to-accent/10 rounded-full flex items-center justify-center mx-auto mb-8">
+              <div className="hidden md:flex w-32 h-32 bg-gradient-to-br from-accent/20 to-accent/10 rounded-full items-center justify-center mx-auto mb-8">
                 <Search className="h-16 w-16 text-accent" />
               </div>
             )}
