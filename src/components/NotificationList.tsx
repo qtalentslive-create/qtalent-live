@@ -153,8 +153,6 @@ export function NotificationList() {
   };
 
   const handleNotificationClick = async (notification: Notification) => {
-    console.log('Notification clicked:', notification);
-    
     // Mark as read
     if (!notification.is_read) {
       await markAsRead(notification.id);

@@ -22,7 +22,6 @@ export const openExternalLink = async (url: string) => {
         await Browser.open({ url });
         return;
       } catch (error) {
-        console.log('Capacitor Browser failed, falling back to window.open');
       }
     }
   }

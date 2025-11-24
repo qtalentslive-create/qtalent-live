@@ -34,7 +34,6 @@ const UpdatePassword = () => {
   });
 
   useEffect(() => {
-    console.log("[UpdatePassword] Component mounted");
     
     // Check if we came from recovery flow
     const fromRecovery = sessionStorage.getItem('isPasswordRecovery');
@@ -43,14 +42,7 @@ const UpdatePassword = () => {
     const checkSession = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
       
-      console.log('[UpdatePassword] Session check:', { 
-        hasSession: !!session, 
-        fromRecovery,
-        error 
-      });
-      
       if (session) {
-        console.log('[UpdatePassword] Session found, showing form');
         setIsReady(true);
       } else if (fromRecovery) {
         // Give it one more second (session might still be persisting)
@@ -116,7 +108,6 @@ const UpdatePassword = () => {
     } else {
       // 🔐 Clear the recovery flag after successful password update
       sessionStorage.removeItem('isPasswordRecovery');
-      console.log("[UpdatePassword] Password updated successfully. Recovery flag cleared.");
       
       setMessageType("success");
       setMessage("Your password has been updated successfully! Redirecting...");

@@ -23,7 +23,6 @@ export const useCapacitorPushNotifications = () => {
         }
 
         if (permStatus.receive !== "granted") {
-          console.log("Push notification permission denied");
           return;
         }
 
@@ -32,7 +31,6 @@ export const useCapacitorPushNotifications = () => {
 
         // Listen for registration
         await PushNotifications.addListener("registration", async (token) => {
-          console.log("Push registration success, token:", token.value);
 
           // Store token in Supabase
           try {
@@ -60,8 +58,6 @@ export const useCapacitorPushNotifications = () => {
         await PushNotifications.addListener(
           "pushNotificationReceived",
           (notification) => {
-            console.log("Push notification received:", notification);
-
             // Show toast for foreground notifications
             toast({
               title: notification.title || "New Notification",
@@ -74,21 +70,12 @@ export const useCapacitorPushNotifications = () => {
         await PushNotifications.addListener(
           "pushNotificationActionPerformed",
           (notification) => {
-            console.log("Push notification action performed:", notification);
-            console.log(
-              "Full notification data:",
-              JSON.stringify(notification, null, 2)
-            );
-
             // Try multiple ways to extract the URL
             const url =
               notification.notification?.data?.url ||
               notification.notification?.data?.URL;
 
             if (url) {
-              console.log(
-                `[PushNotification] Saving pending notification URL: ${url}`
-              );
               sessionStorage.setItem("pending_notification_url", url);
 
               // Trigger a custom event to notify App.tsx that a notification was tapped

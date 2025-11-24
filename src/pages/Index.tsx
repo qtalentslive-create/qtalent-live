@@ -5,10 +5,13 @@ import { TalentGrid } from "@/components/TalentGrid";
 import { Footer } from "@/components/Footer";
 import { useLocationDetection } from "@/hooks/useLocationDetection";
 import PullToRefresh from "react-simple-pull-to-refresh";
+import { Capacitor } from "@capacitor/core";
+import { NativeSafeFooter } from "@/components/NativeSafeFooter";
 
 const Index = () => {
   const { userLocation } = useLocationDetection();
   const [refreshKey, setRefreshKey] = useState(0);
+  const isNativeApp = Capacitor.isNativePlatform();
   
   const handleRefresh = async () => {
     setRefreshKey(prev => prev + 1);
@@ -25,8 +28,7 @@ const Index = () => {
         </main>
       </PullToRefresh>
       <Footer />
-      {/* Native app sticky footer bar for safe area */}
-      <div className="native-footer-bar" />
+      <NativeSafeFooter />
     </div>
   );
 };

@@ -53,7 +53,6 @@ export function SimpleAvatarUpload({
   const handleFile = async (file: File) => {
     // Prevent multiple simultaneous file processing
     if (uploading) {
-      console.log("[SimpleAvatarUpload] Already processing a file, ignoring");
       return;
     }
 

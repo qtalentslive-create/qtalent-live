@@ -8,9 +8,6 @@ export const useRealtimeBookings = (refreshBookings: () => void) => {
 
   useEffect(() => {
     if (!user) return;
-
-    console.log('Setting up real-time bookings subscription for user:', user.id);
-
     // Subscribe to booking changes for this user
     const bookingChannel = supabase
       .channel(`bookings-realtime-${user.id}`)
@@ -22,8 +19,6 @@ export const useRealtimeBookings = (refreshBookings: () => void) => {
           table: 'bookings',
         },
         async (payload) => {
-          console.log('Booking change detected:', payload);
-          
           const booking = payload.new || payload.old;
           if (!booking) return;
 
@@ -40,18 +35,15 @@ export const useRealtimeBookings = (refreshBookings: () => void) => {
           const isTalentBooking = talentProfile && (booking as any).talent_id === talentProfile.id;
 
           if (isUserBooking || isTalentBooking) {
-            console.log('Refreshing bookings due to real-time update');
             refreshBookings();
           }
         }
       )
       .subscribe((status) => {
-        console.log('Booking subscription status:', status);
         setIsConnected(status === 'SUBSCRIBED');
       });
 
     return () => {
-      console.log('Cleaning up real-time bookings subscription');
       supabase.removeChannel(bookingChannel);
       setIsConnected(false);
     };

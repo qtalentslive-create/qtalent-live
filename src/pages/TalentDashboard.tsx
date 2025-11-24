@@ -12,6 +12,7 @@ import { TalentDashboardTabs } from "@/components/TalentDashboardTabs";
 import { SubscriptionButton } from "@/components/SubscriptionButton";
 import { ProBadge } from "@/components/ProBadge";
 import { ModeSwitch } from "@/components/ModeSwitch";
+import { EventRequestStats } from "@/components/EventRequestStats";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import PullToRefresh from "react-simple-pull-to-refresh";
@@ -161,6 +162,13 @@ const TalentDashboard = () => {
             </div>
           </div>
 
+          {/* Event Request Stats */}
+          {user?.id && (
+            <div className="mb-4">
+              <EventRequestStats userId={user.id} />
+            </div>
+          )}
+
           {/* === NEW TABBED DASHBOARD === */}
           <TalentDashboardTabs
             profile={profile}
@@ -239,6 +247,13 @@ const TalentDashboard = () => {
                 </div>
               </div>
             </div>
+
+            {/* Event Request Stats */}
+            {user?.id && (
+              <div className="mb-6">
+                <EventRequestStats userId={user.id} />
+              </div>
+            )}
 
             {/* === NEW TABBED DASHBOARD === */}
             <TalentDashboardTabs

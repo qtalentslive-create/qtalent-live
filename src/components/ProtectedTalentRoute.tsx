@@ -12,20 +12,10 @@ export function ProtectedTalentRoute({ children }: { children: React.ReactNode }
     useEffect(() => {
         // CRITICAL: Wait for auth to fully load before any redirects
         if (loading) {
-            console.log('[ProtectedTalentRoute] Still loading, waiting...');
             return;
         }
-
-        console.log('[ProtectedTalentRoute] Auth loaded:', { 
-            status, 
-            role, 
-            pathname: location.pathname,
-            emailConfirmed: user?.email_confirmed_at ? 'YES' : 'NO'
-        });
-
         // Not authenticated - redirect to auth
         if (status === 'LOGGED_OUT') {
-            console.log('[ProtectedTalentRoute] Not authenticated, redirecting to auth');
             navigate('/auth', { replace: true, state: { from: location, mode: 'talent' } });
             return;
         }
@@ -37,14 +27,12 @@ export function ProtectedTalentRoute({ children }: { children: React.ReactNode }
 
         // CRITICAL: Check email confirmation for talents
         if (user && role === 'talent' && !user.email_confirmed_at) {
-            console.log('[ProtectedTalentRoute] ⚠️ Email not confirmed, redirecting to onboarding');
             navigate('/talent-onboarding', { replace: true });
             return;
         }
 
         // Wrong role - redirect to home
         if (role && role !== 'talent' && role !== 'admin') {
-            console.log('[ProtectedTalentRoute] Wrong role, redirecting to home');
             navigate('/', { replace: true });
             return;
         }

@@ -41,21 +41,7 @@ export function DeleteAccountModal({
   const isConfirmationValid = confirmationText === requiredText;
 
   // ADD THIS: Debug render
-  console.log("🔍 DeleteAccountModal render:", {
-    open,
-    showFinalConfirmation,
-    isConfirmationValid,
-    confirmationText,
-    isDeleting,
-    user: user?.id,
-  });
-
   const handleDeleteAccount = async () => {
-    console.log("🔴🔴🔴 handleDeleteAccount CALLED - FIRST LINE ��🔴��");
-    console.log("User:", user);
-    console.log("Confirmation text:", confirmationText);
-    console.log("Is confirmation valid:", isConfirmationValid);
-
     if (!user) {
       console.error("❌ No user found");
       toast({
@@ -77,21 +63,9 @@ export function DeleteAccountModal({
     }
 
     setIsDeleting(true);
-    console.log("✅ setIsDeleting(true) called");
-
     try {
-      console.log("🚀 Starting account deletion for user:", user.id);
-      console.log(
-        "📡 About to call supabase.rpc('user_delete_own_account')..."
-      );
-
       // Call Database RPC Function instead of Edge Function
       const { data, error } = await supabase.rpc("user_delete_own_account");
-
-      console.log("📥 Function response received!");
-      console.log("Response data:", JSON.stringify(data, null, 2));
-      console.log("Response error:", JSON.stringify(error, null, 2));
-
       if (error) {
         console.error("❌ Function invocation error:", error);
         console.error("Error details:", {
@@ -114,9 +88,6 @@ export function DeleteAccountModal({
           data.error || data.details || "Failed to delete account"
         );
       }
-
-      console.log("✅ Account deletion successful");
-
       // Close modal first
       setShowFinalConfirmation(false);
       onOpenChange(false);
@@ -133,10 +104,6 @@ export function DeleteAccountModal({
       try {
         await signOut();
       } catch (signOutError) {
-        console.log(
-          "Sign out error (expected after account deletion):",
-          signOutError
-        );
       }
 
       // Navigate to home page
@@ -168,15 +135,9 @@ export function DeleteAccountModal({
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    console.log("🔍 handleOpenChange called:", {
-      newOpen,
-      isDeleting,
-      showFinalConfirmation,
-    });
     if (!isDeleting) {
       // If we're opening the second dialog, don't close the first one yet
       if (!newOpen && showFinalConfirmation) {
-        console.log("Second dialog is open, keeping first dialog state");
         return;
       }
       onOpenChange(newOpen);
@@ -283,7 +244,6 @@ export function DeleteAccountModal({
             </AlertDialogCancel>
             <Button
               onClick={(e) => {
-                console.log("🔵 First dialog Continue button clicked");
                 e.preventDefault();
                 e.stopPropagation();
                 setShowFinalConfirmation(true);
@@ -365,7 +325,6 @@ export function DeleteAccountModal({
                 id="confirmation"
                 value={confirmationText}
                 onChange={(e) => {
-                  console.log("📝 Input changed:", e.target.value);
                   setConfirmationText(e.target.value);
                 }}
                 placeholder={requiredText}
@@ -387,7 +346,6 @@ export function DeleteAccountModal({
             <AlertDialogCancel
               disabled={isDeleting}
               onClick={() => {
-                console.log("❌ Cancel button clicked");
                 setShowFinalConfirmation(false);
                 setConfirmationText("");
               }}
@@ -400,7 +358,6 @@ export function DeleteAccountModal({
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
-                console.log("🔵🔵🔵 FINAL CONFIRMATION BUTTON CLICKED!");
                 e.preventDefault();
                 e.stopPropagation();
 

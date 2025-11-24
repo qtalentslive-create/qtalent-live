@@ -8,9 +8,6 @@ export const useRealtimeEventRequests = (refreshEventRequests: () => void) => {
 
   useEffect(() => {
     if (!user) return;
-
-    console.log('Setting up real-time event requests subscription for user:', user.id);
-
     // Subscribe to ALL event request changes (RLS will filter appropriately)
     const eventRequestChannel = supabase
       .channel(`event-requests-realtime-${user.id}`)
@@ -22,17 +19,14 @@ export const useRealtimeEventRequests = (refreshEventRequests: () => void) => {
           table: 'event_requests',
         },
         (payload) => {
-          console.log('Event request change detected:', payload);
           refreshEventRequests();
         }
       )
       .subscribe((status) => {
-        console.log('Event request subscription status:', status);
         setIsConnected(status === 'SUBSCRIBED');
       });
 
     return () => {
-      console.log('Cleaning up real-time event requests subscription');
       supabase.removeChannel(eventRequestChannel);
       setIsConnected(false);
     };

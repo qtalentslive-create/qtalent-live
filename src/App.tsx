@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useEffect } from "react"; // 👈 This was part of the fix
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from "@capacitor/core";
 //
 // ▼▼▼ THESE ARE THE FIXED IMPORTS ▼▼▼
 //
@@ -22,6 +23,7 @@ import { UniversalChat } from "./components/UniversalChat";
 import { NotificationPermissionPrompt } from "./components/NotificationPermissionPrompt";
 import { UnifiedNotificationHandler } from "./components/UnifiedNotificationhandler";
 import { useModalBackdrop } from "./hooks/useModalBackdrop";
+import { NativeSafeFooter } from "./components/NativeSafeFooter";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import BookerDashboard from "./pages/BookerDashboard";
@@ -41,28 +43,23 @@ import YourEvent from "./pages/YourEvent";
 import Pricing from "./pages/Pricing";
 import AuthCallback from "./pages/AuthCallback";
 import UpdatePassword from "./pages/UpdatePassword";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
-import TrustSafety from "./pages/TrustSafety";
 import ResetPassword from "./pages/ResetPassword";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SubscriptionCancelled from "./pages/SubscriptionCancelled";
 
 // 🔐 Global auth listener with PASSWORD_RECOVERY detection
 supabase.auth.onAuthStateChange((event, session) => {
-  console.log("Supabase Auth State Change Event:", { event, session });
 
   // Set recovery flag when PASSWORD_RECOVERY event is detected
   if (event === "PASSWORD_RECOVERY") {
     sessionStorage.setItem("isPasswordRecovery", "true");
-    console.log(
-      "[App] PASSWORD_RECOVERY event detected globally - recovery flag set"
-    );
   }
 });
 
 const AppContent = () => {
   const navigate = useNavigate();
+  const isNativeApp = Capacitor.isNativePlatform();
   //
   // ▼▼▼ THIS IS THE FIX (Part 1) ▼▼▼
   //
@@ -83,13 +80,8 @@ const AppContent = () => {
         return;
       }
 
-      console.log(`[App] Found pending notification URL: ${pendingUrl}`);
-
       // Wait for user to be authenticated before navigating
       if (!user) {
-        console.log(
-          "[App] Waiting for user authentication before navigating..."
-        );
         return;
       }
 
@@ -108,9 +100,6 @@ const AppContent = () => {
       }
 
       if (currentPath === targetPath) {
-        console.log(
-          `[App] Already on target page: ${targetPath}, clearing pending URL`
-        );
         sessionStorage.removeItem("pending_notification_url");
         return;
       }
@@ -118,9 +107,6 @@ const AppContent = () => {
       // Small delay to ensure app is fully ready and routes are loaded
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      console.log(
-        `[App] Navigating to pending notification URL: ${pendingUrl}`
-      );
       sessionStorage.removeItem("pending_notification_url");
 
       // Use replace: true to avoid adding to history
@@ -163,7 +149,6 @@ const AppContent = () => {
   useEffect(() => {
     // If we find a user, register their device for notifications
     if (user) {
-      console.log(`[App] User ${user.id} found, registering for push...`);
       registerDeviceForNotifications(user.id); // 👈 This will now work
     }
   }, [user]); // 👈 This runs every time 'user' is loaded
@@ -215,9 +200,7 @@ const AppContent = () => {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/update-password" element={<UpdatePassword />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route path="/trust-safety" element={<TrustSafety />} />
         <Route path="/subscription-success" element={<SubscriptionSuccess />} />
         <Route
           path="/subscription-cancelled"
@@ -243,8 +226,7 @@ const AppContent = () => {
         <Route path="/talent/:id" element={<TalentProfile />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {/* Native app sticky footer bar for safe area */}
-      <div className="native-footer-bar" />
+      <NativeSafeFooter />
     </div>
   );
 };

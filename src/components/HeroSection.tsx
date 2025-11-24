@@ -94,7 +94,7 @@ export function HeroSection() {
       delay: isNativeApp ? 2600 : 3200,
       stopOnInteraction: false,
       stopOnMouseEnter: true,
-    }) as any
+    }) as ReturnType<typeof Autoplay>
   );
   const [searchFilters, setSearchFilters] = useState({
     location: "",
@@ -112,6 +112,18 @@ export function HeroSection() {
   useEffect(() => {
     fetchFeaturedTalents();
   }, []);
+
+  useEffect(() => {
+    if (!isNativeApp) return;
+    const timer = setTimeout(() => {
+      const headerHeight = 56;
+      window.scrollTo({
+        top: headerHeight,
+        behavior: "smooth",
+      });
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [isNativeApp]);
 
   // Auto-rotate biography text every 4 seconds
   useEffect(() => {
@@ -141,7 +153,7 @@ export function HeroSection() {
       }
 
       setFeaturedTalents(data || []);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error:", error);
     }
   };
@@ -191,16 +203,16 @@ export function HeroSection() {
           {/* Left Content */}
           <div
             className={`hero-content ${
-              isNativeApp ? "space-y-5" : "space-y-8"
+              isNativeApp ? "space-y-3" : "space-y-8"
             } animate-fadeIn`}
           >
             <div
-              className={isNativeApp ? "space-y-3" : "space-y-4 sm:space-y-6"}
+              className={isNativeApp ? "space-y-2" : "space-y-4 sm:space-y-6"}
             >
               <div
                 className={
                   isNativeApp
-                    ? "text-accent font-medium text-sm uppercase tracking-wide text-center"
+                    ? "text-accent font-medium text-sm uppercase tracking-wide text-center pt-1"
                     : "text-accent font-medium text-base sm:text-lg"
                 }
               >
@@ -261,11 +273,7 @@ export function HeroSection() {
                     : "grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
                 }`}
               >
-                <div
-                  className={`${
-                    isNativeApp ? "space-y-2" : "space-y-1.5"
-                  }`}
-                >
+                <div className={`${isNativeApp ? "space-y-2" : "space-y-1.5"}`}>
                   <label
                     className={`${
                       isNativeApp
@@ -381,9 +389,7 @@ export function HeroSection() {
                 </div>
 
                 <div
-                  className={`flex ${
-                    isNativeApp ? "items-end" : "items-end"
-                  }`}
+                  className={`flex ${isNativeApp ? "items-end" : "items-end"}`}
                 >
                   <Button
                     className={`w-full ${
@@ -577,15 +583,11 @@ export function HeroSection() {
 
         {/* Booker Help Section */}
         <div
-          className={`hero-help-section ${isNativeApp ? "mt-12" : "mt-24"} text-center ${
-            isNativeApp ? "space-y-6" : "space-y-8"
-          }`}
+          className={`hero-help-section ${
+            isNativeApp ? "mt-12" : "mt-24"
+          } text-center ${isNativeApp ? "space-y-6" : "space-y-8"}`}
         >
-          <div
-            className={`${
-              isNativeApp ? "space-y-3" : "space-y-4"
-            }`}
-          >
+          <div className={`${isNativeApp ? "space-y-3" : "space-y-4"}`}>
             <div
               className={`inline-flex items-center justify-center ${
                 isNativeApp ? "p-2.5" : "p-3"

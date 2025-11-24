@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEmailNotifications } from "@/hooks/useEmailNotifications";
 import { useAutoScrollOnInput } from "@/hooks/useAutoScrollOnInput";
 import { Capacitor } from "@capacitor/core";
+import { NativeSafeFooter } from "@/components/NativeSafeFooter";
 import { ArrowLeft, Loader2, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 // import { registerDeviceForNotifications } from "@/hooks/usePushNotifications"; // 👈 REMOVED
@@ -93,9 +94,6 @@ const Auth = () => {
         sessionStorage.getItem("isPasswordRecovery") === "true";
 
       if (isPasswordRecovery) {
-        console.log(
-          "[Auth] Password recovery flag detected - skipping redirect"
-        );
         return;
       }
 
@@ -132,7 +130,6 @@ const Auth = () => {
       // Small delay to ensure autofill is complete
       autoSubmitTimerRef.current = setTimeout(() => {
         autoSubmitTimerRef.current = null;
-        console.log("[Auth] Auto-submitting after biometric autofill");
         handleAuthAction(false);
       }, 500); // 500ms delay to ensure autofill is complete
     }
@@ -765,8 +762,7 @@ const Auth = () => {
           </CardContent>
         </Card>
       </div>
-      {/* Native app sticky footer bar for safe area */}
-      {isNativeApp && <div className="native-footer-bar" />}
+      <NativeSafeFooter />
     </div>
   );
 };

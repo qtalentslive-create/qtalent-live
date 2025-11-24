@@ -11,12 +11,8 @@ export const useRealtimeNotifications = () => {
 
   useEffect(() => {
     if (!user) {
-      console.log('[Notifications] No user, skipping real-time setup');
       return;
     }
-
-    console.log('[Notifications] 🔔 Setting up real-time notifications for user:', user.id);
-
     // Set up real-time subscription for notifications
     const notificationChannel = supabase
       .channel(`notifications-realtime-${user.id}`)
@@ -29,7 +25,6 @@ export const useRealtimeNotifications = () => {
           filter: `user_id=eq.${user.id}`
         },
         async (payload) => {
-          console.log('[Notifications] ✅ New notification received:', payload);
           const notification = payload.new as any;
           
           // Show toast notification for new notifications
@@ -63,7 +58,6 @@ export const useRealtimeNotifications = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('Booking updated (booker):', payload);
           const booking = payload.new as any;
           
           // Show toast for booking status changes
@@ -83,9 +77,7 @@ export const useRealtimeNotifications = () => {
         }
       )
       .subscribe((status) => {
-        console.log('[Notifications] Channel subscription status:', status);
         if (status === 'SUBSCRIBED') {
-          console.log('[Notifications] ✅ Successfully subscribed to notification updates');
         } else if (status === 'CHANNEL_ERROR') {
           console.error('[Notifications] ❌ Channel subscription error');
         }
@@ -102,8 +94,6 @@ export const useRealtimeNotifications = () => {
           table: 'bookings'
         },
         async (payload) => {
-          console.log('Booking change detected:', payload);
-          
           // Check if this booking involves the current user as talent
           const { data: talentProfile } = await supabase
             .from('talent_profiles')
@@ -125,16 +115,13 @@ export const useRealtimeNotifications = () => {
         }
       )
       .subscribe((status) => {
-        console.log('[Bookings] Channel subscription status:', status);
         if (status === 'SUBSCRIBED') {
-          console.log('[Bookings] ✅ Successfully subscribed to booking updates');
         } else if (status === 'CHANNEL_ERROR') {
           console.error('[Bookings] ❌ Channel subscription error');
         }
       });
 
     return () => {
-      console.log('[Notifications] 🧹 Cleaning up real-time subscriptions');
       supabase.removeChannel(notificationChannel);
       supabase.removeChannel(talentBookingChannel);
     };

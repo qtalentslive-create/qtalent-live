@@ -10,14 +10,9 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (loading) {
-      console.log('[AdminRoute] Still loading auth');
       return;
     }
-
-    console.log('[AdminRoute] Auth loaded - Status:', status, 'Role:', role);
-
     if (role !== 'admin') {
-      console.log('[AdminRoute] Not an admin, redirecting to home');
       navigate('/', { replace: true });
     }
   }, [status, loading, role, navigate]);

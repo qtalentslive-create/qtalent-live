@@ -21,8 +21,6 @@ export async function clearCacheOnly() {
         localStorage.removeItem(key);
       }
     });
-
-    console.log('Cache cleared while preserving auth');
   } catch (error) {
     console.error('Error clearing cache:', error);
   }

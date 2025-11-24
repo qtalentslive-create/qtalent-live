@@ -45,7 +45,6 @@ export const disableServiceWorkerInChrome = () => {
     
     navigator.serviceWorker.getRegistrations().then(registrations => {
       registrations.forEach(registration => {
-        console.log('Disabling SW for Chrome on authenticated page');
         registration.unregister();
       });
     });
@@ -55,8 +54,6 @@ export const disableServiceWorkerInChrome = () => {
 // Initialize Chrome optimizations WITHOUT clearing auth caches
 export const initChromeOptimizations = () => {
   if (!isChromeOrChromium()) return;
-  
-  console.log('Applying Chrome-specific optimizations (preserving auth)');
   addChromeHeaders();
   
   // Clear Chrome cache on page load but preserve auth data

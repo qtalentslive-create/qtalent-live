@@ -14,9 +14,7 @@ Disallow: /*?*utm_*
 
 # Allow important pages
 Allow: /pricing
-Allow: /privacy-policy
 Allow: /terms-of-service
-Allow: /trust-safety
 
 # Sitemap location
 Sitemap: https://qtalent.live/sitemap.xml

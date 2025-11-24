@@ -11,11 +11,8 @@ export const useTalentBookingLimit = () => {
   const [talentId, setTalentId] = useState<string | null>(null);
 
   const checkTalentBookingLimit = async () => {
-    console.log("[TALENT LIMIT DEBUG] Starting check for user:", user?.id);
-    
     if (!user?.id) {
       // No user logged in - reset to booker defaults
-      console.log("[TALENT LIMIT DEBUG] No user ID, setting booker defaults");
       setCanReceiveBooking(true);
       setReceivedBookingsThisMonth(0);
       setIsProUser(false);
@@ -32,9 +29,6 @@ export const useTalentBookingLimit = () => {
         .select("id, is_pro_subscriber, artist_name")
         .eq("user_id", user.id)
         .maybeSingle();
-
-      console.log("[TALENT LIMIT DEBUG] Query result - Profile:", profile, "Error:", queryError);
-
       if (queryError) {
         console.error("[TALENT LIMIT DEBUG] Error querying talent profile:", queryError);
         // On error, assume booker (fail safe)
@@ -49,7 +43,6 @@ export const useTalentBookingLimit = () => {
       // ✅ THE REAL FIX IS HERE: A user is only a talent if they have a complete profile with an artist_name.
       if (!profile || !profile.artist_name) {
         // User is NOT a talent (they are a booker or have a ghost profile), no limits apply
-        console.log("[TALENT LIMIT DEBUG] No profile or artist_name - User is BOOKER");
         setCanReceiveBooking(true);
         setReceivedBookingsThisMonth(0);
         setIsProUser(false);
@@ -57,9 +50,6 @@ export const useTalentBookingLimit = () => {
         setLoading(false);
         return;
       }
-
-      console.log("[TALENT LIMIT DEBUG] User IS a talent with ID:", profile.id, "Pro:", profile.is_pro_subscriber);
-
       // User IS a talent - set their talent ID
       setTalentId(profile.id);
       // Let's also check for subscription status for Pro, making it more robust
@@ -114,8 +104,6 @@ export const useTalentBookingLimit = () => {
   }, [user?.id]);
 
   const isTalentValue = !!talentId;
-  console.log("[TALENT LIMIT DEBUG] Final return - isTalent:", isTalentValue, "talentId:", talentId, "isProUser:", isProUser);
-
   return {
     canReceiveBooking,
     receivedBookingsThisMonth,

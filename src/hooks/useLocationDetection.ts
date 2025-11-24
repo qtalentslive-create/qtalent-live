@@ -43,7 +43,6 @@ export const useLocationDetection = () => {
 
   // Force reset function to clear stuck states
   const forceReset = useCallback(() => {
-    console.log('🔄 Force resetting location detection state');
     if (abortController) {
       abortController.abort();
     }
@@ -59,7 +58,6 @@ export const useLocationDetection = () => {
   // Server-side detection via edge function (ultimate fallback)
   const detectFromEdgeFunction = async (): Promise<LocationData | null> => {
     try {
-      console.log('🌐 Attempting server-side detection via edge function...');
       const { data, error } = await supabase.functions.invoke('detect-location', {
         body: {},
       });
@@ -70,7 +68,6 @@ export const useLocationDetection = () => {
       }
 
       if (data && data.success && data.country) {
-        console.log('✅ Server-side detection successful:', data.country);
         return {
           country: data.country,
           countryCode: data.countryCode,
@@ -85,8 +82,6 @@ export const useLocationDetection = () => {
 
   // Browser-based geolocation
   const getLocationFromBrowser = async (signal: AbortSignal): Promise<LocationData | null> => {
-    console.log('📍 Attempting browser geolocation...');
-    
     if (!navigator.geolocation) {
       console.warn('Browser geolocation not supported');
       return null;
@@ -122,8 +117,6 @@ export const useLocationDetection = () => {
       });
 
       const { latitude, longitude } = position.coords;
-      console.log(`📍 Got coordinates: ${latitude}, ${longitude}`);
-
       // Try multiple reverse geocoding services
       const geocoders = [
         async () => {
@@ -148,7 +141,6 @@ export const useLocationDetection = () => {
         try {
           const country = await geocoder();
           if (country) {
-            console.log('✅ Browser geolocation successful:', country);
             setState(prev => ({ ...prev, hasPermission: true }));
             return { country, countryCode: '' };
           }
@@ -168,8 +160,6 @@ export const useLocationDetection = () => {
 
   // Client-side IP detection
   const getLocationFromIP = async (signal: AbortSignal): Promise<LocationData | null> => {
-    console.log('🌐 Attempting client-side IP detection...');
-    
     const ipProviders = [
       async () => {
         // Try ipwho.is without specifying IP (uses client's IP)
@@ -205,7 +195,6 @@ export const useLocationDetection = () => {
       try {
         const result = await provider();
         if (result) {
-          console.log('✅ IP detection successful:', result.country);
           return result;
         }
       } catch (error) {
@@ -218,8 +207,6 @@ export const useLocationDetection = () => {
 
   // Main detection function with retry logic
   const detectLocation = useCallback(async (): Promise<void> => {
-    console.log('🚀 Starting location detection...');
-
     // Prevent too many rapid attempts
     if (state.detectionAttempts >= MAX_DETECTION_ATTEMPTS) {
       const timeSinceLastAttempt = state.lastAttemptTime ? Date.now() - state.lastAttemptTime : Infinity;
@@ -268,8 +255,6 @@ export const useLocationDetection = () => {
 
       // Handle result
       if (detectedData && detectedData.country && detectedData.country !== 'Worldwide') {
-        console.log('✅ Location detected successfully:', detectedData.country);
-        
         // Cache the result
         const cacheData = {
           location: detectedData.country,
@@ -309,7 +294,6 @@ export const useLocationDetection = () => {
       console.error('❌ Location detection failed:', error);
       
       if (error.name === 'AbortError') {
-        console.log('Detection aborted');
         return;
       }
 
@@ -335,8 +319,6 @@ export const useLocationDetection = () => {
 
   // Save location (manual selection or confirmation)
   const saveLocation = useCallback(async (location: string, isManual: boolean = false) => {
-    console.log(`💾 Saving location: ${location} (manual: ${isManual})`);
-    
     setState(prev => ({
       ...prev,
       userLocation: location,
@@ -381,7 +363,6 @@ export const useLocationDetection = () => {
           const age = Date.now() - timestamp;
           
           if (age < CACHE_EXPIRY) {
-            console.log('✅ Using cached location:', location);
             setState(prev => ({
               ...prev,
               userLocation: location,
@@ -411,7 +392,6 @@ export const useLocationDetection = () => {
               : (data.preferred_location || data.detected_location);
             
             if (location) {
-              console.log('✅ Using saved location from database:', location);
               setState(prev => ({
                 ...prev,
                 userLocation: location,
@@ -427,7 +407,6 @@ export const useLocationDetection = () => {
       }
 
       // No cached location, attempt auto-detection
-      console.log('No cached location found, attempting auto-detection...');
       detectLocation();
     };
 

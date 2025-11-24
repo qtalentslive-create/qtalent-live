@@ -52,7 +52,6 @@ export default function AdminDirectMessages() {
 
   const loadUsers = async () => {
     try {
-      console.log('Loading users for admin chat...');
       const { data: allUsers, error } = await supabase.rpc('admin_get_all_users');
       
       if (error) {
@@ -100,8 +99,6 @@ export default function AdminDirectMessages() {
           });
         }
       }
-
-      console.log('Loaded users with chat info:', usersWithChatInfo.length);
       setUsers(usersWithChatInfo);
     } catch (error: any) {
       console.error('Error loading users:', error);
@@ -167,7 +164,6 @@ export default function AdminDirectMessages() {
 
     setSending(true);
     try {
-      console.log('Sending message to user:', selectedUser.id);
       await supabase.rpc('admin_send_direct_message', {
         target_user_id: selectedUser.id,
         message_content: newMessage.trim()

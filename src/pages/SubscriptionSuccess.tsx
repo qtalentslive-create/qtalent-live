@@ -18,13 +18,7 @@ export default function SubscriptionSuccess() {
   const [debugInfo, setDebugInfo] = useState<string>("");
 
   useEffect(() => {
-    console.log('=== SubscriptionSuccess: Component Mounted ===');
-    console.log('Full URL:', window.location.href);
-    console.log('Search Params:', searchParams.toString());
-    console.log('User state:', user ? `Logged in (${user.id})` : 'Not logged in');
-    
     const allParams = Object.fromEntries(searchParams.entries());
-    console.log('All URL parameters:', allParams);
     setDebugInfo(JSON.stringify({ url: window.location.href, params: allParams, user: user?.id }, null, 2));
 
     const subscriptionId = searchParams.get('subscription_id');
@@ -32,17 +26,7 @@ export default function SubscriptionSuccess() {
     const ba_token = searchParams.get('ba_token'); // PayPal billing agreement token
     const paymentId = searchParams.get('paymentId');
     const PayerID = searchParams.get('PayerID');
-
-    console.log('Extracted parameters:', { 
-      subscriptionId, 
-      token, 
-      ba_token, 
-      paymentId, 
-      PayerID 
-    });
-
     if (!user) {
-      console.log('❌ No user found - redirecting to auth');
       setProcessing(false);
       navigate('/auth');
       return;
@@ -52,23 +36,18 @@ export default function SubscriptionSuccess() {
     const hasSubscriptionData = subscriptionId || ba_token || paymentId;
     
     // Always check Pro status first (webhook might have already activated)
-    console.log('🔍 Checking Pro status first...');
     checkProStatus().then((alreadyPro) => {
       if (!alreadyPro && hasSubscriptionData) {
         // Only call edge function if not already Pro
-        console.log('✅ Not Pro yet, calling activation function with:', subscriptionId || ba_token || paymentId);
         activateProSubscription(subscriptionId || ba_token || paymentId, token);
       } else if (alreadyPro) {
-        console.log('✅ Already Pro from webhook!');
       } else {
-        console.log('⚠️ No subscription data and not Pro - possible error');
       }
     });
   }, [searchParams, user, navigate]);
 
   const checkProStatus = async (): Promise<boolean> => {
     try {
-      console.log('🔍 Checking current Pro status...');
       const { data, error } = await supabase
         .from('talent_profiles')
         .select('is_pro_subscriber, subscription_status, paypal_subscription_id')
@@ -80,11 +59,7 @@ export default function SubscriptionSuccess() {
         setProcessing(false);
         return false;
       }
-
-      console.log('Pro status check result:', data);
-      
       if (data?.is_pro_subscriber) {
-        console.log('✅ User is already Pro - showing success');
         setSuccess(true);
         setProcessing(false);
         toast({
@@ -93,7 +68,6 @@ export default function SubscriptionSuccess() {
         });
         return true;
       } else {
-        console.log('❌ User is not Pro yet');
         return false;
       }
     } catch (error) {
@@ -105,27 +79,18 @@ export default function SubscriptionSuccess() {
 
   const activateProSubscription = async (subscriptionId: string, token: string | null) => {
     try {
-      console.log('🚀 Starting subscription activation...');
-      console.log('Subscription ID:', subscriptionId);
-      console.log('Token:', token ? 'Present' : 'Not provided');
-      console.log('User ID:', user?.id);
-
       const { data, error } = await supabase.functions.invoke('activate-paypal-subscription', {
         body: {
           subscriptionId,
           token
         }
       });
-
-      console.log('Edge function response:', { data, error });
-
       if (error) {
         console.error('❌ Edge function error:', error);
         throw error;
       }
 
       if (data?.success) {
-        console.log('✅ Subscription activated successfully');
         setSuccess(true);
         toast({
           title: "Welcome to QTalent Pro!",

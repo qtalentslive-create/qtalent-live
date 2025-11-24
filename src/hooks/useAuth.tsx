@@ -126,7 +126,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProfile = async () => {
     if (!user || !role) return;
-    console.log("[Auth] Refreshing profile data");
     const newProfileStatus = await checkProfileStatus(user, role);
     setProfileStatus(newProfileStatus);
     await loadProfile(user, role);
@@ -143,7 +142,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const isPasswordRecovery = sessionStorage.getItem('isPasswordRecovery') === 'true';
       
       if (isPasswordRecovery) {
-        console.log("[Auth] Password recovery flag detected - skipping ALL session processing");
         return; // Let UpdatePassword component handle this
       }
       
@@ -224,7 +222,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 🔐 CRITICAL FIX: Detect PASSWORD_RECOVERY event and set flag
       if (event === 'PASSWORD_RECOVERY') {
         sessionStorage.setItem('isPasswordRecovery', 'true');
-        console.log("[Auth] PASSWORD_RECOVERY event detected - recovery flag set");
         return; // Let UpdatePassword component handle this
       }
       
@@ -232,7 +229,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const isPasswordRecovery = sessionStorage.getItem('isPasswordRecovery') === 'true';
       
       if (isPasswordRecovery) {
-        console.log("[Auth] Password recovery flag detected - skipping event processing", { event });
         return; // UpdatePassword component will handle this
       }
       

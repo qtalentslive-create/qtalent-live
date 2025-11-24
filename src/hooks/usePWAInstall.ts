@@ -36,14 +36,12 @@ export const usePWAInstall = () => {
       const promptEvent = e as BeforeInstallPromptEvent;
       setDeferredPrompt(promptEvent);
       setIsInstallable(true);
-      console.log('PWA install prompt available');
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     // Listen for app installed event
     const handleAppInstalled = () => {
-      console.log('PWA was installed');
       setIsInstalled(true);
       setIsPWA(true);
       setIsInstallable(false);
@@ -61,7 +59,6 @@ export const usePWAInstall = () => {
 
   const promptInstall = async () => {
     if (!deferredPrompt) {
-      console.log('No install prompt available');
       return false;
     }
 
@@ -70,12 +67,10 @@ export const usePWAInstall = () => {
       const choiceResult = await deferredPrompt.userChoice;
       
       if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the install prompt');
         setIsInstallable(false);
         setDeferredPrompt(null);
         return true;
       } else {
-        console.log('User dismissed the install prompt');
         return false;
       }
     } catch (error) {

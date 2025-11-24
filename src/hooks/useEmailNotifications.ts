@@ -10,8 +10,6 @@ export const useEmailNotifications = () => {
     emailData: Record<string, any>
   ) => {
     try {
-      console.log('Sending notification email:', { eventType, userIds, emailData });
-      
       const { data, error } = await supabase.functions.invoke('send-notification-email', {
         body: {
           emailType: eventType,
@@ -24,8 +22,6 @@ export const useEmailNotifications = () => {
         console.error('Error sending notification email:', error);
         return { success: false, error };
       }
-
-      console.log('Email notification sent successfully:', data);
       return { success: true, data };
     } catch (error) {
       console.error('Error in sendNotificationEmail:', error);
@@ -123,12 +119,9 @@ export const useEmailNotifications = () => {
 
   const sendBookingEmails = async (bookingData: any) => {
     try {
-      console.log('sendBookingEmails called with data:', bookingData);
-      
       // Get talent profile details including Pro status
       let talentProfile = null;
       if (bookingData.talent_id) {
-        console.log('Fetching talent profile for talent_id:', bookingData.talent_id);
         const { data, error } = await supabase
           .from('talent_profiles')
           .select('user_id, artist_name, is_pro_subscriber')
@@ -138,14 +131,12 @@ export const useEmailNotifications = () => {
         if (error) {
           console.error('Error fetching talent profile:', error);
         } else {
-          console.log('Talent profile found:', data);
           talentProfile = data;
         }
       }
 
       // Send admin notification for new booking with complete information
       const adminEmails = ['qtalentslive@gmail.com'];
-      console.log('Sending admin notification email...');
       await sendNotificationEmail('admin_booking_created', [], {
         recipient_name: 'Admin',
         booking_id: bookingData.id,
@@ -167,8 +158,6 @@ export const useEmailNotifications = () => {
 
       // Send notification to talent if talent is assigned
       if (bookingData.talent_id && talentProfile) {
-        console.log('Sending talent notification email to user:', talentProfile.user_id);
-        
         // Prepare email data based on Pro status
         const emailData: any = {
           recipient_name: talentProfile.artist_name,
@@ -184,7 +173,6 @@ export const useEmailNotifications = () => {
 
         // Include sensitive details only for Pro subscribers
         if (talentProfile.is_pro_subscriber) {
-          console.log('Talent is Pro - including full details');
           emailData.booker_email = bookingData.booker_email;
           emailData.booker_phone = bookingData.booker_phone;
           emailData.event_location = bookingData.event_location;
@@ -192,16 +180,11 @@ export const useEmailNotifications = () => {
           emailData.budget = bookingData.budget;
           emailData.budget_currency = bookingData.budget_currency;
         } else {
-          console.log('Talent is not Pro - limiting details');
           // For non-Pro, show general location only
           emailData.event_location = bookingData.event_location?.split(',')[0] + ' (Upgrade to Pro for full details)';
         }
-
-        console.log('Talent email data prepared:', emailData);
         await sendNotificationEmail('booking_request_talent', [talentProfile.user_id], emailData);
-        console.log('Talent notification email sent successfully');
       } else {
-        console.log('No talent assigned or talent profile not found - skipping talent email');
       }
 
     } catch (error) {

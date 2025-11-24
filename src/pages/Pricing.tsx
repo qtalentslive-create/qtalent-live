@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,8 +15,34 @@ export default function () {
   const isNativeApp = Capacitor.isNativePlatform();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [initialPlanFromUrl, setInitialPlanFromUrl] = useState<'monthly' | 'yearly' | null>(null);
+  const [cameFromApp, setCameFromApp] = useState(false);
+  const upgradeSectionRef = useRef<HTMLDivElement>(null);
+  const autoClickTimerRef = useRef<number | null>(null);
 
   const talentPlans = [
+    {
+      name: "Pro",
+      description: "For serious performers who want to earn more",
+      monthlyPrice: 19.99,
+      yearlyPrice: 179.88,
+      commission: "none",
+      features: [
+        "Everything in Free, plus:",
+        "Up to 10 profile images",
+        "Audio & video links on profile", 
+        "Full messaging access (see booker details)",
+        "Featured in Pro Artists section",
+        "Pro badge for trust & visibility",
+        "Unlimited booking requests",
+        "Priority placement in search results",
+        "Priority customer support"
+      ],
+      limitations: [],
+      buttonText: "Upgrade to Pro",
+      popular: true,
+      badge: "Most Popular",
+    },
     {
       name: "Free",
       description: "Start your talent journey",
@@ -40,29 +66,6 @@ export default function () {
       buttonText: "Get Started Free",
       popular: false,
       badge: null
-    },
-    {
-      name: "Pro",
-      description: "For serious performers who want to earn more",
-      monthlyPrice: 19.99,
-      yearlyPrice: 179.88,
-      commission: "none",
-      features: [
-        "Everything in Free, plus:",
-        "Up to 10 profile images",
-        "Audio & video links on profile", 
-        "Full messaging access (see booker details)",
-        "Featured in Pro Artists section",
-        "Pro badge for trust & visibility",
-        "Unlimited booking requests",
-        "Priority placement in search results",
-        "Priority customer support"
-      ],
-      limitations: [],
-      buttonText: "Upgrade to Pro",
-      popular: true,
-      badge: "Most Popular",
-      savings: "Save $20 on every $100 earned!"
     }
   ];
 
@@ -103,8 +106,67 @@ export default function () {
     }
   };
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const planParam = params.get("plan");
+    const source = params.get("source");
+
+    const normalizePlan = (value: string | null): 'monthly' | 'yearly' | null => {
+      if (value === 'monthly' || value === 'yearly') return value;
+      return null;
+    };
+
+    const desiredPlan = normalizePlan(planParam);
+    if (desiredPlan) {
+      setBillingCycle(desiredPlan);
+      setInitialPlanFromUrl(desiredPlan);
+      setShowSubscriptionModal(true);
+    }
+
+    if (source === "app") {
+      setCameFromApp(true);
+      params.delete("source");
+      params.delete("plan");
+      const newQuery = params.toString();
+      const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ""}`;
+      window.history.replaceState({}, "", newUrl);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (cameFromApp && upgradeSectionRef.current) {
+      setTimeout(() => {
+        upgradeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
+    }
+  }, [cameFromApp]);
+
+  const modalInitialPlan = useMemo(() => initialPlanFromUrl || billingCycle, [initialPlanFromUrl, billingCycle]);
+
+  useEffect(() => {
+    if (cameFromApp && showSubscriptionModal) {
+      if (autoClickTimerRef.current) {
+        window.clearTimeout(autoClickTimerRef.current);
+      }
+      autoClickTimerRef.current = window.setTimeout(() => {
+        const paypalButton = document.querySelector<HTMLButtonElement>(
+          '[data-paypal-button]'
+        );
+        if (paypalButton) {
+          paypalButton.click();
+        }
+      }, 800);
+    }
+    return () => {
+      if (autoClickTimerRef.current) {
+        window.clearTimeout(autoClickTimerRef.current);
+        autoClickTimerRef.current = null;
+      }
+    };
+  }, [cameFromApp, showSubscriptionModal]);
+
   return (
-    <div className={cn("min-h-screen", isNativeApp && "pb-8")}>
+    <div className={cn("min-h-screen bg-background", isNativeApp && "pb-8")}>
       {/* Header */}
       <div className={cn("container mx-auto px-4 pb-8", isNativeApp ? "pt-28" : "pt-24")}>
         <Button 
@@ -128,7 +190,26 @@ export default function () {
       </section>
 
       {/* For Talent Section */}
-      <section id="upgrade-to-pro" className={cn("container mx-auto px-4", isNativeApp ? "mb-12" : "mb-20")}>
+      <section id="upgrade-to-pro" ref={upgradeSectionRef} className={cn("container mx-auto px-4", isNativeApp ? "mb-12" : "mb-20")}>
+        {cameFromApp && (
+          <div className="max-w-3xl mx-auto mb-6 rounded-2xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm text-accent-foreground shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <p className="font-semibold">Almost there!</p>
+              <p className="text-xs text-muted-foreground">
+                PayPal checkout will open automatically in a moment. If it doesn’t, tap “Reopen Checkout”.
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                setShowSubscriptionModal(true);
+              }}
+            >
+              Reopen Checkout
+            </Button>
+          </div>
+        )}
         <div className={cn("text-center", isNativeApp ? "mb-8" : "mb-12")}>
           <h2 className={cn("mb-4", isNativeApp ? "text-xl font-bold" : "text-headline")}>For Talent</h2>
           <p className={cn("mb-8", isNativeApp ? "text-sm px-2" : "text-subhead")}>Join thousands of performers earning with Qtalent.live</p>

@@ -43,7 +43,7 @@ export default function TermsOfService() {
                   Qtalent.live is a marketplace platform connecting talented performers with event organizers. We facilitate bookings but are not party to the actual agreements between talents and organizers.
                 </p>
                 <p className="text-muted-foreground">
-                  By using our platform, you agree to these Terms of Service and our Privacy Policy. If you do not agree with these terms, please do not use our services.
+                  By using our platform, you agree to these Terms of Service. If you do not agree with these terms, please do not use our services.
                 </p>
               </section>
 

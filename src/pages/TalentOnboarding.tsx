@@ -30,6 +30,8 @@ import "react-phone-number-input/style.css";
 import { getCountryCode } from "@/lib/country-code-utils";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/Header";
+import { NativeSafeFooter } from "@/components/NativeSafeFooter";
+import { TALENT_ACT_OPTIONS, TalentActValue } from "@/constants/talentActs";
 // Ionic components for native apps
 import {
   IonPage,
@@ -67,16 +69,6 @@ const MUSIC_GENRES = [
   "amapiano",
   "rnb & hiphop",
   "90's",
-];
-
-const ACTS = [
-  { value: "dj", label: "DJ" },
-  { value: "band", label: "Band" },
-  { value: "singer", label: "Singer" },
-  { value: "saxophonist", label: "Saxophonist" },
-  { value: "keyboardist", label: "Keyboardist" },
-  { value: "drummer", label: "Drummer" },
-  { value: "percussionist", label: "Percussionist" },
 ];
 
 const CURRENCIES = [
@@ -153,9 +145,6 @@ export default function TalentOnboarding() {
           .maybeSingle();
 
         if (talentProfile) {
-          console.log(
-            "[TalentOnboarding] User already has profile, redirecting to dashboard"
-          );
           navigate("/talent-dashboard", { replace: true });
         }
       };
@@ -185,10 +174,6 @@ export default function TalentOnboarding() {
   useEffect(() => {
     const currentLocation = userLocation || detectedLocation;
     if (currentLocation && !formData.location) {
-      console.log(
-        "[TalentOnboarding] Auto-syncing location to form:",
-        currentLocation
-      );
       setFormData((prev) => ({ ...prev, location: currentLocation }));
     }
   }, [userLocation, detectedLocation, formData.location]);
@@ -196,9 +181,6 @@ export default function TalentOnboarding() {
   // Handle hardware back button and browser back button for this page
   useEffect(() => {
     const handleBackNavigation = () => {
-      console.log(
-        "[TalentOnboarding] Back navigation triggered - going to home"
-      );
       // Use window.location for guaranteed navigation
       window.location.href = "/";
     };
@@ -221,9 +203,6 @@ export default function TalentOnboarding() {
 
       // Legacy code for immediate assignment (if needed)
       const legacyListener = CapacitorApp.addListener("backButton", () => {
-        console.log(
-          "[TalentOnboarding] Hardware back button pressed - navigating to home"
-        );
         handleBackNavigation();
       });
 
@@ -231,12 +210,12 @@ export default function TalentOnboarding() {
         if (backButtonListener) {
           backButtonListener.remove();
         }
+        legacyListener.remove();
       };
     }
 
     // Handle browser back button (web)
     const handlePopState = () => {
-      console.log("[TalentOnboarding] Browser back button pressed");
       handleBackNavigation();
     };
 
@@ -324,14 +303,7 @@ export default function TalentOnboarding() {
         const profileData = {
           user_id: user.id,
           artist_name: formData.artistName,
-          act: formData.act as
-            | "dj"
-            | "band"
-            | "singer"
-            | "saxophonist"
-            | "keyboardist"
-            | "drummer"
-            | "percussionist",
+          act: formData.act as TalentActValue,
           gender: formData.gender as "male" | "female",
           music_genres: allGenres,
           biography: formData.biography,
@@ -480,14 +452,7 @@ export default function TalentOnboarding() {
       const profileData = {
         user_id: signUpData.user.id,
         artist_name: formData.artistName.trim(),
-        act: formData.act as
-          | "dj"
-          | "band"
-          | "singer"
-          | "saxophonist"
-          | "keyboardist"
-          | "drummer"
-          | "percussionist",
+        act: formData.act as TalentActValue,
         gender: formData.gender as "male" | "female",
         music_genres: allGenres,
         biography: formData.biography.trim(),
@@ -641,17 +606,6 @@ export default function TalentOnboarding() {
 
   const isNativeApp = Capacitor.isNativePlatform();
 
-  // Debug: Log platform detection - MUST be before any early returns
-  useEffect(() => {
-    if (isNativeApp) {
-      console.log(
-        "[TalentOnboarding] Native app detected, rendering Ionic form"
-      );
-    } else {
-      console.log("[TalentOnboarding] Web detected, rendering web form");
-    }
-  }, [isNativeApp]);
-
   // FULL SCREEN BLACK BLOCKING PAGE - Cannot bypass until email is confirmed
   if (emailConfirmationPending) {
     return (
@@ -790,6 +744,7 @@ export default function TalentOnboarding() {
             </p>
           </div>
         </div>
+        <NativeSafeFooter />
       </div>
     );
   }
@@ -820,16 +775,12 @@ export default function TalentOnboarding() {
 
   // Direct navigation handler - use window.location for guaranteed navigation
   const handleBackClick = () => {
-    console.log("[TalentOnboarding] Back button clicked - navigating to home");
     // Use window.location for guaranteed navigation (works everywhere)
     window.location.href = "/";
   };
 
   // Native App Form - Match YourEvent.tsx pattern for consistent design
   if (isNativeApp) {
-    console.log(
-      "[TalentOnboarding] Rendering native form with YourEvent pattern"
-    );
     return (
       <div className="min-h-screen" ref={formContainerRef}>
         <Header />
@@ -843,7 +794,6 @@ export default function TalentOnboarding() {
               variant="ghost"
               size="sm"
               onClick={() => {
-                console.log("[TalentOnboarding] Back button clicked");
                 window.location.href = "/";
               }}
               className="mb-4 flex items-center gap-2"
@@ -1032,7 +982,7 @@ export default function TalentOnboarding() {
                             isNativeApp ? "z-[10000]" : "z-[100]"
                           )}
                         >
-                          {ACTS.map((act) => (
+                          {TALENT_ACT_OPTIONS.map((act) => (
                             <SelectItem key={act.value} value={act.value}>
                               {act.label}
                             </SelectItem>
@@ -1310,10 +1260,6 @@ export default function TalentOnboarding() {
                       <div className="flex justify-start">
                         <LocationSelector
                           onLocationChange={(location) => {
-                            console.log(
-                              "[TalentOnboarding] Location changed:",
-                              location
-                            );
                             setFormData((prev) => ({ ...prev, location }));
                           }}
                         />
@@ -1366,7 +1312,6 @@ export default function TalentOnboarding() {
             </Card>
           </div>
         </div>
-        <div className="native-footer-bar" />
       </div>
     );
   }
@@ -1388,7 +1333,6 @@ export default function TalentOnboarding() {
           href="/"
           onClick={(e) => {
             e.preventDefault();
-            console.log("[TalentOnboarding] Link onClick fired");
             window.location.href = "/";
           }}
           className="inline-flex items-center gap-2 justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:bg-accent hover:text-accent-foreground rounded-md bg-transparent border-none cursor-pointer h-9 px-3"
@@ -1577,7 +1521,7 @@ export default function TalentOnboarding() {
                         isNativeApp ? "z-[10000]" : "z-[100]"
                       )}
                     >
-                      {ACTS.map((act) => (
+                      {TALENT_ACT_OPTIONS.map((act) => (
                         <SelectItem key={act.value} value={act.value}>
                           {act.label}
                         </SelectItem>
@@ -1847,10 +1791,6 @@ export default function TalentOnboarding() {
                   <div className="flex justify-start">
                     <LocationSelector
                       onLocationChange={(location) => {
-                        console.log(
-                          "[TalentOnboarding] Location changed:",
-                          location
-                        );
                         setFormData((prev) => ({ ...prev, location }));
                       }}
                     />
@@ -1902,8 +1842,7 @@ export default function TalentOnboarding() {
           </CardContent>
         </Card>
       </div>
-      {/* Native app sticky footer bar for safe area */}
-      {isNativeApp && <div className="native-footer-bar" />}
+      <NativeSafeFooter />
     </div>
   );
 }

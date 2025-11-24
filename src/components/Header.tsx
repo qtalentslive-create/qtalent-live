@@ -357,6 +357,15 @@ export function Header() {
               ) : (
                 // Public Navigation
                 <>
+                  {user && mode === "booking" && (
+                    <button
+                      onClick={() => navigate("/booker-dashboard")}
+                      data-nav-button="booker-dashboard"
+                      className="desktop-nav-link text-foreground hover:text-foreground/80 transition-colors font-medium"
+                    >
+                      Dashboard
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       const talentsSection = document.getElementById("talents");
@@ -640,6 +649,19 @@ export function Header() {
 
                       {!showArtistDashboardNav && (
                         <>
+                          {mode === "booking" && (
+                            <MenuNavigationButton
+                              onClick={() => navigate("/booker-dashboard")}
+                              className={cn(
+                                "w-full text-left transition-all font-medium",
+                                isNativeExperience
+                                  ? "py-3.5 px-4 rounded-xl hover:bg-muted/60 active:bg-muted text-foreground text-base"
+                                  : "py-2 text-foreground hover:text-accent"
+                              )}
+                            >
+                              Dashboard
+                            </MenuNavigationButton>
+                          )}
                           <MenuNavigationButton
                             onClick={() => {
                               const talentsSection =
@@ -732,6 +754,24 @@ export function Header() {
                       isNativeExperience && "space-y-3 -mx-2"
                     )}
                   >
+                    <div
+                      className={cn(
+                        "flex flex-col items-center text-center gap-2 rounded-2xl border border-border/40 bg-muted/20 py-4",
+                        isNativeExperience && "py-5 px-2"
+                      )}
+                    >
+                      <QtalentLogo
+                        className={cn(
+                          "text-lg",
+                          isNativeExperience ? "scale-95" : ""
+                        )}
+                        onClick={() => navigate("/")}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Premium talents. Instant bookings.
+                      </p>
+                    </div>
+
                     <Button
                       variant="outline"
                       className={cn(

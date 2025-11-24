@@ -51,6 +51,7 @@ export function SubscriptionModal({ open, onOpenChange, initialPlan }: Subscript
   const [selectedPlan, setSelectedPlan] = useState<string | null>(initialPlan || null);
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [paypalReady, setPaypalReady] = useState(false);
 
   const plans = [
     {
@@ -195,13 +196,13 @@ export function SubscriptionModal({ open, onOpenChange, initialPlan }: Subscript
         const target = e.target as HTMLElement;
         // Check if click is on PayPal button or its children
         if (target.closest('[data-paypal-button], [class*="paypal"], iframe[src*="paypal"]')) {
-          console.log("🔍 PayPal button clicked, waiting for popup interception...");
           // The main.tsx handler should catch the window.open call
         }
       };
       container.addEventListener("click", clickInterceptor, true);
     }
 
+    setPaypalReady(false);
     window.paypal
       .Buttons({
         createSubscription: async (data, actions) => {
@@ -271,7 +272,13 @@ export function SubscriptionModal({ open, onOpenChange, initialPlan }: Subscript
           label: "subscribe",
         },
       })
-      .render(`#${containerId}`);
+      .render(`#${containerId}`)
+      .then(() => {
+        setPaypalReady(true);
+      })
+      .catch((err) => {
+        console.error("PayPal render error:", err);
+      });
   }, [paypalLoaded, selectedPlan, user, plans, toast, onOpenChange, navigate]);
 
   const handlePlanSelect = (planId: string) => {

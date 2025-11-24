@@ -47,7 +47,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
       const target = (event.target || event.currentTarget) as HTMLInputElement | HTMLTextAreaElement;
       
       if (!target) {
-        console.log('[useAutoScrollOnInput] No target found');
         return;
       }
       
@@ -70,7 +69,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
         }
       }
 
-      console.log('[useAutoScrollOnInput] ✅ Input focused:', target.type || target.tagName, 'id:', target.id, 'isPhoneInput:', isPhoneInput);
 
       // Find the form that contains this input (or use formRef, or document as fallback)
       // Priority: 1) actual <form> tag, 2) formRef.current, 3) closest card/container, 4) document.body
@@ -96,9 +94,7 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
       
       // Log for debugging (only in development or if form not found)
       if (!form || form === document.body) {
-        console.log('[useAutoScrollOnInput] ⚠️ Using fallback container:', form === document.body ? 'document.body' : 'custom container', 'formRef:', formRef?.current ? 'exists' : 'missing');
       } else {
-        console.log('[useAutoScrollOnInput] ✅ Form container found:', form.tagName, form.className || '(no class)');
       }
 
       // For native apps, use window/document scrolling (form scrolls naturally)
@@ -131,7 +127,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
       // GENTLE SCROLL: ALWAYS scroll to show next field when input is focused
       // Simplified logic - always scroll, but gently (small amount)
       const scrollToNextField = () => {
-        console.log('[useAutoScrollOnInput] scrollToNextField called for:', target.type || target.tagName);
         
         // Use visual viewport if available (better for mobile keyboards)
         const viewportHeight = window.visualViewport?.height || window.innerHeight;
@@ -155,7 +150,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
           }
         });
 
-        console.log('[useAutoScrollOnInput] Found', allInputs.length, 'inputs in form');
 
         // Sort inputs by their position in the DOM (top to bottom)
         const sortedInputs = allInputs.sort((a, b) => {
@@ -173,7 +167,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
           return false;
         });
         
-        console.log('[useAutoScrollOnInput] Current input index:', currentIndex, 'out of', sortedInputs.length);
 
         // Find the next input field (skip disabled/hidden inputs)
         let nextInput: HTMLElement | null = null;
@@ -185,7 +178,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
           
           if (isVisible && isNotDisabled) {
             nextInput = input;
-            console.log('[useAutoScrollOnInput] Next input found:', input.type || input.tagName, 'at index', i);
             break;
           }
         }
@@ -216,7 +208,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
           // ALWAYS scroll if there's any movement needed (at least 10px)
           // Lower threshold ensures every focus triggers a scroll to position the next field
           if (Math.abs(scrollAmount) > 10) {
-            console.log('[useAutoScrollOnInput] 📍 Positioning next field. Current top:', nextFieldTop.toFixed(0), 'px. Target:', idealNextFieldTop, 'px. Scrolling:', scrollAmount.toFixed(0), 'px');
             
             if (scrollContainer === document.documentElement) {
               window.scrollBy({ top: scrollAmount, behavior: 'smooth' });
@@ -231,7 +222,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
               const scrollAmount = Math.min(scrollToShow, maxScrollPerStep);
               
               if (scrollAmount > 10) {
-                console.log('[useAutoScrollOnInput] 📍 Next field hidden by keyboard. Scrolling', scrollAmount.toFixed(0), 'px to reveal it');
                 
                 if (scrollContainer === document.documentElement) {
                   window.scrollBy({ top: scrollAmount, behavior: 'smooth' });
@@ -253,7 +243,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
             const scrollAmount = Math.min(scrollNeeded, maxScrollPerStep);
             
             if (scrollAmount > 10) {
-              console.log('[useAutoScrollOnInput] 📍 Current input hidden by keyboard. Scrolling', scrollAmount.toFixed(0), 'px');
               
               if (scrollContainer === document.documentElement) {
                 window.scrollBy({ top: scrollAmount, behavior: 'smooth' });
@@ -267,7 +256,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
             const scrollAmount = Math.min(scrollUp, maxScrollPerStep);
             
             if (scrollAmount > 10) {
-              console.log('[useAutoScrollOnInput] 📍 Current input too high. Scrolling UP', scrollAmount.toFixed(0), 'px');
               
               if (scrollContainer === document.documentElement) {
                 window.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
@@ -282,12 +270,10 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
       // GENTLE SCROLL: ALWAYS execute on every input focus
       // Use multiple attempts to ensure scrolling happens
       
-      console.log('[useAutoScrollOnInput] 🔄 Setting up scroll attempts for:', target.type || target.tagName);
       
       // Immediate scroll attempt
       requestAnimationFrame(() => {
         if (document.activeElement === target) {
-          console.log('[useAutoScrollOnInput] ⚡ Immediate scroll attempt');
           scrollToNextField();
         }
       });
@@ -295,7 +281,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
       // First delayed attempt (after keyboard starts appearing)
       setTimeout(() => {
         if (document.activeElement === target) {
-          console.log('[useAutoScrollOnInput] ⏱️ First delayed scroll attempt');
           scrollToNextField();
         }
       }, scrollDelay);
@@ -303,7 +288,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
       // Second delayed attempt (after keyboard fully appears)
       setTimeout(() => {
         if (document.activeElement === target) {
-          console.log('[useAutoScrollOnInput] ⏱️⏱️ Second delayed scroll attempt');
           scrollToNextField();
         }
       }, scrollDelay + 300);
@@ -325,7 +309,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
         );
 
         const formContainer = formRef?.current;
-        console.log('[useAutoScrollOnInput] 📌 Attaching listeners. Form container:', formContainer ? 'found' : 'not found', 'Inputs found:', supportedInputs.length);
 
         supportedInputs.forEach((input) => {
           // Remove existing listeners first (prevent duplicates)
@@ -358,7 +341,6 @@ export const useAutoScrollOnInput = (options: UseAutoScrollOnInputOptions = {}) 
       });
       
       if (hasNewInputs) {
-        console.log('[useAutoScrollOnInput] 🔄 New inputs detected, re-attaching listeners');
         // Re-attach when DOM changes (debounced)
         setTimeout(attachListeners, 200);
       }

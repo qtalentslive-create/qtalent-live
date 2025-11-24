@@ -34,8 +34,6 @@ interface TalentProfile {
 
 // Single optimized query function
 const fetchTalents = async (): Promise<TalentProfile[]> => {
-  console.log("🔄 Fetching talents...");
-
   const { data, error } = await supabase
     .from("talent_profiles")
     .select("*")
@@ -47,7 +45,6 @@ const fetchTalents = async (): Promise<TalentProfile[]> => {
     throw error;
   }
 
-  console.log("✅ Talents fetched:", data.length);
   return data as TalentProfile[];
 };
 
@@ -106,7 +103,6 @@ export function TalentGrid() {
         () => {
           clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
-            console.log("🔄 Real-time update, invalidating cache...");
             queryClient.invalidateQueries({ queryKey: ["talents"] });
           }, 500); // 500ms debounce
         }

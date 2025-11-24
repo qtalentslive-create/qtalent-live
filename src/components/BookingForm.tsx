@@ -166,8 +166,6 @@ export function BookingForm({
       await sendBookingEmails({ ...data, talent_name: talentName });
 
       try {
-        console.log("Booking successful, invoking push notification...");
-
         // 1. GET THE TALENT'S USER_ID (THE FIX)
         const { data: profile, error: profileError } = await supabase
           .from("talent_profiles")
@@ -200,7 +198,6 @@ export function BookingForm({
         if (functionError) {
           console.error("Failed to send push notification:", functionError);
         } else {
-          console.log("Push notification function invoked successfully.");
         }
       } catch (e) {
         if (e instanceof Error) {

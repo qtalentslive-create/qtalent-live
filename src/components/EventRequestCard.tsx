@@ -34,6 +34,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Capacitor } from "@capacitor/core";
 import { useChat } from "@/contexts/ChatContext";
+import { useProStatus } from "@/contexts/ProStatusContext";
+import { SubscriptionModal } from "@/components/SubscriptionModal";
 
 export interface EventRequest {
   id: string;
@@ -69,9 +71,11 @@ export const EventRequestCard = ({
 }: EventRequestCardProps) => {
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const [responseLoading, setResponseLoading] = useState<"accepted" | "declined" | null>(null);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const navigate = useNavigate();
   const isNativeApp = Capacitor.isNativePlatform();
   const { openChat } = useChat();
+  const { isProUser } = useProStatus();
 
   if (!request) return null;
 
@@ -160,6 +164,14 @@ export const EventRequestCard = ({
 
   const handleTalentResponse = async (response: "accepted" | "declined") => {
     if (mode !== "talent") return;
+    
+    // Check Pro status for accept action
+    if (response === "accepted" && !isProUser) {
+      setShowSubscriptionModal(true);
+      toast.error("Upgrade to Pro to accept event requests and chat with bookers");
+      return;
+    }
+    
     try {
       const {
         data: { user },
@@ -396,15 +408,19 @@ export const EventRequestCard = ({
                   size="sm"
                   className={cn(
                     "flex-1 h-7 text-[10px]",
-                    responseStatus === "accepted" && "bg-primary/80 text-primary-foreground"
+                    responseStatus === "accepted" && "bg-primary/80 text-primary-foreground",
+                    !isProUser && responseStatus === "pending" && "opacity-50 cursor-not-allowed"
                   )}
                   onClick={() => handleTalentResponse("accepted")}
                   disabled={
                     responseStatus === "accepted" ||
-                    responseLoading !== null
+                    responseLoading !== null ||
+                    !isProUser
                   }
                 >
-                  {responseStatus === "accepted"
+                  {!isProUser && responseStatus === "pending"
+                    ? "Upgrade to Accept"
+                    : responseStatus === "accepted"
                     ? "Accepted"
                     : responseLoading === "accepted"
                     ? "Accepting..."
@@ -427,7 +443,13 @@ export const EventRequestCard = ({
                     : "Decline"}
                 </Button>
               </div>
-              {responseStatus !== "accepted" && (
+              {!isProUser && responseStatus === "pending" && (
+                <p className="text-[10px] text-primary font-medium mt-1 flex items-center gap-1">
+                  <Crown className="h-3 w-3" />
+                  Upgrade to Pro to accept event requests and chat with bookers
+                </p>
+              )}
+              {isProUser && responseStatus !== "accepted" && (
                 <p className="text-[10px] text-muted-foreground mt-1">
                   Accepting unlocks chat. Declining hides this request.
                 </p>
@@ -688,27 +710,43 @@ export const EventRequestCard = ({
                   isNativeApp ? "pt-2" : "pt-3"
                 )}
               >
-                <p
-                  className={cn(
-                    "text-muted-foreground mb-2",
-                    isNativeApp ? "text-[10px]" : "text-xs"
-                  )}
-                >
-                  {responseStatus === "accepted"
-                    ? "You accepted this event request. Chat is unlocked."
-                    : "Please accept or decline this request so the booker gets an answer."}
-                </p>
+                {!isProUser && responseStatus === "pending" && (
+                  <p
+                    className={cn(
+                      "text-primary font-medium mb-2 flex items-center gap-1",
+                      isNativeApp ? "text-[10px]" : "text-xs"
+                    )}
+                  >
+                    <Crown className={cn(isNativeApp ? "h-3 w-3" : "h-3.5 w-3.5")} />
+                    Upgrade to Pro to accept event requests and chat with bookers
+                  </p>
+                )}
+                {isProUser && (
+                  <p
+                    className={cn(
+                      "text-muted-foreground mb-2",
+                      isNativeApp ? "text-[10px]" : "text-xs"
+                    )}
+                  >
+                    {responseStatus === "accepted"
+                      ? "You accepted this event request. Chat is unlocked."
+                      : "Please accept or decline this request so the booker gets an answer."}
+                  </p>
+                )}
                 <div className="flex flex-wrap gap-2">
                   <Button
                     size={isNativeApp ? "default" : "sm"}
                     onClick={() => handleTalentResponse("accepted")}
-                    disabled={responseStatus === "accepted" || responseLoading === "declined" || responseLoading === "accepted"}
+                    disabled={responseStatus === "accepted" || responseLoading === "declined" || responseLoading === "accepted" || !isProUser}
                     className={cn(
                       "dashboard-card-button",
-                      responseStatus === "accepted" && "bg-primary/80 text-primary-foreground"
+                      responseStatus === "accepted" && "bg-primary/80 text-primary-foreground",
+                      !isProUser && responseStatus === "pending" && "opacity-50 cursor-not-allowed"
                     )}
                   >
-                    {responseStatus === "accepted"
+                    {!isProUser && responseStatus === "pending"
+                      ? "Upgrade to Accept"
+                      : responseStatus === "accepted"
                       ? "Accepted"
                       : responseLoading === "accepted"
                       ? "Accepting..."
@@ -816,6 +854,12 @@ export const EventRequestCard = ({
           </CardContent>
         </>
       )}
+      
+      {/* Subscription Modal for Pro Upgrade */}
+      <SubscriptionModal
+        open={showSubscriptionModal}
+        onOpenChange={setShowSubscriptionModal}
+      />
     </Card>
   );
 };

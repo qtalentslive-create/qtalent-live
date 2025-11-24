@@ -258,9 +258,6 @@ export function SimpleGalleryUpload({
 
   const handleFile = async (file: File) => {
     if (uploading || disabled) {
-      console.log(
-        "[SimpleGalleryUpload] Already processing or disabled, ignoring"
-      );
       return;
     }
 

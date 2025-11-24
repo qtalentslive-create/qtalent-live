@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { getCountryCode } from "@/lib/country-code-utils";
 import { useAutoScrollOnInput } from "@/hooks/useAutoScrollOnInput";
 import { Capacitor } from "@capacitor/core";
+import { TALENT_ACT_OPTIONS } from "@/constants/talentActs";
 
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -80,24 +81,6 @@ export function EventRequestForm() {
     "festival",
     "private party",
     "other",
-  ];
-  // Talent types matching TalentOnboarding form (ACTS) + additional common types from HeroSection
-  // Using lowercase values to match database format, but displaying with proper capitalization
-  const talentTypes = [
-    { value: "dj", label: "DJ" },
-    { value: "band", label: "Band" },
-    { value: "singer", label: "Singer" },
-    { value: "saxophonist", label: "Saxophonist" },
-    { value: "keyboardist", label: "Keyboardist" },
-    { value: "drummer", label: "Drummer" },
-    { value: "percussionist", label: "Percussionist" },
-    { value: "guitarist", label: "Guitarist" },
-    { value: "violinist", label: "Violinist" },
-    { value: "pianist", label: "Pianist" },
-    { value: "magician", label: "Magician" },
-    { value: "gogo_dancer", label: "Gogo Dancer" },
-    { value: "belly_dancer", label: "Belly Dancer" },
-    { value: "other", label: "Other" },
   ];
 
   // Get current location for form validation and submission - prioritize manually selected location
@@ -166,7 +149,6 @@ export function EventRequestForm() {
       // This is the new, correct, 2-step query
       //
       try {
-        console.log("Form submitted. Now finding matching talents...");
         const lowerCaseAct = talentTypeNeeded.toLowerCase();
 
         // 1. Find all matching talent USER IDs from 'talent_profiles'
@@ -182,7 +164,6 @@ export function EventRequestForm() {
         }
 
         if (!matchingTalents || matchingTalents.length === 0) {
-          console.log("No matching talents found for this event request.");
           return; // This is not an error, just no one to notify
         }
 
@@ -201,13 +182,8 @@ export function EventRequestForm() {
         }
 
         if (!tokenData || tokenData.length === 0) {
-          console.log("Matching talents found, but none have push tokens.");
           return; // Not an error
         }
-
-        console.log(
-          `Found ${tokenData.length} matching talents with tokens. Sending notifications...`
-        );
 
         // 3. Loop through each matching talent and send them a notification
         // Get the display label for the talent type
@@ -217,10 +193,6 @@ export function EventRequestForm() {
 
         for (const talent of tokenData) {
           const recipientUserId = talent.id;
-
-          console.log(
-            `Sending notification to talent user_id: ${recipientUserId}`
-          );
 
           const { error: functionError } = await supabase.functions.invoke(
             "send-push-notification",
@@ -240,10 +212,6 @@ export function EventRequestForm() {
             console.error(
               `Failed to send push notification to ${recipientUserId}:`,
               functionError
-            );
-          } else {
-            console.log(
-              `Push notification sent successfully to ${recipientUserId}`
             );
           }
         }
@@ -405,7 +373,7 @@ export function EventRequestForm() {
             <SelectValue placeholder="What kind of talent?" />
           </SelectTrigger>
           <SelectContent>
-            {talentTypes.map((type) => (
+            {TALENT_ACT_OPTIONS.map((type) => (
               <SelectItem key={type.value} value={type.value}>
                 {type.label}
               </SelectItem>

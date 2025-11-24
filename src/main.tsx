@@ -52,7 +52,6 @@ if (Capacitor.isNativePlatform()) {
     bodyElement.classList.add("plt-android");
   }
 
-  console.log("✅ Capacitor native platform detected:", platform);
 } else {
   // Apply unified mobile class for responsive web experience
   applyMobileUnifiedClassForWeb();
@@ -77,8 +76,6 @@ setupBackButtonHandler();
 // Setup PayPal checkout handler for Capacitor - Opens in EXTERNAL browser
 // Opens in Safari (iOS) or Chrome (Android) - full external browser, not in-app
 if (Capacitor.isNativePlatform()) {
-  console.log("🔧 Setting up PayPal external browser handler for Capacitor");
-
   // Intercept PayPal checkout URLs and open in external/system browser
   const originalOpen = window.open;
   interface WindowWithPayPalHandler extends Window {
@@ -96,38 +93,26 @@ if (Capacitor.isNativePlatform()) {
       features?: string
     ) {
       const urlString = url?.toString() || "";
-      console.log("🔍 window.open called with URL:", urlString);
 
       // Check for ANY PayPal domain URL - open in native in-app browser
       if (
         urlString.includes("paypal.com") ||
         urlString.includes("paypalobjects.com")
       ) {
-        console.log(
-          "✅ Intercepted PayPal URL, opening in EXTERNAL browser (Safari/Chrome):",
-          urlString
-        );
-
         // Open PayPal checkout in EXTERNAL/system browser using Capacitor Browser
         // Browser.open uses SFSafariViewController (iOS) or Chrome Custom Tabs (Android)
         // These are full-screen, scrollable browsers that are much better than WebView
-        console.log("✅ Opening PayPal in Capacitor Browser:", urlString);
-
         // Use Browser.open - this opens in a native browser view (not WebView)
         // SFSafariViewController (iOS) and Chrome Custom Tabs (Android) are full-screen and scrollable
         // These provide a much better experience than WebView
         Browser.open({
           url: urlString,
           toolbarColor: "#0A0118",
-        })
-          .then(() => {
-            console.log("✅ PayPal opened in native browser view successfully");
-          })
-          .catch((error) => {
-            console.error("❌ Browser.open failed, trying fallback:", error);
-            // Fallback: navigate to URL (will open in external browser)
-            window.location.href = urlString;
-          });
+        }).catch((error) => {
+          console.error("❌ Browser.open failed, trying fallback:", error);
+          // Fallback: navigate to URL (will open in external browser)
+          window.location.href = urlString;
+        });
 
         // Return a mock window object to satisfy PayPal SDK
         return {
@@ -148,7 +133,6 @@ if (Capacitor.isNativePlatform()) {
   // Handle deep links when returning from PayPal browser
   CapacitorApp.addListener("appUrlOpen", (data) => {
     try {
-      console.log("🔗 App URL opened:", data.url);
       let url: URL;
       // Handle both full URLs and relative paths
       if (data.url.startsWith("http://") || data.url.startsWith("https://")) {
@@ -166,7 +150,6 @@ if (Capacitor.isNativePlatform()) {
         path.includes("/subscription-success") ||
         path.includes("/subscription-cancelled")
       ) {
-        console.log("✅ Navigating to subscription page:", path + search);
         // Navigate to the appropriate page with query params
         window.location.href = path + search;
       }

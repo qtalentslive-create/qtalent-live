@@ -62,7 +62,6 @@ export const LocationSelector = ({ onLocationChange }: LocationSelectorProps) =>
       if (userLocation === "Worldwide") {
         // 3. Automatically save the detected location. The 'false' indicates
         //    this is not a manual override.
-        console.log(`✅ Auto-saving detected location: ${detectedLocation}`);
         saveLocation(detectedLocation, false);
       }
     }

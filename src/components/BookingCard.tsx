@@ -72,7 +72,7 @@ export const BookingCard = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const { openChat } = useChat();
-  const { canReceiveBooking, isProUser } = useTalentBookingLimit();
+  const { canReceiveBooking, isProUser, talentId } = useTalentBookingLimit();
   const { unreadCount } = useIndividualUnreadCount(booking.id, "booking");
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const [statusUpdating, setStatusUpdating] = useState<"accepted" | "declined" | null>(null);
@@ -128,6 +128,29 @@ export const BookingCard = ({
   const updateTalentBookingStatus = async (
     nextStatus: "accepted" | "declined"
   ) => {
+    // Check monthly limit for free users when accepting
+    if (nextStatus === "accepted" && !isProUser && talentId) {
+      try {
+        const { data: acceptedCount, error: countError } = await supabase.rpc(
+          "get_talent_accepted_bookings_count",
+          { talent_id_param: talentId }
+        );
+
+        if (!countError && acceptedCount !== null && acceptedCount >= 1) {
+          toast({
+            title: "Limit Reached",
+            description: "You've reached your limit this month. Upgrade to Pro to accept more bookings!",
+            variant: "destructive",
+          });
+          setStatusUpdating(null);
+          return; // Stop here, don't accept
+        }
+      } catch (error) {
+        // Fail-safe: if check fails, allow acceptance to prevent blocking users
+        console.error("Error checking accepted bookings count:", error);
+      }
+    }
+
     try {
       setStatusUpdating(nextStatus);
       const { error } = await supabase

@@ -46,12 +46,10 @@ export const TalentDashboardTabs = ({
       return;
     }
     setLoading(true);
-    console.log("Fetching bookings for talent:", profile.id);
 
     // CHROME CACHE BUST: Add timestamp to force fresh data in Chrome
     const timestamp = Date.now();
     const cacheBuster = `?_t=${timestamp}`;
-    console.log("Cache buster applied:", cacheBuster);
 
     const { data: bookingsData, error: bookingsError } = await supabase
       .from("bookings_secure")
@@ -62,11 +60,6 @@ export const TalentDashboardTabs = ({
     if (bookingsError) {
       console.error("Error fetching direct bookings:", bookingsError.message);
     } else {
-      console.log("Fetched bookings:", bookingsData?.length || 0, "records");
-      console.log(
-        "Booking statuses found:",
-        bookingsData?.map((b) => `${b.id}: ${b.status}`)
-      );
       setDirectBookings((bookingsData as Booking[]) || []);
     }
 
@@ -99,10 +92,6 @@ export const TalentDashboardTabs = ({
           requestsError.message
         );
       } else {
-        console.log(
-          "Event requests statuses found:",
-          requestsData?.map((r) => `${r.id}: ${r.status}`)
-        );
         setEventRequests((requestsData as EventRequest[]) || []);
       }
     }
@@ -112,21 +101,15 @@ export const TalentDashboardTabs = ({
 
   // Handle immediate removal from local state when booking is deleted
   const handleBookingRemove = useCallback((bookingId: string) => {
-    console.log("Removing booking from local state:", bookingId);
-    setDirectBookings((prev) => {
-      const filtered = prev.filter((booking) => booking.id !== bookingId);
-      console.log("Bookings after removal:", filtered.length);
-      return filtered;
-    });
+    setDirectBookings((prev) =>
+      prev.filter((booking) => booking.id !== bookingId)
+    );
   }, []);
 
   const handleEventRequestRemove = useCallback((requestId: string) => {
-    console.log("Removing event request from local state:", requestId);
-    setEventRequests((prev) => {
-      const filtered = prev.filter((request) => request.id !== requestId);
-      console.log("Event requests after removal:", filtered.length);
-      return filtered;
-    });
+    setEventRequests((prev) =>
+      prev.filter((request) => request.id !== requestId)
+    );
   }, []);
 
   useEffect(() => {
@@ -271,24 +254,15 @@ export const TalentDashboardTabs = ({
     );
 
     if (exists) {
-      console.log(
-        `[TalentDashboardTabs] Found booking ${focusBookingId}, switching to direct_bookings tab`
-      );
       // Switch tab immediately
       setActiveTab("direct_bookings");
       // Wait for tab content to render, then highlight
       const timer = setTimeout(() => {
-        console.log(
-          `[TalentDashboardTabs] Highlighting booking card: booking-${focusBookingId}`
-        );
         highlightCard(`booking-${focusBookingId}`, "booking");
       }, 800); // Increased delay to ensure tab content is fully rendered
       return () => clearTimeout(timer);
     } else if (directBookings.length > 0) {
       // Booking not found after data loaded
-      console.log(
-        `[TalentDashboardTabs] Booking ${focusBookingId} not found in loaded bookings`
-      );
       onFocusHandled?.("booking");
     }
   }, [
@@ -310,24 +284,15 @@ export const TalentDashboardTabs = ({
     );
 
     if (exists) {
-      console.log(
-        `[TalentDashboardTabs] Found event request ${focusEventRequestId}, switching to event_requests tab`
-      );
       // Switch tab immediately
       setActiveTab("event_requests");
       // Wait for tab content to render, then highlight
       const timer = setTimeout(() => {
-        console.log(
-          `[TalentDashboardTabs] Highlighting event request card: event-request-${focusEventRequestId}`
-        );
         highlightCard(`event-request-${focusEventRequestId}`, "event");
       }, 800); // Increased delay to ensure tab content is fully rendered
       return () => clearTimeout(timer);
     } else if (eventRequests.length > 0) {
       // Event request not found after data loaded
-      console.log(
-        `[TalentDashboardTabs] Event request ${focusEventRequestId} not found in loaded requests`
-      );
       onFocusHandled?.("event");
     }
   }, [

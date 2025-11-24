@@ -26,8 +26,6 @@ export const useOptimizedBookings = (userId?: string) => {
 
     const loadBookingsOptimized = async () => {
       try {
-        console.log('Loading bookings for user:', userId);
-        
         // Get user's talent profile and support booking in parallel
         const [talentProfileResponse, supportBookingResponse] = await Promise.all([
           supabase
@@ -111,9 +109,6 @@ export const useOptimizedBookings = (userId?: string) => {
             }
           });
         }
-        
-        console.log('Found bookings:', allBookings.length, allBookings);
-
         // Add support booking
         if (!supportBookingResponse.error && supportBookingResponse.data) {
           const supportBooking: BookingWithTalent = {

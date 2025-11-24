@@ -36,14 +36,6 @@ const AuthCallback = () => {
         const access_token = hashParams.get('access_token');
         const refresh_token = hashParams.get('refresh_token');
 
-        console.log("[AuthCallback] Processing:", { 
-          authType, 
-          hasTokens: !!(access_token && refresh_token),
-          fullURL: window.location.href,
-          queryParams: Object.fromEntries(searchParams.entries()),
-          hashParams: Object.fromEntries(hashParams.entries())
-        });
-
         // Handle Supabase auth errors
         if (error_code) {
           console.error("[AuthCallback] Auth error:", error_code, error_description);
@@ -53,8 +45,6 @@ const AuthCallback = () => {
 
         // Handle password recovery
         if (authType === "recovery") {
-          console.log("[AuthCallback] Password recovery detected");
-          
           // Try to set session from tokens if present (new flow)
           if (access_token && refresh_token) {
             const { error: sessionError } = await supabase.auth.setSession({ 
@@ -68,7 +58,6 @@ const AuthCallback = () => {
               return;
             }
 
-            console.log("[AuthCallback] Recovery session set from tokens");
             sessionStorage.setItem('isPasswordRecovery', 'true');
             navigate('/update-password', { replace: true });
             return;
@@ -77,7 +66,6 @@ const AuthCallback = () => {
           // If no tokens, check for existing session (old flow - Supabase sets it via cookie)
           const { data: { session } } = await supabase.auth.getSession();
           if (session) {
-            console.log("[AuthCallback] Recovery session found from cookie");
             sessionStorage.setItem('isPasswordRecovery', 'true');
             navigate('/update-password', { replace: true });
             return;
@@ -92,7 +80,6 @@ const AuthCallback = () => {
         if (authType === "signup") {
           // Modern flow: tokens in URL hash
           if (access_token && refresh_token) {
-            console.log("[AuthCallback] Modern signup flow with tokens");
             const { data, error: sessionError } = await supabase.auth.setSession({ 
               access_token, 
               refresh_token 
@@ -110,8 +97,6 @@ const AuthCallback = () => {
           // Fallback: old verification flow (no tokens in URL)
           // The old /auth/v1/verify endpoint verifies email but doesn't provide tokens
           // So we just show success and redirect to sign in
-          console.log("[AuthCallback] Old signup flow - email verified, redirecting to sign in");
-          
           toast({
             title: "Email Confirmed! ✓",
             description: "Your email has been verified. Please sign in to continue.",
@@ -129,7 +114,6 @@ const AuthCallback = () => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
-          console.log("[AuthCallback] Existing session found, redirecting");
           handleExistingSession(session.user);
         } else {
           setError("No active session found. Please sign in again.");
@@ -148,8 +132,6 @@ const AuthCallback = () => {
   }, []);
 
   const handleSuccessfulVerification = async (user: any) => {
-    console.log("[AuthCallback] Email verification successful for:", user.id);
-
     // Ensure profile exists and create talent_profiles if needed
     try {
       await supabase.rpc("ensure_profile", {

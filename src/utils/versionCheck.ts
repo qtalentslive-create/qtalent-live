@@ -10,8 +10,6 @@ export const checkAndUpdateVersion = () => {
   const storedVersion = localStorage.getItem(VERSION_KEY);
   
   if (storedVersion !== APP_VERSION) {
-    console.log(`[VersionCheck] Version mismatch. Stored: ${storedVersion}, Current: ${APP_VERSION}`);
-    
     // Clear all caches
     if ('caches' in window) {
       caches.keys().then(names => {

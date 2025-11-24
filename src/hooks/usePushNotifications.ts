@@ -23,7 +23,6 @@ const createNotificationChannel = async () => {
       vibration: true,
     };
     await PushNotifications.createChannel(channel);
-    console.log("Push notification channel created.");
   } catch (error) {
     console.error("Error creating notification channel:", error);
   }
@@ -53,7 +52,6 @@ export const registerDeviceForNotifications = async (userId: string) => {
     await PushNotifications.register();
 
     PushNotifications.addListener("registration", async (token) => {
-      console.log("Push registration success, token:", token.value);
       const { error } = await supabase
         .from("profiles")
         .update({ push_token: token.value })
@@ -69,12 +67,7 @@ export const registerDeviceForNotifications = async (userId: string) => {
 
     PushNotifications.addListener(
       "pushNotificationReceived",
-      (notification) => {
-        console.log(
-          "!!!!!!!!!! PUSH RECEIVED (APP OPEN) !!!!!!!!!!",
-          notification
-        );
-      }
+      () => {}
     );
 
     //
@@ -85,17 +78,11 @@ export const registerDeviceForNotifications = async (userId: string) => {
     PushNotifications.addListener(
       "pushNotificationActionPerformed",
       (action: ActionPerformed) => {
-        console.log("!!!!!!!!!! PUSH TAPPED (APP CLOSED) !!!!!!!!!!", action);
-        console.log("Full action data:", JSON.stringify(action, null, 2));
-
         // Try multiple ways to extract the URL
         const url =
           action.notification?.data?.url || action.notification?.data?.URL;
 
         if (url) {
-          console.log(
-            `[PushNotification] Saving navigation URL to storage: ${url}`
-          );
           // We use sessionStorage to store where we want to go.
           sessionStorage.setItem("pending_notification_url", url);
 
