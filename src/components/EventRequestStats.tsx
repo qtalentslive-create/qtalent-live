@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
@@ -81,15 +80,18 @@ export function EventRequestStats({ userId }: EventRequestStatsProps) {
   if (loading) {
     return (
       <div className={cn(
-        "grid gap-3",
+        "grid gap-2",
         isNativeApp ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2"
       )}>
         {[1, 2].map((i) => (
-          <Card key={i} className={cn(isNativeApp ? "p-3" : "p-4")}>
-            <div className="flex items-center justify-center h-16">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <div key={i} className={cn(
+            "rounded-md border border-border/50 bg-card/50",
+            isNativeApp ? "p-2.5" : "p-3"
+          )}>
+            <div className="flex items-center justify-center h-12">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
             </div>
-          </Card>
+          </div>
         ))}
       </div>
     );
@@ -97,80 +99,58 @@ export function EventRequestStats({ userId }: EventRequestStatsProps) {
 
   return (
     <div className={cn(
-      "grid gap-3",
+      "grid gap-2",
       isNativeApp ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2"
     )}>
       {/* Accepted Card */}
-      <Card className={cn(
-        "border-primary/20 bg-primary/5",
-        isNativeApp ? "p-3" : "p-4"
+      <div className={cn(
+        "rounded-md border border-border/50 bg-card/50 transition-colors",
+        isNativeApp ? "p-2.5" : "p-3"
       )}>
-        <CardHeader className={cn(
-          "flex flex-row items-center justify-between space-y-0 pb-2",
-          isNativeApp && "pb-1.5"
-        )}>
-          <CardTitle className={cn(
-            "text-sm font-medium text-primary",
-            isNativeApp && "text-xs"
+        <div className="flex items-center justify-between mb-1.5">
+          <span className={cn(
+            "text-xs font-normal text-muted-foreground",
+            isNativeApp && "text-[10px]"
           )}>
             Accepted
-          </CardTitle>
+          </span>
           <CheckCircle2 className={cn(
-            "h-4 w-4 text-primary",
-            isNativeApp && "h-3.5 w-3.5"
+            "h-3 w-3 text-muted-foreground/60",
+            isNativeApp && "h-2.5 w-2.5"
           )} />
-        </CardHeader>
-        <CardContent>
-          <div className={cn(
-            "font-bold text-primary",
-            isNativeApp ? "text-xl" : "text-2xl"
-          )}>
-            {acceptedCount}
-          </div>
-          <p className={cn(
-            "text-xs text-muted-foreground mt-1",
-            isNativeApp && "text-[10px]"
-          )}>
-            Event requests accepted
-          </p>
-        </CardContent>
-      </Card>
+        </div>
+        <div className={cn(
+          "font-semibold text-foreground",
+          isNativeApp ? "text-base" : "text-lg"
+        )}>
+          {acceptedCount}
+        </div>
+      </div>
 
       {/* Declined Card */}
-      <Card className={cn(
-        "border-muted-foreground/20",
-        isNativeApp ? "p-3" : "p-4"
+      <div className={cn(
+        "rounded-md border border-border/50 bg-card/50 transition-colors",
+        isNativeApp ? "p-2.5" : "p-3"
       )}>
-        <CardHeader className={cn(
-          "flex flex-row items-center justify-between space-y-0 pb-2",
-          isNativeApp && "pb-1.5"
-        )}>
-          <CardTitle className={cn(
-            "text-sm font-medium",
-            isNativeApp && "text-xs"
-          )}>
-            Declined
-          </CardTitle>
-          <XCircle className={cn(
-            "h-4 w-4 text-muted-foreground",
-            isNativeApp && "h-3.5 w-3.5"
-          )} />
-        </CardHeader>
-        <CardContent>
-          <div className={cn(
-            "font-bold",
-            isNativeApp ? "text-xl" : "text-2xl"
-          )}>
-            {declinedCount}
-          </div>
-          <p className={cn(
-            "text-xs text-muted-foreground mt-1",
+        <div className="flex items-center justify-between mb-1.5">
+          <span className={cn(
+            "text-xs font-normal text-muted-foreground",
             isNativeApp && "text-[10px]"
           )}>
-            Event requests declined
-          </p>
-        </CardContent>
-      </Card>
+            Declined
+          </span>
+          <XCircle className={cn(
+            "h-3 w-3 text-muted-foreground/60",
+            isNativeApp && "h-2.5 w-2.5"
+          )} />
+        </div>
+        <div className={cn(
+          "font-semibold text-foreground",
+          isNativeApp ? "text-base" : "text-lg"
+        )}>
+          {declinedCount}
+        </div>
+      </div>
     </div>
   );
 }

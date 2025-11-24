@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { cn } from "@/lib/utils";
+import { getReturnDestination } from "@/utils/authNavigation";
 
 interface SubscriptionModalProps {
   open: boolean;
@@ -206,11 +207,16 @@ export function SubscriptionModal({ open, onOpenChange, initialPlan }: Subscript
     window.paypal
       .Buttons({
         createSubscription: async (data, actions) => {
-          // This part is correct! It sends the user.id as custom_id
-          // For native apps, use deep link URLs; for web, use regular URLs
-          const baseUrl = isNativeApp 
-            ? "https://qtalent.live" // Use your production domain for deep linking
-            : window.location.origin;
+          // Get return destination (app or web)
+          const returnTo = getReturnDestination();
+          const baseUrl = "https://qtalent.live"; // Always use production domain
+          
+          // Build return URL with return destination tracking
+          const returnUrl = new URL("/subscription-success", baseUrl);
+          returnUrl.searchParams.set("returnTo", returnTo);
+          
+          const cancelUrl = new URL("/subscription-cancelled", baseUrl);
+          cancelUrl.searchParams.set("returnTo", returnTo);
           
           const subscriptionData = {
             plan_id: plan.planId,
@@ -219,8 +225,8 @@ export function SubscriptionModal({ open, onOpenChange, initialPlan }: Subscript
               brand_name: "QTalent",
               shipping_preference: "NO_SHIPPING",
               user_action: "SUBSCRIBE_NOW",
-              return_url: `${baseUrl}/subscription-success`,
-              cancel_url: `${baseUrl}/subscription-cancelled`,
+              return_url: returnUrl.toString(),
+              cancel_url: cancelUrl.toString(),
             },
           };
           

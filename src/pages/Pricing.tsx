@@ -8,17 +8,40 @@ import { useAuth } from "@/hooks/useAuth";
 import { SubscriptionModal } from "@/components/SubscriptionModal";
 import { Capacitor } from "@capacitor/core";
 import { cn } from "@/lib/utils";
+import { restoreSessionFromUrl } from "@/utils/authNavigation";
+import { useToast } from "@/hooks/use-toast";
 
 export default function () {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const isNativeApp = Capacitor.isNativePlatform();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [initialPlanFromUrl, setInitialPlanFromUrl] = useState<'monthly' | 'yearly' | null>(null);
   const [cameFromApp, setCameFromApp] = useState(false);
+  const [sessionRestored, setSessionRestored] = useState(false);
   const upgradeSectionRef = useRef<HTMLDivElement>(null);
   const autoClickTimerRef = useRef<number | null>(null);
+
+  // Restore session if coming from Capacitor app
+  useEffect(() => {
+    const restoreSession = async () => {
+      const restored = await restoreSessionFromUrl();
+      if (restored) {
+        setSessionRestored(true);
+        // Refresh the page to update auth state
+        window.location.reload();
+      }
+    };
+
+    // Only restore if we don't have a user yet
+    if (!user) {
+      restoreSession();
+    } else {
+      setSessionRestored(true);
+    }
+  }, [user]);
 
   const talentPlans = [
     {
@@ -106,6 +129,43 @@ export default function () {
     }
   };
 
+  // Restore session if coming from Capacitor app (run first)
+  useEffect(() => {
+    const restoreSession = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const hasSessionParam = params.has("session");
+      
+      if (hasSessionParam && !user) {
+        try {
+          const restored = await restoreSessionFromUrl();
+          if (restored) {
+            setSessionRestored(true);
+            toast({
+              title: "Session Restored",
+              description: "Your session has been restored. Please continue with your subscription.",
+            });
+            // Give a moment for auth state to update, then check again
+            setTimeout(() => {
+              // The auth hook should detect the new session automatically
+              // No need to reload - React will re-render when user state changes
+            }, 500);
+          }
+        } catch (error) {
+          console.error('Failed to restore session:', error);
+          toast({
+            title: "Session Error",
+            description: "Could not restore your session. Please sign in again.",
+            variant: "destructive",
+          });
+        }
+      } else if (user) {
+        setSessionRestored(true);
+      }
+    };
+
+    restoreSession();
+  }, []); // Run once on mount
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const planParam = params.get("plan");
@@ -125,13 +185,16 @@ export default function () {
 
     if (source === "app") {
       setCameFromApp(true);
-      params.delete("source");
-      params.delete("plan");
-      const newQuery = params.toString();
-      const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ""}`;
-      window.history.replaceState({}, "", newUrl);
+      // Keep session param if it exists for restoration
+      if (!params.has("session")) {
+        params.delete("source");
+        params.delete("plan");
+        const newQuery = params.toString();
+        const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ""}`;
+        window.history.replaceState({}, "", newUrl);
+      }
     }
-  }, []);
+  }, [user, sessionRestored]); // Re-run when user is available
 
   useEffect(() => {
     if (cameFromApp && upgradeSectionRef.current) {

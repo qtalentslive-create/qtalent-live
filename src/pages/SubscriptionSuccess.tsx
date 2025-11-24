@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ProBadge } from "@/components/ProBadge";
+import { getReturnDestination, navigateBackToApp } from "@/utils/authNavigation";
+import { Capacitor } from "@capacitor/core";
 
 export default function SubscriptionSuccess() {
   const navigate = useNavigate();
@@ -62,10 +64,7 @@ export default function SubscriptionSuccess() {
       if (data?.is_pro_subscriber) {
         setSuccess(true);
         setProcessing(false);
-        toast({
-          title: "Welcome to QTalent Pro!",
-          description: "Your subscription is active.",
-        });
+        showProBenefitsToast();
         return true;
       } else {
         return false;
@@ -76,6 +75,19 @@ export default function SubscriptionSuccess() {
       return false;
     }
   };
+
+  // Show comprehensive Pro benefits toast
+  const showProBenefitsToast = () => {
+    toast({
+      title: "🎉 Welcome to QTalent Pro!",
+      description: "You now have access to: 10 profile images, audio/video links, unlimited bookings, featured listing, Pro badge, and priority support.",
+      duration: 8000,
+      className: "bg-gradient-to-r from-accent/20 to-primary/20 border-2 border-accent/50",
+    });
+  };
+
+  // Note: We don't auto-redirect here anymore
+  // User can manually close browser and return to app, or click the button
 
   const activateProSubscription = async (subscriptionId: string, token: string | null) => {
     try {
@@ -92,11 +104,7 @@ export default function SubscriptionSuccess() {
 
       if (data?.success) {
         setSuccess(true);
-        toast({
-          title: "Welcome to QTalent Pro!",
-          description: "Your subscription has been activated successfully.",
-          duration: 5000,
-        });
+        showProBenefitsToast();
       } else {
         console.error('❌ Activation failed:', data?.error);
         throw new Error(data?.error || 'Failed to activate subscription');
@@ -229,22 +237,42 @@ export default function SubscriptionSuccess() {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button 
-                onClick={() => navigate('/talent-dashboard')}
+                onClick={() => {
+                  const returnTo = getReturnDestination();
+                  if (returnTo === 'app') {
+                    navigateBackToApp();
+                  } else {
+                    navigate('/talent-dashboard');
+                  }
+                }}
                 className="hero-button gap-2"
                 size="lg"
               >
-                Access Pro Dashboard
+                {getReturnDestination() === 'app' ? 'Return to App' : 'Access Pro Dashboard'}
                 <ArrowRight className="h-5 w-5" />
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/')}
-                className="outline-button gap-2"
-                size="lg"
-              >
-                <Home className="h-5 w-5" />
-                Return Home
-              </Button>
+              {getReturnDestination() === 'web' && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/')}
+                  className="outline-button gap-2"
+                  size="lg"
+                >
+                  <Home className="h-5 w-5" />
+                  Return Home
+                </Button>
+              )}
+              {getReturnDestination() === 'app' && (
+                <div className="text-center mt-4 p-4 rounded-lg bg-accent/10 border border-accent/30">
+                  <p className="text-sm font-medium text-foreground mb-2">
+                    🎉 Payment Successful!
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    You can now close this browser tab and return to the QTalent app. 
+                    Your Pro subscription is active and ready to use!
+                  </p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

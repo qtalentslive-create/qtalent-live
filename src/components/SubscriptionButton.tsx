@@ -97,7 +97,7 @@ export function SubscriptionButton({
 
   const daysRemaining = calculateDaysRemaining(subscriptionData?.currentPeriodEnd);
 
-  const handleSubscriptionAction = () => {
+  const handleSubscriptionAction = async () => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -110,8 +110,16 @@ export function SubscriptionButton({
     if (isProSubscriber) {
       setShowManagementModal(true);
     } else {
-      // Navigate to pricing page (works better than modal in both web and Capacitor)
-      navigate("/pricing");
+      // Use auth-preserving navigation for Capacitor
+      if (isNativeApp) {
+        const { navigateToPricing } = await import("@/utils/authNavigation");
+        await navigateToPricing({ 
+          returnTo: 'app' // Return to app after payment
+        });
+      } else {
+        // Web: navigate normally
+        navigate("/pricing");
+      }
     }
   };
 
