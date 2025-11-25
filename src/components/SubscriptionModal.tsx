@@ -11,6 +11,7 @@ import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { cn } from "@/lib/utils";
 import { getReturnDestination } from "@/utils/authNavigation";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SubscriptionModalProps {
   open: boolean;
@@ -114,15 +115,9 @@ export function SubscriptionModal({ open, onOpenChange, initialPlan }: Subscript
       return;
     }
 
-    // Check if user is authenticated
+    // Check if user is authenticated - just close modal if not authenticated, don't show error
     if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to subscribe to Pro.",
-        variant: "destructive",
-      });
       onOpenChange(false);
-      navigate('/auth');
       return;
     }
 
@@ -185,27 +180,34 @@ export function SubscriptionModal({ open, onOpenChange, initialPlan }: Subscript
     if (!plan) return;
 
     const containerId = `paypal-button-container-${plan.id}`;
-    const container = document.getElementById(containerId);
-    if (!container) return;
+    
+    // Wait for container to be in DOM
+    const renderButton = () => {
+      const container = document.getElementById(containerId);
+      if (!container) {
+        // Container not ready, try again after a short delay
+        setTimeout(renderButton, 200);
+        return;
+      }
 
-    // Clear any existing PayPal buttons
-    container.innerHTML = "";
+      // Clear any existing PayPal buttons
+      container.innerHTML = "";
 
-    // For native apps, intercept clicks on PayPal button container
-    if (isNativeApp) {
-      const clickInterceptor = (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        // Check if click is on PayPal button or its children
-        if (target.closest('[data-paypal-button], [class*="paypal"], iframe[src*="paypal"]')) {
-          // The main.tsx handler should catch the window.open call
-        }
-      };
-      container.addEventListener("click", clickInterceptor, true);
-    }
+      // For native apps, intercept clicks on PayPal button container
+      if (isNativeApp) {
+        const clickInterceptor = (e: MouseEvent) => {
+          const target = e.target as HTMLElement;
+          // Check if click is on PayPal button or its children
+          if (target.closest('[data-paypal-button], [class*="paypal"], iframe[src*="paypal"]')) {
+            // The main.tsx handler should catch the window.open call
+          }
+        };
+        container.addEventListener("click", clickInterceptor, true);
+      }
 
-    setPaypalReady(false);
-    window.paypal
-      .Buttons({
+      setPaypalReady(false);
+      window.paypal
+        .Buttons({
         createSubscription: async (data, actions) => {
           // Get return destination (app or web)
           const returnTo = getReturnDestination();
@@ -278,34 +280,121 @@ export function SubscriptionModal({ open, onOpenChange, initialPlan }: Subscript
           label: "subscribe",
         },
       })
-      .render(`#${containerId}`)
-      .then(() => {
-        setPaypalReady(true);
-      })
-      .catch((err) => {
-        console.error("PayPal render error:", err);
-      });
-  }, [paypalLoaded, selectedPlan, user, plans, toast, onOpenChange, navigate]);
+        .render(`#${containerId}`)
+        .then(() => {
+          setPaypalReady(true);
+        })
+        .catch((err) => {
+          console.error("PayPal render error:", err);
+          toast({
+            title: "Error",
+            description: "Failed to load PayPal button. Please try again.",
+            variant: "destructive",
+          });
+        });
+    };
 
-  const handlePlanSelect = (planId: string) => {
+    // Start rendering
+    renderButton();
+  }, [paypalLoaded, selectedPlan, user, toast, onOpenChange, navigate]);
+
+  const handlePlanSelect = async (planId: string) => {
     if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to subscribe to Pro.",
-        variant: "destructive",
-      });
       onOpenChange(false);
-      navigate('/auth');
       return;
     }
-    if (!paypalLoaded || isLoading) {
+    if (!paypalLoaded || isLoading || !window.paypal) {
       toast({
         title: "Please wait",
         description: "PayPal is loading. Please try again in a moment.",
       });
       return;
     }
-    setSelectedPlan(planId);
+
+    // On Capacitor, directly trigger PayPal checkout
+    if (isNativeApp) {
+      const plan = plans.find((p) => p.id === planId);
+      if (!plan) return;
+
+      try {
+        const returnTo = getReturnDestination();
+        const baseUrl = "https://qtalent.live";
+        const returnUrl = new URL("/subscription-success", baseUrl);
+        returnUrl.searchParams.set("returnTo", returnTo);
+        const cancelUrl = new URL("/subscription-cancelled", baseUrl);
+        cancelUrl.searchParams.set("returnTo", returnTo);
+
+        const subscriptionData = {
+          plan_id: plan.planId,
+          custom_id: user.id,
+          application_context: {
+            brand_name: "QTalent",
+            shipping_preference: "NO_SHIPPING",
+            user_action: "SUBSCRIBE_NOW",
+            return_url: returnUrl.toString(),
+            cancel_url: cancelUrl.toString(),
+          },
+        };
+
+        // Create a temporary PayPal button instance to get the approval URL
+        const tempContainer = document.createElement('div');
+        tempContainer.style.display = 'none';
+        document.body.appendChild(tempContainer);
+
+        const paypalButtons = window.paypal.Buttons({
+          createSubscription: async (data: any, actions: any) => {
+            return await actions.subscription.create(subscriptionData);
+          },
+          onApprove: async (data: any, actions: any) => {
+            toast({
+              title: "Subscription Successful!",
+              description: "Redirecting to confirmation page...",
+              duration: 3000,
+            });
+            onOpenChange(false);
+            const redirectUrl = new URL("/subscription-success", baseUrl);
+            redirectUrl.searchParams.set("returnTo", returnTo);
+            if (data.subscriptionID) {
+              redirectUrl.searchParams.set("subscription_id", data.subscriptionID);
+            }
+            window.location.href = redirectUrl.toString();
+          },
+          onError: (err: any) => {
+            toast({
+              title: "Subscription Error",
+              description: "There was an issue processing your subscription. Please try again.",
+              variant: "destructive",
+            });
+          },
+          onCancel: () => {
+            toast({
+              title: "Subscription Cancelled",
+              description: "You cancelled the subscription process.",
+            });
+          },
+        });
+
+        await paypalButtons.render(tempContainer);
+        const paypalButton = tempContainer.querySelector('button') as HTMLButtonElement;
+        if (paypalButton) {
+          paypalButton.click();
+          // Clean up after a moment
+          setTimeout(() => {
+            document.body.removeChild(tempContainer);
+          }, 1000);
+        }
+      } catch (error) {
+        console.error("PayPal checkout error:", error);
+        toast({
+          title: "Error",
+          description: "Failed to start checkout. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // On web, just select the plan to show PayPal button
+      setSelectedPlan(planId);
+    }
   };
 
   const handleClose = (open: boolean) => {
@@ -437,71 +526,31 @@ export function SubscriptionModal({ open, onOpenChange, initialPlan }: Subscript
                           ))}
                         </div>
                         <div className={cn("space-y-4", isNativeApp && "space-y-3 pt-2")}>
-                          {isNativeApp ? (
-                            // Native-style info card for desktop subscription
-                            <div className={cn(
-                              "rounded-2xl border-2 overflow-hidden",
-                              "bg-gradient-to-br from-primary/5 via-background to-primary/5",
-                              "border-primary/20 shadow-lg"
-                            )}>
-                              <div className="p-5 space-y-4">
-                                <div className="flex items-center justify-center">
-                                  <div className="rounded-full bg-brand-warning/20 p-3">
-                                    <Crown className="h-7 w-7 text-brand-warning" />
-                                  </div>
-                                </div>
-                                <div className="text-center space-y-2">
-                                  <h3 className="text-base font-bold tracking-tight">
-                                    Subscribe on Desktop
-                                  </h3>
-                                  <p className="text-sm text-muted-foreground leading-relaxed px-2">
-                                    For the best payment experience, complete your Pro subscription on a desktop or laptop.
-                                  </p>
-                                  <p className="text-xs text-muted-foreground/80 font-medium">
-                                    Visit <span className="font-semibold text-foreground">qtalent.live/pricing</span>
-                                  </p>
-                                </div>
-                                <Button
-                                  onClick={() => {
-                                    const pricingUrl = "https://qtalent.live/pricing";
-                                    Browser.open({
-                                      url: pricingUrl,
-                                      toolbarColor: "#0A0118",
-                                    }).catch(() => {
-                                      window.location.href = pricingUrl;
-                                    });
-                                    onOpenChange(false);
-                                  }}
-                                  className={cn(
-                                    "w-full h-12 text-base font-semibold rounded-xl",
-                                    "bg-primary text-primary-foreground shadow-md",
-                                    "active:scale-[0.98] transition-transform"
-                                  )}
-                                >
-                                  Open Pricing Page
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            // For web, show PayPal button
+                          {/* On web, show PayPal button */}
+                          {!isNativeApp && (
                             <div 
                               id={`paypal-button-container-${plan.id}`} 
                               className="min-h-[50px]"
                             ></div>
                           )}
-                          {!isNativeApp && (
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={() => {
-                                setSelectedPlan(null);
-                                onOpenChange(false);
-                              }} 
-                              className="w-full"
-                            >
-                              Choose Different Plan
-                            </Button>
+                          {/* On Capacitor, PayPal is triggered directly from "Select Monthly Pro" button */}
+                          {isNativeApp && (
+                            <div 
+                              id={`paypal-button-container-${plan.id}`} 
+                              className="hidden"
+                            ></div>
                           )}
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => {
+                              setSelectedPlan(null);
+                              onOpenChange(false);
+                            }} 
+                            className="w-full"
+                          >
+                            Choose Different Plan
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -595,68 +644,28 @@ export function SubscriptionModal({ open, onOpenChange, initialPlan }: Subscript
                   </div>
                   {selectedPlan === plan.id ? (
                     <div className={cn("space-y-4", isNativeApp && "space-y-3 pt-2")}>
-                      {isNativeApp ? (
-                        // Native-style info card
-                        <div className={cn(
-                          "rounded-2xl border-2 overflow-hidden",
-                          "bg-gradient-to-br from-primary/5 via-background to-primary/5",
-                          "border-primary/20 shadow-lg"
-                        )}>
-                          <div className="p-5 space-y-4">
-                            <div className="flex items-center justify-center">
-                              <div className="rounded-full bg-brand-warning/20 p-3">
-                                <Crown className="h-7 w-7 text-brand-warning" />
-                              </div>
-                            </div>
-                            <div className="text-center space-y-2">
-                              <h3 className="text-base font-bold tracking-tight">
-                                Subscribe on Desktop
-                              </h3>
-                              <p className="text-sm text-muted-foreground leading-relaxed px-2">
-                                For the best payment experience, complete your Pro subscription on a desktop or laptop.
-                              </p>
-                              <p className="text-xs text-muted-foreground/80 font-medium">
-                                Visit <span className="font-semibold text-foreground">qtalent.live/pricing</span>
-                              </p>
-                            </div>
-                            <Button
-                              onClick={() => {
-                                const pricingUrl = "https://qtalent.live/pricing";
-                                Browser.open({
-                                  url: pricingUrl,
-                                  toolbarColor: "#0A0118",
-                                }).catch(() => {
-                                  window.location.href = pricingUrl;
-                                });
-                                onOpenChange(false);
-                              }}
-                              className={cn(
-                                "w-full h-12 text-base font-semibold rounded-xl",
-                                "bg-primary text-primary-foreground shadow-md",
-                                "active:scale-[0.98] transition-transform"
-                              )}
-                            >
-                              Open Pricing Page
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        // Web: Show PayPal button
-                        <>
-                          <div 
-                            id={`paypal-button-container-${plan.id}`} 
-                            className="min-h-[50px]"
-                          ></div>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setSelectedPlan(null)} 
-                            className="w-full"
-                          >
-                            Choose Different Plan
-                          </Button>
-                        </>
+                      {/* On Capacitor, PayPal is already triggered from "Select Monthly Pro" button */}
+                      {/* On web, show PayPal button */}
+                      {!isNativeApp && (
+                        <div 
+                          id={`paypal-button-container-${plan.id}`} 
+                          className="min-h-[50px]"
+                        ></div>
                       )}
+                      {isNativeApp && (
+                        <div 
+                          id={`paypal-button-container-${plan.id}`} 
+                          className="hidden"
+                        ></div>
+                      )}
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setSelectedPlan(null)} 
+                        className="w-full"
+                      >
+                        Choose Different Plan
+                      </Button>
                     </div>
                   ) : (
                     <Button
@@ -688,7 +697,7 @@ export function SubscriptionModal({ open, onOpenChange, initialPlan }: Subscript
             </>
           )}
         </div>
-        {paypalLoaded && !isLoading && !isNativeApp && (
+        {paypalLoaded && !isLoading && (
           <div className={cn(
             "text-center text-xs text-muted-foreground border-t border-border/50 pt-4",
             "px-6 pb-6 mt-6"

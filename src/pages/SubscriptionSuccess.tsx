@@ -76,13 +76,13 @@ export default function SubscriptionSuccess() {
     }
   };
 
-  // Show comprehensive Pro benefits toast
+  // Show comprehensive Pro benefits toast with trustworthy design
   const showProBenefitsToast = () => {
     toast({
-      title: "🎉 Welcome to QTalent Pro!",
-      description: "You now have access to: 10 profile images, audio/video links, unlimited bookings, featured listing, Pro badge, and priority support.",
-      duration: 8000,
-      className: "bg-gradient-to-r from-accent/20 to-primary/20 border-2 border-accent/50",
+      title: "🎉 Congratulations! You're Now a Pro Member",
+      description: "Your Pro subscription is active! Unlocked features: • Unlimited bookings • 10 profile images • Audio/video links • Featured listing • Pro badge • Priority support",
+      duration: 10000,
+      className: "bg-gradient-to-br from-brand-success/10 via-accent/10 to-primary/10 border-2 border-brand-success/30 shadow-lg backdrop-blur-sm",
     });
   };
 

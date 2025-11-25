@@ -18,28 +18,7 @@ export default function () {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [initialPlanFromUrl, setInitialPlanFromUrl] = useState<'monthly' | 'yearly' | null>(null);
-  const [cameFromApp, setCameFromApp] = useState(false);
   const upgradeSectionRef = useRef<HTMLDivElement>(null);
-  const autoClickTimerRef = useRef<number | null>(null);
-
-  // Restore session if coming from Capacitor app
-  useEffect(() => {
-    const restoreSession = async () => {
-      const restored = await restoreSessionFromUrl();
-      if (restored) {
-        setSessionRestored(true);
-        // Refresh the page to update auth state
-        window.location.reload();
-      }
-    };
-
-    // Only restore if we don't have a user yet
-    if (!user) {
-      restoreSession();
-    } else {
-      setSessionRestored(true);
-    }
-  }, [user]);
 
   const talentPlans = [
     {
@@ -148,25 +127,24 @@ export default function () {
       }
     }
 
-    if (source === "app") {
-      setCameFromApp(true);
-      // Clean up URL params
+    // Clean up URL params
+    if (source) {
       params.delete("source");
       params.delete("plan");
-      params.delete("session"); // Remove session param if present
+      params.delete("session");
+      params.delete("returnTo");
       const newQuery = params.toString();
       const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ""}`;
       window.history.replaceState({}, "", newUrl);
     }
-  }, [user]); // Only depend on user
 
-  useEffect(() => {
-    if (cameFromApp && upgradeSectionRef.current) {
+    // Scroll to upgrade section if coming from app
+    if (source === "app" && upgradeSectionRef.current) {
       setTimeout(() => {
         upgradeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 300);
     }
-  }, [cameFromApp]);
+  }, [user]); // Only depend on user
 
   const modalInitialPlan = useMemo(() => initialPlanFromUrl || billingCycle, [initialPlanFromUrl, billingCycle]);
 
@@ -198,21 +176,6 @@ export default function () {
 
       {/* For Talent Section */}
       <section id="upgrade-to-pro" ref={upgradeSectionRef} className={cn("container mx-auto px-4", isNativeApp ? "mb-12" : "mb-20")}>
-        {!user && cameFromApp && (
-          <div className="max-w-3xl mx-auto mb-6 rounded-2xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm text-accent-foreground shadow-sm">
-            <p className="font-semibold mb-1">Sign in required</p>
-            <p className="text-xs text-muted-foreground mb-3">
-              Please sign in to continue with your Pro subscription.
-            </p>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => navigate('/auth')}
-            >
-              Sign In
-            </Button>
-          </div>
-        )}
         <div className={cn("text-center", isNativeApp ? "mb-8" : "mb-12")}>
           <h2 className={cn("mb-4", isNativeApp ? "text-xl font-bold" : "text-headline")}>For Talent</h2>
           <p className={cn("mb-8", isNativeApp ? "text-sm px-2" : "text-subhead")}>Join thousands of performers earning with Qtalent.live</p>
