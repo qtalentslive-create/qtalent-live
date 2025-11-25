@@ -8,7 +8,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { SubscriptionModal } from "@/components/SubscriptionModal";
 import { Capacitor } from "@capacitor/core";
 import { cn } from "@/lib/utils";
-import { restoreSessionFromUrl } from "@/utils/authNavigation";
 import { useToast } from "@/hooks/use-toast";
 
 export default function () {
@@ -20,7 +19,6 @@ export default function () {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [initialPlanFromUrl, setInitialPlanFromUrl] = useState<'monthly' | 'yearly' | null>(null);
   const [cameFromApp, setCameFromApp] = useState(false);
-  const [sessionRestored, setSessionRestored] = useState(false);
   const upgradeSectionRef = useRef<HTMLDivElement>(null);
   const autoClickTimerRef = useRef<number | null>(null);
 
@@ -129,43 +127,7 @@ export default function () {
     }
   };
 
-  // Restore session if coming from Capacitor app (run first)
-  useEffect(() => {
-    const restoreSession = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const hasSessionParam = params.has("session");
-      
-      if (hasSessionParam && !user) {
-        try {
-          const restored = await restoreSessionFromUrl();
-          if (restored) {
-            setSessionRestored(true);
-            toast({
-              title: "Session Restored",
-              description: "Your session has been restored. Please continue with your subscription.",
-            });
-            // Give a moment for auth state to update, then check again
-            setTimeout(() => {
-              // The auth hook should detect the new session automatically
-              // No need to reload - React will re-render when user state changes
-            }, 500);
-          }
-        } catch (error) {
-          console.error('Failed to restore session:', error);
-          toast({
-            title: "Session Error",
-            description: "Could not restore your session. Please sign in again.",
-            variant: "destructive",
-          });
-        }
-      } else if (user) {
-        setSessionRestored(true);
-      }
-    };
-
-    restoreSession();
-  }, []); // Run once on mount
-
+  // Handle URL parameters for plan and source
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const planParam = params.get("plan");
@@ -180,21 +142,23 @@ export default function () {
     if (desiredPlan) {
       setBillingCycle(desiredPlan);
       setInitialPlanFromUrl(desiredPlan);
-      setShowSubscriptionModal(true);
+      // Only auto-open modal if user is authenticated
+      if (user) {
+        setShowSubscriptionModal(true);
+      }
     }
 
     if (source === "app") {
       setCameFromApp(true);
-      // Keep session param if it exists for restoration
-      if (!params.has("session")) {
-        params.delete("source");
-        params.delete("plan");
-        const newQuery = params.toString();
-        const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ""}`;
-        window.history.replaceState({}, "", newUrl);
-      }
+      // Clean up URL params
+      params.delete("source");
+      params.delete("plan");
+      params.delete("session"); // Remove session param if present
+      const newQuery = params.toString();
+      const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ""}`;
+      window.history.replaceState({}, "", newUrl);
     }
-  }, [user, sessionRestored]); // Re-run when user is available
+  }, [user]); // Only depend on user
 
   useEffect(() => {
     if (cameFromApp && upgradeSectionRef.current) {
@@ -206,27 +170,7 @@ export default function () {
 
   const modalInitialPlan = useMemo(() => initialPlanFromUrl || billingCycle, [initialPlanFromUrl, billingCycle]);
 
-  useEffect(() => {
-    if (cameFromApp && showSubscriptionModal) {
-      if (autoClickTimerRef.current) {
-        window.clearTimeout(autoClickTimerRef.current);
-      }
-      autoClickTimerRef.current = window.setTimeout(() => {
-        const paypalButton = document.querySelector<HTMLButtonElement>(
-          '[data-paypal-button]'
-        );
-        if (paypalButton) {
-          paypalButton.click();
-        }
-      }, 800);
-    }
-    return () => {
-      if (autoClickTimerRef.current) {
-        window.clearTimeout(autoClickTimerRef.current);
-        autoClickTimerRef.current = null;
-      }
-    };
-  }, [cameFromApp, showSubscriptionModal]);
+  // Removed auto-click PayPal button - let user click manually for better UX
 
   return (
     <div className={cn("min-h-screen bg-background", isNativeApp && "pb-8")}>
@@ -254,22 +198,18 @@ export default function () {
 
       {/* For Talent Section */}
       <section id="upgrade-to-pro" ref={upgradeSectionRef} className={cn("container mx-auto px-4", isNativeApp ? "mb-12" : "mb-20")}>
-        {cameFromApp && (
-          <div className="max-w-3xl mx-auto mb-6 rounded-2xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm text-accent-foreground shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <p className="font-semibold">Almost there!</p>
-              <p className="text-xs text-muted-foreground">
-                PayPal checkout will open automatically in a moment. If it doesn’t, tap “Reopen Checkout”.
-              </p>
-            </div>
+        {!user && cameFromApp && (
+          <div className="max-w-3xl mx-auto mb-6 rounded-2xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm text-accent-foreground shadow-sm">
+            <p className="font-semibold mb-1">Sign in required</p>
+            <p className="text-xs text-muted-foreground mb-3">
+              Please sign in to continue with your Pro subscription.
+            </p>
             <Button
-              variant="secondary"
+              variant="default"
               size="sm"
-              onClick={() => {
-                setShowSubscriptionModal(true);
-              }}
+              onClick={() => navigate('/auth')}
             >
-              Reopen Checkout
+              Sign In
             </Button>
           </div>
         )}

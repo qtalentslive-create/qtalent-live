@@ -8,6 +8,7 @@ import { SubscriptionModal } from "@/components/SubscriptionModal";
 import { SubscriptionManagementModal } from "@/components/SubscriptionManagementModal";
 import { supabase } from "@/integrations/supabase/client";
 import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -97,7 +98,7 @@ export function SubscriptionButton({
 
   const daysRemaining = calculateDaysRemaining(subscriptionData?.currentPeriodEnd);
 
-  const handleSubscriptionAction = async () => {
+  const handleSubscriptionAction = () => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -110,11 +111,15 @@ export function SubscriptionButton({
     if (isProSubscriber) {
       setShowManagementModal(true);
     } else {
-      // Use auth-preserving navigation for Capacitor
+      // Navigate to pricing page - simple and straightforward
       if (isNativeApp) {
-        const { navigateToPricing } = await import("@/utils/authNavigation");
-        await navigateToPricing({ 
-          returnTo: 'app' // Return to app after payment
+        // Open in external browser for Capacitor
+        const pricingUrl = "https://qtalent.live/pricing?source=app&returnTo=app";
+        Browser.open({
+          url: pricingUrl,
+          toolbarColor: "#0A0118",
+        }).catch(() => {
+          window.location.href = pricingUrl;
         });
       } else {
         // Web: navigate normally
