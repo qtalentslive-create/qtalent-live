@@ -5,7 +5,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 // Helper to get environment variable safely
-const getEnv = (key) => {
+const getEnv = (key: string) => {
   const value = Deno.env.get(key);
   if (!value) throw new Error(`Missing environment variable: ${key}`);
   return value;
@@ -33,10 +33,8 @@ Deno.serve(async (req) => {
     const { plan_id, returnTo = "web" } = await req.json();
     if (!plan_id) throw new Error("plan_id is required");
     // ➡️ BEGIN PAYPAL ENVIRONMENT SWITCH
-    // Change here to 'sandbox' for testing without paying real money
-    // Change here to 'live' when you are ready to accept real payments
     const PAYPAL_ENV = getEnv("PAYPAL_ENV");
-    const isSandbox = PAYPAL_ENV === "live"; //<-- SET THIS TO "sandbox" OR "live"///////////////////////////////////////////////////////////////////////<------------------
+    const isSandbox = PAYPAL_ENV !== "live";
     // Automatically select credentials based on environment
     const PAYPAL_CLIENT_ID = isSandbox
       ? getEnv("PAYPAL_SANDBOX_CLIENT_ID")
@@ -44,10 +42,9 @@ Deno.serve(async (req) => {
     const PAYPAL_CLIENT_SECRET = isSandbox
       ? getEnv("PAYPAL_SANDBOX_CLIENT_SECRET")
       : getEnv("PAYPAL_LIVE_CLIENT_SECRET");
-    // PayPal API base URL changes depending on environment
     const PAYPAL_API_BASE = isSandbox
-      ? "https://api-m.sandbox.paypal.com" // Sandbox testing
-      : "https://api-m.paypal.com"; // Live payments
+      ? "https://api-m.sandbox.paypal.com"
+      : "https://api-m.paypal.com";
     // ⬅️ END PAYPAL ENVIRONMENT SWITCH
     // ✅ Get PayPal access token
     const tokenRes = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
