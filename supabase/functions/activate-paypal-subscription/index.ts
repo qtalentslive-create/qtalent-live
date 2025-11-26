@@ -60,8 +60,8 @@ Deno.serve(async (req) => {
     }
     // ➡️ BEGIN PAYPAL ENVIRONMENT SWITCH
     // Change here in Supabase secrets: PAYPAL_ENV = "sandbox" or "live"
-    const PAYPAL_ENV = getEnv("PAYPAL_ENV"); // <-- Set "sandbox" or "live"
-    const isSandbox = PAYPAL_ENV === "live"; // <-- Automatically selects environment///////////////////////////////////////////////////////////////////////////
+    const PAYPAL_ENV = getEnv("PAYPAL_ENV");
+    const isSandbox = PAYPAL_ENV !== "live";
     const PAYPAL_CLIENT_ID = isSandbox
       ? getEnv("PAYPAL_SANDBOX_CLIENT_ID")
       : getEnv("PAYPAL_LIVE_CLIENT_ID");

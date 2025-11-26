@@ -13,7 +13,7 @@ const getEnv = (key) => {
 };
 // Determine environment: sandbox or live
 const PAYPAL_ENV = getEnv("PAYPAL_ENV");
-const isSandbox = PAYPAL_ENV === "live"; // "sandbox" or "live"
+const isSandbox = PAYPAL_ENV !== "live";
 // Pick credentials based on environment
 const PAYPAL_CLIENT_ID = isSandbox
   ? getEnv("PAYPAL_SANDBOX_CLIENT_ID")

@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     // - "live" for real payments
     // Example: PAYPAL_ENV = "sandbox"  <-- change here when you want to switch
     const PAYPAL_ENV = getEnv("PAYPAL_ENV");
-    const isSandbox = PAYPAL_ENV === "live"; // <-- Set "sandbox" or "live"
+    const isSandbox = PAYPAL_ENV !== "live";
     const PAYPAL_CLIENT_ID = isSandbox
       ? getEnv("PAYPAL_SANDBOX_CLIENT_ID")
       : getEnv("PAYPAL_LIVE_CLIENT_ID");
