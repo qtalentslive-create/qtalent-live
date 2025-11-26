@@ -9,6 +9,7 @@ import { SubscriptionModal } from "@/components/SubscriptionModal";
 import { Capacitor } from "@capacitor/core";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { restoreSessionFromUrl } from "@/utils/authNavigation";
 
 export default function () {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ export default function () {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [initialPlanFromUrl, setInitialPlanFromUrl] = useState<'monthly' | 'yearly' | null>(null);
+  const [cameFromApp, setCameFromApp] = useState(false);
+  const [restoringSession, setRestoringSession] = useState(false);
   const upgradeSectionRef = useRef<HTMLDivElement>(null);
 
   const talentPlans = [
@@ -106,33 +109,54 @@ export default function () {
     }
   };
 
+  // Restore session if arriving from Capacitor with session token
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("session")) {
+      setRestoringSession(true);
+      restoreSessionFromUrl()
+        .then((restored) => {
+          if (restored) {
+            toast({
+              title: "You're signed in",
+              description: "Continue checkout in your browser.",
+              duration: 2500,
+            });
+          }
+        })
+        .finally(() => setRestoringSession(false));
+    }
+  }, [toast]);
+
   // Handle URL parameters for plan and source
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const planParam = params.get("plan");
     const source = params.get("source");
+    const returnToParam = params.get("returnTo");
 
     const normalizePlan = (value: string | null): 'monthly' | 'yearly' | null => {
       if (value === 'monthly' || value === 'yearly') return value;
       return null;
     };
 
+    if (source === "app") {
+      setCameFromApp(true);
+    }
+
     const desiredPlan = normalizePlan(planParam);
     if (desiredPlan) {
       setBillingCycle(desiredPlan);
       setInitialPlanFromUrl(desiredPlan);
-      // Only auto-open modal if user is authenticated
-      if (user) {
-        setShowSubscriptionModal(true);
-      }
     }
 
     // Clean up URL params
     if (source) {
       params.delete("source");
       params.delete("plan");
-      params.delete("session");
-      params.delete("returnTo");
+      if (!returnToParam) {
+        params.delete("returnTo");
+      }
       const newQuery = params.toString();
       const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ""}`;
       window.history.replaceState({}, "", newUrl);
@@ -144,7 +168,14 @@ export default function () {
         upgradeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 300);
     }
-  }, [user]); // Only depend on user
+  }, [user]);
+
+  // Auto-open modal when plan is preselected and user/session ready
+  useEffect(() => {
+    if (user && initialPlanFromUrl) {
+      setShowSubscriptionModal(true);
+    }
+  }, [user, initialPlanFromUrl]);
 
   const modalInitialPlan = useMemo(() => initialPlanFromUrl || billingCycle, [initialPlanFromUrl, billingCycle]);
 
@@ -163,6 +194,19 @@ export default function () {
           Back to Home
         </Button>
       </div>
+
+      {(cameFromApp || restoringSession) && (
+        <div className="container mx-auto px-4 pb-4">
+          <div className="rounded-xl border border-border/60 bg-card/70 px-4 py-3 text-sm text-muted-foreground flex items-center justify-between gap-4">
+            <span>
+              {restoringSession
+                ? "Restoring your secure session..."
+                : "You're continuing checkout from the app. Complete payment in your browser."}
+            </span>
+            {restoringSession && <span className="animate-pulse text-xs">Please wait</span>}
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className={cn("container mx-auto px-4 text-center", isNativeApp ? "mb-8" : "mb-16")}>
@@ -353,7 +397,7 @@ export default function () {
       <SubscriptionModal 
         open={showSubscriptionModal} 
         onOpenChange={setShowSubscriptionModal}
-        initialPlan={billingCycle} // Pre-select the plan based on billing cycle
+        initialPlan={modalInitialPlan} // Pre-select plan from URL when available
       />
     </div>
   );

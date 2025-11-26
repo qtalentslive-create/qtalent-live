@@ -105,14 +105,19 @@ if (Capacitor.isNativePlatform()) {
         // Use Browser.open - this opens in a native browser view (not WebView)
         // SFSafariViewController (iOS) and Chrome Custom Tabs (Android) are full-screen and scrollable
         // These provide a much better experience than WebView
-        Browser.open({
-          url: urlString,
-          toolbarColor: "#0A0118",
-        }).catch((error) => {
-          console.error("❌ Browser.open failed, trying fallback:", error);
-          // Fallback: navigate to URL (will open in external browser)
-          window.location.href = urlString;
-        });
+        CapacitorApp.openUrl({ url: urlString })
+          .catch((error) => {
+            console.error("❌ App.openUrl failed, trying Browser plugin:", error);
+            return Browser.open({
+              url: urlString,
+              toolbarColor: "#0A0118",
+              presentationStyle: "fullscreen",
+            });
+          })
+          .catch((error) => {
+            console.error("❌ Browser.open failed, trying fallback:", error);
+            window.location.href = urlString;
+          });
 
         // Return a mock window object to satisfy PayPal SDK
         return {

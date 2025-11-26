@@ -7,7 +7,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ProBadge } from "@/components/ProBadge";
-import { getReturnDestination, navigateBackToApp } from "@/utils/authNavigation";
+import {
+  getReturnDestination,
+  navigateBackToApp,
+  restoreSessionFromUrl,
+} from "@/utils/authNavigation";
 import { Capacitor } from "@capacitor/core";
 
 export default function SubscriptionSuccess() {
@@ -23,37 +27,48 @@ export default function SubscriptionSuccess() {
     const allParams = Object.fromEntries(searchParams.entries());
     setDebugInfo(JSON.stringify({ url: window.location.href, params: allParams, user: user?.id }, null, 2));
 
-    const subscriptionId = searchParams.get('subscription_id');
-    const token = searchParams.get('token');
-    const ba_token = searchParams.get('ba_token'); // PayPal billing agreement token
-    const paymentId = searchParams.get('paymentId');
-    const PayerID = searchParams.get('PayerID');
-    if (!user) {
-      setProcessing(false);
-      navigate('/auth');
-      return;
-    }
+    const subscriptionId = searchParams.get("subscription_id");
+    const token = searchParams.get("token");
+    const ba_token = searchParams.get("ba_token");
+    const paymentId = searchParams.get("paymentId");
 
-    // Check if we have any subscription-related parameters
-    const hasSubscriptionData = subscriptionId || ba_token || paymentId;
-    
-    // Always check Pro status first (webhook might have already activated)
-    checkProStatus().then((alreadyPro) => {
-      if (!alreadyPro && hasSubscriptionData) {
-        // Only call edge function if not already Pro
-        activateProSubscription(subscriptionId || ba_token || paymentId, token);
-      } else if (alreadyPro) {
-      } else {
+    const process = async () => {
+      let activeUser = user;
+      if (!activeUser) {
+        const sessionParam = searchParams.get("session");
+        if (sessionParam) {
+          await restoreSessionFromUrl();
+          const { data } = await supabase.auth.getUser();
+          activeUser = data.user;
+        }
       }
-    });
-  }, [searchParams, user, navigate]);
 
-  const checkProStatus = async (): Promise<boolean> => {
+      if (!activeUser) {
+        setProcessing(false);
+        setSuccess(true);
+        return;
+      }
+
+      const hasSubscriptionData = subscriptionId || ba_token || paymentId;
+      const alreadyPro = await checkProStatus(activeUser.id);
+
+      if (!alreadyPro && hasSubscriptionData) {
+        await activateProSubscription(subscriptionId || ba_token || paymentId, token);
+      } else {
+        setProcessing(false);
+        setSuccess(alreadyPro);
+      }
+    };
+
+    process();
+  }, [searchParams, user]);
+
+  const checkProStatus = async (userId?: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase
         .from('talent_profiles')
         .select('is_pro_subscriber, subscription_status, paypal_subscription_id')
-        .eq('user_id', user?.id)
+        .eq('user_id', userId || user?.id)
         .single();
 
       if (error) {
