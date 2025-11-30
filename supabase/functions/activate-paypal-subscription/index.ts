@@ -5,7 +5,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 // Helper to get environment variable safely
-const getEnv = (key) => {
+const getEnv = (key: string) => {
   const value = Deno.env.get(key);
   if (!value) throw new Error(`Missing environment variable: ${key}`);
   return value;

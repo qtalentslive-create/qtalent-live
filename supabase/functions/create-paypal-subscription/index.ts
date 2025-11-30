@@ -7,7 +7,9 @@ const corsHeaders = {
 // Helper to get environment variable safely
 const getEnv = (key: string) => {
   const value = Deno.env.get(key);
-  if (!value) throw new Error(`Missing environment variable: ${key}`);
+  if (!value) {
+    throw new Error(`Missing environment variable: ${key}`);
+  }
   return value;
 };
 Deno.serve(async (req) => {

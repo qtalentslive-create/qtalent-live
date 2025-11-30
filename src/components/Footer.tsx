@@ -4,10 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { openSocialLink } from "@/utils/externalLinks";
 import { Capacitor } from "@capacitor/core";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Footer() {
   const navigate = useNavigate();
   const isNativeApp = Capacitor.isNativePlatform();
+  const isMobile = useIsMobile();
   const { toast } = useToast();
   const currentYear = new Date().getFullYear();
 
@@ -15,8 +17,9 @@ export function Footer() {
     openSocialLink(url);
   };
 
-  // Native app footer - compact and minimal, integrated with page
-  if (isNativeApp) {
+  // Native app or mobile web footer - compact and minimal, integrated with page
+  // Match Capacitor app appearance on mobile web
+  if (isNativeApp || isMobile) {
     return (
       <footer className="bg-background safe-bottom native-footer">
         <div className="container mx-auto px-4 py-2.5">

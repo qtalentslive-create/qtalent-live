@@ -194,6 +194,9 @@ All colors MUST be HSL.
     max-width: 100vw;
     position: relative;
     width: 100%;
+    /* Prevent overscroll/rubber-banding on Chrome mobile - match Capacitor behavior */
+    overscroll-behavior-y: none;
+    overscroll-behavior: none;
     /* This rule lets long text wrap */
     p,
     h1,
@@ -220,6 +223,9 @@ All colors MUST be HSL.
     max-width: 100vw;
     position: relative;
     width: 100%;
+    /* Prevent overscroll/rubber-banding on Chrome mobile - match Capacitor behavior */
+    overscroll-behavior-y: none;
+    overscroll-behavior: none;
     /* Ensure gradient background extends to html element */
     min-height: 100%;
     background: linear-gradient(
@@ -277,6 +283,10 @@ All colors MUST be HSL.
     width: 100%;
     max-width: 100vw;
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 
   /* Main content wrapper */
@@ -413,6 +423,59 @@ All colors MUST be HSL.
   .plt-android body {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
+  }
+
+  /* Mobile Web - Prevent scrolling past footer and match Capacitor behavior */
+  :is(.mobile-unified) html,
+  :is(.mobile-unified) body {
+    overscroll-behavior-y: none !important;
+    overscroll-behavior: none !important;
+    /* Prevent momentum scrolling past footer on Chrome mobile */
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    /* Use dynamic viewport height for mobile */
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Prevent page wrapper from allowing overscroll */
+  :is(.mobile-unified) .page-wrapper {
+    overscroll-behavior-y: none !important;
+    overscroll-behavior: none !important;
+    min-height: 100vh;
+    min-height: 100dvh;
+    position: relative;
+  }
+
+  /* Ensure footer stays at bottom and prevents scrolling past */
+  :is(.mobile-unified) footer {
+    position: relative !important;
+    width: 100% !important;
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+  }
+
+  /* Ensure main content takes available space */
+  :is(.mobile-unified) .main-content {
+    flex: 1 0 auto;
+    width: 100%;
+  }
+
+  /* Prevent pull-to-refresh overscroll bounce on mobile web */
+  :is(.mobile-unified) {
+    overscroll-behavior-y: none !important;
+    overscroll-behavior: none !important;
+  }
+
+  /* Add safe area padding for mobile web to match native */
+  :is(.mobile-unified) body {
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+
+  /* Ensure main content area doesn't overscroll */
+  :is(.mobile-unified) main {
+    overscroll-behavior-y: none !important;
+    overscroll-behavior: none !important;
   }
 
   /* ============================================
