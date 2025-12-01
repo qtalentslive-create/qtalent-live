@@ -19,6 +19,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+
+    <!-- Handle live.qtalent.app://subscription-success -->
+    <data
+        android:scheme="live.qtalent.app"
+        android:host="subscription-success" />
+</intent-filter>
         </activity>
         <service android:name="com.google.firebase.messaging.FirebaseMessagingService" android:exported="false">
             <intent-filter>
