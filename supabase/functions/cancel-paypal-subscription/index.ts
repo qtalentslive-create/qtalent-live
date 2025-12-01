@@ -54,24 +54,10 @@ Deno.serve(async (req) => {
       throw new Error(
         "Cannot cancel admin-granted subscriptions via this method."
       );
-    // ➡️ BEGIN PAYPAL ENVIRONMENT SWITCH
-    // ⚠️ IMPORTANT: This is where you choose your PayPal environment.
-    // Set the PAYPAL_ENV secret in Supabase to either:
-    // - "sandbox" for testing (no real money)
-    // - "live" for real payments
-    // Example: PAYPAL_ENV = "sandbox"  <-- change here when you want to switch
-    const PAYPAL_ENV = getEnv("PAYPAL_ENV");
-    const isSandbox = PAYPAL_ENV !== "live";
-    const PAYPAL_CLIENT_ID = isSandbox
-      ? getEnv("PAYPAL_SANDBOX_CLIENT_ID")
-      : getEnv("PAYPAL_LIVE_CLIENT_ID");
-    const PAYPAL_CLIENT_SECRET = isSandbox
-      ? getEnv("PAYPAL_SANDBOX_CLIENT_SECRET")
-      : getEnv("PAYPAL_LIVE_CLIENT_SECRET");
-    const PAYPAL_API_BASE = isSandbox
-      ? "https://api-m.sandbox.paypal.com"
-      : "https://api-m.paypal.com";
-    // ⬅️ END PAYPAL ENVIRONMENT SWITCH
+    // ✅ Live-only PayPal configuration
+    const PAYPAL_CLIENT_ID = getEnv("PAYPAL_LIVE_CLIENT_ID");
+    const PAYPAL_CLIENT_SECRET = getEnv("PAYPAL_LIVE_CLIENT_SECRET");
+    const PAYPAL_API_BASE = "https://api-m.paypal.com";
     console.log("Verified PayPal credentials, proceeding with cancellation");
     // ✅ Get PayPal access token
     const tokenResponse = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {

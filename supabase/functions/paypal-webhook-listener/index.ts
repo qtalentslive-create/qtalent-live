@@ -11,22 +11,11 @@ const getEnv = (key) => {
   if (!value) throw new Error(`Missing environment variable: ${key}`);
   return value;
 };
-// Determine environment: sandbox or live
-const PAYPAL_ENV = getEnv("PAYPAL_ENV");
-const isSandbox = PAYPAL_ENV !== "live";
-// Pick credentials based on environment
-const PAYPAL_CLIENT_ID = isSandbox
-  ? getEnv("PAYPAL_SANDBOX_CLIENT_ID")
-  : getEnv("PAYPAL_LIVE_CLIENT_ID");
-const PAYPAL_CLIENT_SECRET = isSandbox
-  ? getEnv("PAYPAL_SANDBOX_CLIENT_SECRET")
-  : getEnv("PAYPAL_LIVE_CLIENT_SECRET");
-const PAYPAL_WEBHOOK_ID = isSandbox
-  ? getEnv("PAYPAL_SANDBOX_WEBHOOK_ID")
-  : getEnv("PAYPAL_LIVE_WEBHOOK_ID");
-const PAYPAL_API_BASE = isSandbox
-  ? "https://api-m.sandbox.paypal.com"
-  : "https://api-m.paypal.com";
+// ✅ Live-only PayPal configuration
+const PAYPAL_CLIENT_ID = getEnv("PAYPAL_LIVE_CLIENT_ID");
+const PAYPAL_CLIENT_SECRET = getEnv("PAYPAL_LIVE_CLIENT_SECRET");
+const PAYPAL_WEBHOOK_ID = getEnv("PAYPAL_LIVE_WEBHOOK_ID");
+const PAYPAL_API_BASE = "https://api-m.paypal.com";
 // Supabase client
 const SUPABASE_URL = getEnv("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = getEnv("SUPABASE_SERVICE_ROLE_KEY");
@@ -41,7 +30,7 @@ serve(async (req) => {
   }
   try {
     const webhookEvent = await req.json();
-    console.log(`PayPal Environment: ${isSandbox ? "SANDBOX" : "LIVE"}`);
+    console.log(`PayPal Environment: LIVE`);
     console.log("Webhook Event Type:", webhookEvent.event_type);
     console.log("Webhook Event ID:", webhookEvent.id);
     // 1️⃣ Get PayPal access token
