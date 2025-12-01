@@ -372,10 +372,17 @@ export function SubscriptionModal({
   const handlePlanSelect = useCallback(
     async (planId: string) => {
       if (!user) {
+        // Close modal and maybe redirect to login
         onOpenChange(false);
+        toast({
+          title: "Sign in required",
+          description: "Please sign in to subscribe to Pro.",
+          variant: "destructive",
+        });
         return;
       }
 
+      // ✅ Native (Capacitor) flow
       if (isNativeApp) {
         const plan = plans.find((p) => p.id === planId);
         if (!plan) {
@@ -384,6 +391,21 @@ export function SubscriptionModal({
             description: "Please choose a different plan.",
             variant: "destructive",
           });
+          return;
+        }
+
+        // Make sure we have a valid Supabase session
+        const { data: sessionData } = await supabase.auth.getSession();
+        const session = sessionData.session;
+
+        if (!session) {
+          toast({
+            title: "Session expired",
+            description:
+              "Please sign in again to continue with your subscription.",
+            variant: "destructive",
+          });
+          onOpenChange(false);
           return;
         }
 
@@ -396,6 +418,10 @@ export function SubscriptionModal({
             body: {
               plan_id: plan.planId,
               returnTo: "app",
+            },
+            // Explicitly send the access token
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
             },
           });
 
@@ -441,6 +467,7 @@ export function SubscriptionModal({
         return;
       }
 
+      // 🌐 Web flow: just select plan and let PayPal JS render inline
       if (!paypalLoaded || isLoading || !window.paypal) {
         toast({
           title: "Please wait",
@@ -449,12 +476,11 @@ export function SubscriptionModal({
         return;
       }
 
-      // Select plan to render PayPal buttons inline on both platforms
+      // Select plan to render PayPal buttons inline
       setSelectedPlan(planId);
     },
     [user, onOpenChange, isNativeApp, paypalLoaded, isLoading, toast, plans]
   );
-
   const handleClose = (open: boolean) => {
     if (!open) {
       setSelectedPlan(null);
