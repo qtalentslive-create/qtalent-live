@@ -25,7 +25,13 @@ export default function SubscriptionSuccess() {
 
   useEffect(() => {
     const allParams = Object.fromEntries(searchParams.entries());
-    setDebugInfo(JSON.stringify({ url: window.location.href, params: allParams, user: user?.id }, null, 2));
+    setDebugInfo(
+      JSON.stringify(
+        { url: window.location.href, params: allParams, user: user?.id },
+        null,
+        2
+      )
+    );
 
     const subscriptionId = searchParams.get("subscription_id");
     const token = searchParams.get("token");
@@ -50,13 +56,39 @@ export default function SubscriptionSuccess() {
       }
 
       const hasSubscriptionData = subscriptionId || ba_token || paymentId;
-      const alreadyPro = await checkProStatus(activeUser.id);
 
-      if (!alreadyPro && hasSubscriptionData) {
-        await activateProSubscription(subscriptionId || ba_token || paymentId, token);
+      // For native app flow, rely primarily on webhook + DB status.
+      const returnDestination = getReturnDestination();
+      if (returnDestination === "app") {
+        // First quick check
+        const alreadyPro = await checkProStatus(activeUser.id);
+        if (alreadyPro) {
+          return;
+        }
+
+        // If not yet Pro, wait briefly and re-check in case webhook is slightly delayed
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const proAfterWait = await checkProStatus(activeUser.id);
+        if (!proAfterWait && hasSubscriptionData) {
+          // As a fallback, attempt activation with whatever identifier we have
+          await activateProSubscription(
+            subscriptionId || ba_token || paymentId,
+            token
+          );
+        } else if (!proAfterWait) {
+          setProcessing(false);
+          setSuccess(false);
+        }
       } else {
-        setProcessing(false);
-        setSuccess(alreadyPro);
+        // Web flow: keep existing behaviour using explicit subscription id when available
+        const alreadyPro = await checkProStatus(activeUser.id);
+
+        if (!alreadyPro && hasSubscriptionData && subscriptionId) {
+          await activateProSubscription(subscriptionId, token);
+        } else {
+          setProcessing(false);
+          setSuccess(alreadyPro);
+        }
       }
     };
 
@@ -66,13 +98,15 @@ export default function SubscriptionSuccess() {
   const checkProStatus = async (userId?: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase
-        .from('talent_profiles')
-        .select('is_pro_subscriber, subscription_status, paypal_subscription_id')
-        .eq('user_id', userId || user?.id)
+        .from("talent_profiles")
+        .select(
+          "is_pro_subscriber, subscription_status, paypal_subscription_id"
+        )
+        .eq("user_id", userId || user?.id)
         .single();
 
       if (error) {
-        console.error('Error checking Pro status:', error);
+        console.error("Error checking Pro status:", error);
         setProcessing(false);
         return false;
       }
@@ -85,7 +119,7 @@ export default function SubscriptionSuccess() {
         return false;
       }
     } catch (error) {
-      console.error('Error in checkProStatus:', error);
+      console.error("Error in checkProStatus:", error);
       setProcessing(false);
       return false;
     }
@@ -95,25 +129,33 @@ export default function SubscriptionSuccess() {
   const showProBenefitsToast = () => {
     toast({
       title: "🎉 Congratulations! You're Now a Pro Member",
-      description: "Your Pro subscription is active! Unlocked features: • Unlimited bookings • 10 profile images • Audio/video links • Featured listing • Pro badge • Priority support",
+      description:
+        "Your Pro subscription is active! Unlocked features: • Unlimited bookings • 10 profile images • Audio/video links • Featured listing • Pro badge • Priority support",
       duration: 10000,
-      className: "bg-gradient-to-br from-brand-success/10 via-accent/10 to-primary/10 border-2 border-brand-success/30 shadow-lg backdrop-blur-sm",
+      className:
+        "bg-gradient-to-br from-brand-success/10 via-accent/10 to-primary/10 border-2 border-brand-success/30 shadow-lg backdrop-blur-sm",
     });
   };
 
   // Note: We don't auto-redirect here anymore
   // User can manually close browser and return to app, or click the button
 
-  const activateProSubscription = async (subscriptionId: string, token: string | null) => {
+  const activateProSubscription = async (
+    subscriptionId: string,
+    token: string | null
+  ) => {
     try {
-      const { data, error } = await supabase.functions.invoke('activate-paypal-subscription', {
-        body: {
-          subscriptionId,
-          token
+      const { data, error } = await supabase.functions.invoke(
+        "activate-paypal-subscription",
+        {
+          body: {
+            subscriptionId,
+            token,
+          },
         }
-      });
+      );
       if (error) {
-        console.error('❌ Edge function error:', error);
+        console.error("❌ Edge function error:", error);
         throw error;
       }
 
@@ -121,15 +163,16 @@ export default function SubscriptionSuccess() {
         setSuccess(true);
         showProBenefitsToast();
       } else {
-        console.error('❌ Activation failed:', data?.error);
-        throw new Error(data?.error || 'Failed to activate subscription');
+        console.error("❌ Activation failed:", data?.error);
+        throw new Error(data?.error || "Failed to activate subscription");
       }
     } catch (error) {
-      console.error('❌ Error in activateProSubscription:', error);
-      
+      console.error("❌ Error in activateProSubscription:", error);
+
       // Show detailed error information
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+
       toast({
         title: "Activation Error",
         description: `Failed to activate subscription: ${errorMessage}. Please contact support with this error.`,
@@ -150,7 +193,9 @@ export default function SubscriptionSuccess() {
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-8 pb-8">
             <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-accent" />
-            <h2 className="text-xl font-semibold mb-2">Processing Your Subscription</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              Processing Your Subscription
+            </h2>
             <p className="text-muted-foreground">
               Please wait while we activate your Pro subscription...
             </p>
@@ -171,11 +216,10 @@ export default function SubscriptionSuccess() {
               <CheckCircle className="h-8 w-8 text-background" />
             </div>
           </div>
-          <h1 className="text-display mb-4 text-foreground">
-            Welcome to Pro
-          </h1>
+          <h1 className="text-display mb-4 text-foreground">Welcome to Pro</h1>
           <p className="text-subhead max-w-2xl mx-auto">
-            Your subscription has been confirmed. You now have access to all premium features.
+            Your subscription has been confirmed. You now have access to all
+            premium features.
           </p>
         </div>
 
@@ -196,7 +240,8 @@ export default function SubscriptionSuccess() {
               Subscription Activated
             </CardTitle>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Your Pro membership is now active. Start maximizing your potential with enhanced features.
+              Your Pro membership is now active. Start maximizing your potential
+              with enhanced features.
             </p>
           </CardHeader>
 
@@ -211,15 +256,23 @@ export default function SubscriptionSuccess() {
                   <div className="flex items-start gap-4 p-4 rounded-lg bg-secondary/30 border border-border/50">
                     <CheckCircle className="h-5 w-5 text-brand-success flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium text-foreground">10 Profile Images</p>
-                      <p className="text-sm text-muted-foreground">Showcase your work professionally</p>
+                      <p className="font-medium text-foreground">
+                        10 Profile Images
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Showcase your work professionally
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4 p-4 rounded-lg bg-secondary/30 border border-border/50">
                     <CheckCircle className="h-5 w-5 text-brand-success flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium text-foreground">Media Integration</p>
-                      <p className="text-sm text-muted-foreground">Link audio & video content</p>
+                      <p className="font-medium text-foreground">
+                        Media Integration
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Link audio & video content
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -227,22 +280,34 @@ export default function SubscriptionSuccess() {
                   <div className="flex items-start gap-4 p-4 rounded-lg bg-secondary/30 border border-border/50">
                     <CheckCircle className="h-5 w-5 text-brand-success flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium text-foreground">Featured Listing</p>
-                      <p className="text-sm text-muted-foreground">Priority in search results</p>
+                      <p className="font-medium text-foreground">
+                        Featured Listing
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Priority in search results
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4 p-4 rounded-lg bg-secondary/30 border border-border/50">
                     <CheckCircle className="h-5 w-5 text-brand-success flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium text-foreground">Unlimited Bookings</p>
-                      <p className="text-sm text-muted-foreground">No monthly booking limits</p>
+                      <p className="font-medium text-foreground">
+                        Unlimited Bookings
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        No monthly booking limits
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4 p-4 rounded-lg bg-secondary/30 border border-border/50">
                     <CheckCircle className="h-5 w-5 text-brand-success flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium text-foreground">Priority Support</p>
-                      <p className="text-sm text-muted-foreground">Faster response times</p>
+                      <p className="font-medium text-foreground">
+                        Priority Support
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Faster response times
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -251,25 +316,27 @@ export default function SubscriptionSuccess() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button 
+              <Button
                 onClick={() => {
                   const returnTo = getReturnDestination();
-                  if (returnTo === 'app') {
+                  if (returnTo === "app") {
                     navigateBackToApp();
                   } else {
-                    navigate('/talent-dashboard');
+                    navigate("/talent-dashboard");
                   }
                 }}
                 className="hero-button gap-2"
                 size="lg"
               >
-                {getReturnDestination() === 'app' ? 'Return to App' : 'Access Pro Dashboard'}
+                {getReturnDestination() === "app"
+                  ? "Return to App"
+                  : "Access Pro Dashboard"}
                 <ArrowRight className="h-5 w-5" />
               </Button>
-              {getReturnDestination() === 'web' && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate('/')}
+              {getReturnDestination() === "web" && (
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/")}
                   className="outline-button gap-2"
                   size="lg"
                 >
@@ -277,14 +344,14 @@ export default function SubscriptionSuccess() {
                   Return Home
                 </Button>
               )}
-              {getReturnDestination() === 'app' && (
+              {getReturnDestination() === "app" && (
                 <div className="text-center mt-4 p-4 rounded-lg bg-accent/10 border border-accent/30">
                   <p className="text-sm font-medium text-foreground mb-2">
                     🎉 Payment Successful!
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    You can now close this browser tab and return to the QTalent app. 
-                    Your Pro subscription is active and ready to use!
+                    You can now close this browser tab and return to the QTalent
+                    app. Your Pro subscription is active and ready to use!
                   </p>
                 </div>
               )}

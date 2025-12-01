@@ -79,6 +79,7 @@ export function SubscriptionModal({
   );
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [paypalReady, setPaypalReady] = useState(false);
 
   const plans = useMemo(
@@ -136,11 +137,13 @@ export function SubscriptionModal({
   useEffect(() => {
     if (!open || isNativeApp) {
       setPaypalLoaded(false);
+      setPaypalReady(false);
       // Don't reset selectedPlan if we have initialPlan - keep it for next open
       if (!initialPlan) {
         setSelectedPlan(null);
       }
       setIsLoading(false);
+      setLoadingPlanId(null);
       return;
     }
 
@@ -385,6 +388,7 @@ export function SubscriptionModal({
         }
 
         setIsLoading(true);
+        setLoadingPlanId(planId);
         try {
           const { data, error } = await supabase.functions.invoke<{
             approvalUrl?: string;
@@ -432,6 +436,7 @@ export function SubscriptionModal({
           });
         } finally {
           setIsLoading(false);
+          setLoadingPlanId(null);
         }
         return;
       }
@@ -453,6 +458,8 @@ export function SubscriptionModal({
   const handleClose = (open: boolean) => {
     if (!open) {
       setSelectedPlan(null);
+      setIsLoading(false);
+      setLoadingPlanId(null);
     }
     onOpenChange(open);
   };
@@ -900,11 +907,11 @@ export function SubscriptionModal({
                             onClick={() => handlePlanSelect(plan.id)}
                             disabled={
                               isNativeApp
-                                ? isLoading
-                                : !paypalLoaded || isLoading
+                                ? loadingPlanId === plan.id
+                                : !paypalLoaded || loadingPlanId === plan.id
                             }
                           >
-                            {isLoading ? (
+                            {loadingPlanId === plan.id ? (
                               <>
                                 <Loader2 className="h-4 w-4 animate-spin" />
                                 <span>Opening PayPal...</span>
