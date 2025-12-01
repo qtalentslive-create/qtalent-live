@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { getReturnDestination } from "@/utils/authNavigation";
 import { supabase } from "@/integrations/supabase/client";
 
+//checking tony if vercel will work
 interface SubscriptionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
