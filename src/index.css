@@ -332,6 +332,39 @@ All colors MUST be HSL.
     max-width: 100%;
   }
 
+  /* Hero search form buttons - Fix touch responsiveness on Capacitor */
+  :is(.capacitor-native, .mobile-unified) .hero-search-form button,
+  :is(.capacitor-native, .mobile-unified) #hero-search-form button,
+  .plt-ios .hero-search-form button,
+  .plt-ios #hero-search-form button,
+  .plt-android .hero-search-form button,
+  .plt-android #hero-search-form button {
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 10 !important;
+  }
+
+  /* Remove hover transforms on touch devices - they cause click delays */
+  :is(.capacitor-native, .mobile-unified) .hero-search-form button:hover,
+  .plt-ios .hero-search-form button:hover,
+  .plt-android .hero-search-form button:hover {
+    transform: none !important;
+  }
+
+  /* Active state for immediate feedback */
+  :is(.capacitor-native, .mobile-unified) .hero-search-form button:active,
+  .plt-ios .hero-search-form button:active,
+  .plt-android .hero-search-form button:active {
+    opacity: 0.8 !important;
+    transform: scale(0.98) !important;
+  }
+
   /* Hero social proof */
   .hero-social-proof {
     width: 100%;
@@ -506,6 +539,9 @@ All colors MUST be HSL.
     min-height: 3rem !important;
     height: auto !important;
     line-height: 1.5 !important;
+    /* Touch responsiveness - remove 300ms tap delay */
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
 
   /* Dashboard buttons - Override with compact sizing */
@@ -1363,10 +1399,16 @@ All colors MUST be HSL.
     border-color: hsl(var(--border)) !important;
   }
 
-  /* Ensure buttons in Dialog are visible */
-  :is(.capacitor-native, .mobile-unified) [data-radix-dialog-content] button,
-  .plt-android [data-radix-dialog-content] button,
-  .plt-ios [data-radix-dialog-content] button {
+  /* Ensure buttons in Dialog are visible - EXCEPT mobile form triggers */
+  :is(.capacitor-native, .mobile-unified)
+    [data-radix-dialog-content]
+    button:not(.mobile-form-trigger):not([data-mobile-form-input="true"]),
+  .plt-android
+    [data-radix-dialog-content]
+    button:not(.mobile-form-trigger):not([data-mobile-form-input="true"]),
+  .plt-ios
+    [data-radix-dialog-content]
+    button:not(.mobile-form-trigger):not([data-mobile-form-input="true"]) {
     background: hsl(var(--primary)) !important;
     color: hsl(var(--primary-foreground)) !important;
   }
@@ -2198,6 +2240,11 @@ All colors MUST be HSL.
     -webkit-tap-highlight-color: transparent !important;
     position: relative !important;
     overflow: hidden !important;
+    /* Fix touch responsiveness */
+    touch-action: manipulation !important;
+    -webkit-touch-callout: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
     border: none !important;
     border-radius: 6px !important;
     box-shadow: none !important;
@@ -2250,7 +2297,11 @@ All colors MUST be HSL.
   [class*="button"][class*="primary"]:not(.footer-link):not(.genre-bubble),
   button:not(.footer-link):not([class*="outline"]):not([class*="ghost"]):not(
       [class*="secondary"]
-    ):not([class*="destructive"]):not([class*="link"]):not(.genre-bubble) {
+    ):not([class*="destructive"]):not([class*="link"]):not(.genre-bubble):not(
+      .mobile-form-trigger
+    ):not([data-mobile-form-input="true"]):not(.mobile-picker-option):not(
+      .mobile-picker-close
+    ) {
     background-color: hsl(var(--color-brand-green)) !important;
     color: hsl(var(--color-text-primary-light)) !important;
     border-radius: 6px !important;
@@ -2263,7 +2314,11 @@ All colors MUST be HSL.
   [class*="button"][class*="primary"]:not(.footer-link):focus-visible,
   button:not(.footer-link):not([class*="outline"]):not([class*="ghost"]):not(
       [class*="secondary"]
-    ):not([class*="destructive"]):not([class*="link"]):focus-visible {
+    ):not([class*="destructive"]):not([class*="link"]):not(
+      .mobile-form-trigger
+    ):not([data-mobile-form-input="true"]):not(.mobile-picker-option):not(
+      .mobile-picker-close
+    ):focus-visible {
     outline: 3px solid hsl(var(--color-accent-blue)) !important;
     outline-offset: 2px !important;
   }
@@ -2425,7 +2480,7 @@ All colors MUST be HSL.
   [class*="HeroSection"]
     button:not(.footer-link):not([class*="outline"]):not([class*="ghost"]):not(
       .genre-bubble
-    ) {
+    ):not(.mobile-form-trigger):not([data-mobile-form-input="true"]) {
     background-color: hsl(var(--color-brand-green)) !important;
     color: hsl(var(--color-text-primary-light)) !important;
     border-radius: 6px !important;
@@ -4406,4 +4461,304 @@ header button[data-nav-button="dashboard"][class*="hover:text-accent"]:hover,
 header button[data-nav-button="dashboard"][class*="text-accent"]:hover,
 header button[data-nav-button="dashboard"].hover\:text-accent:hover {
   color: hsl(var(--foreground) / 0.8) !important;
+}
+
+/* ============================================
+   MOBILE FORM COMPONENTS - FORCE REMOVE GREEN
+   HIGHEST PRIORITY - Override ALL accent/primary colors
+   ============================================ */
+
+/* Mobile form trigger buttons - NO GREEN EVER */
+.mobile-form-trigger,
+button.mobile-form-trigger,
+:is(.capacitor-native, .mobile-unified) .mobile-form-trigger,
+:is(.capacitor-native, .mobile-unified) button.mobile-form-trigger,
+.plt-ios .mobile-form-trigger,
+.plt-ios button.mobile-form-trigger,
+.plt-android .mobile-form-trigger,
+.plt-android button.mobile-form-trigger,
+[data-mobile-form-input="true"],
+button[data-mobile-form-input="true"],
+:is(.capacitor-native, .mobile-unified) [data-mobile-form-input="true"],
+:is(.capacitor-native, .mobile-unified) button[data-mobile-form-input="true"],
+.plt-ios [data-mobile-form-input="true"],
+.plt-ios button[data-mobile-form-input="true"],
+.plt-android [data-mobile-form-input="true"],
+.plt-android button[data-mobile-form-input="true"] {
+  background: rgba(0, 0, 0, 0.4) !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  background-image: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: none !important;
+  outline: none !important;
+  --tw-ring-color: transparent !important;
+  --ring: transparent !important;
+  --accent: transparent !important;
+  color: inherit !important;
+}
+
+/* Mobile form trigger buttons - Focus state */
+.mobile-form-trigger:focus,
+.mobile-form-trigger:active,
+button.mobile-form-trigger:focus,
+button.mobile-form-trigger:active,
+[data-mobile-form-input="true"]:focus,
+[data-mobile-form-input="true"]:active,
+button[data-mobile-form-input="true"]:focus,
+button[data-mobile-form-input="true"]:active {
+  background: rgba(0, 0, 0, 0.5) !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Mobile form inputs - NO GREEN EVER */
+.mobile-form-input,
+input.mobile-form-input,
+textarea.mobile-form-input,
+:is(.capacitor-native, .mobile-unified) .mobile-form-input,
+:is(.capacitor-native, .mobile-unified) input.mobile-form-input,
+:is(.capacitor-native, .mobile-unified) textarea.mobile-form-input,
+.plt-ios .mobile-form-input,
+.plt-ios input.mobile-form-input,
+.plt-ios textarea.mobile-form-input,
+.plt-android .mobile-form-input,
+.plt-android input.mobile-form-input,
+.plt-android textarea.mobile-form-input {
+  background: rgba(0, 0, 0, 0.4) !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  background-image: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: none !important;
+  outline: none !important;
+  --tw-ring-color: transparent !important;
+}
+
+/* Mobile form inputs - Focus state */
+.mobile-form-input:focus,
+input.mobile-form-input:focus,
+textarea.mobile-form-input:focus {
+  background: rgba(0, 0, 0, 0.5) !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Remove green from ALL elements in mobile forms */
+:is(.capacitor-native, .mobile-unified) *:focus {
+  --tw-ring-color: transparent !important;
+  --ring-color: transparent !important;
+}
+
+/* ============================================
+   MOBILE PHONE INPUT STYLES
+   Optimized for Capacitor native apps
+   Dark theme with thin white border
+   ============================================ */
+
+/* Mobile phone input wrapper */
+.phone-input-wrapper-mobile {
+  position: relative;
+}
+
+.phone-input-wrapper-mobile .PhoneInput {
+  display: flex;
+  align-items: center;
+  height: 3rem; /* h-12 */
+  width: 100%;
+  border-radius: 0.75rem; /* rounded-xl */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  padding: 0 1rem;
+  font-size: 1rem; /* text-base */
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.phone-input-wrapper-mobile .PhoneInput:focus-within {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.phone-input-wrapper-mobile .PhoneInputCountry {
+  margin-right: 0.75rem;
+}
+
+.phone-input-wrapper-mobile .PhoneInputCountryIcon {
+  width: 1.5rem;
+  height: 1.125rem;
+  border-radius: 0.125rem;
+}
+
+.phone-input-wrapper-mobile .PhoneInputCountrySelectArrow {
+  margin-left: 0.5rem;
+  opacity: 0.4;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.phone-input-wrapper-mobile .PhoneInputInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 1rem; /* text-base */
+  color: hsl(var(--foreground));
+  height: 100%;
+}
+
+.phone-input-wrapper-mobile .PhoneInputInput::placeholder {
+  color: hsl(var(--muted-foreground) / 0.6);
+}
+
+/* Phone input mobile - country select */
+.phone-input-wrapper-mobile .PhoneInputCountrySelect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 4.5rem;
+  z-index: 1;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* ============================================
+   MOBILE FORM INPUTS - FINAL OVERRIDE
+   HIGHEST PRIORITY - Must be at END of file
+   ============================================ */
+
+/* FORCE dark background on mobile form triggers - NO GREEN EVER */
+.mobile-form-trigger,
+button.mobile-form-trigger,
+.mobile-form-input,
+input.mobile-form-input,
+textarea.mobile-form-input,
+[data-mobile-form-input="true"],
+button[data-mobile-form-input="true"],
+input[data-mobile-form-input="true"],
+textarea[data-mobile-form-input="true"] {
+  background: rgba(0, 0, 0, 0.4) !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  background-image: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: inherit !important;
+}
+
+/* Capacitor-specific override for mobile forms */
+:is(.capacitor-native, .mobile-unified) .mobile-form-trigger,
+:is(.capacitor-native, .mobile-unified) button.mobile-form-trigger,
+:is(.capacitor-native, .mobile-unified) [data-mobile-form-input="true"],
+:is(.capacitor-native, .mobile-unified) button[data-mobile-form-input="true"],
+.plt-ios .mobile-form-trigger,
+.plt-ios button.mobile-form-trigger,
+.plt-ios [data-mobile-form-input="true"],
+.plt-ios button[data-mobile-form-input="true"],
+.plt-android .mobile-form-trigger,
+.plt-android button.mobile-form-trigger,
+.plt-android [data-mobile-form-input="true"],
+.plt-android button[data-mobile-form-input="true"] {
+  background: rgba(0, 0, 0, 0.4) !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  background-image: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: none !important;
+  outline: none !important;
+  --tw-ring-color: transparent !important;
+  --ring-color: transparent !important;
+}
+
+/* Focus/active states for mobile form elements */
+.mobile-form-trigger:focus,
+.mobile-form-trigger:active,
+.mobile-form-input:focus,
+.mobile-form-input:active,
+[data-mobile-form-input="true"]:focus,
+[data-mobile-form-input="true"]:active {
+  background: rgba(0, 0, 0, 0.5) !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* ============================================
+   MOBILE PICKER OVERLAY - NO GREEN
+   Full-screen picker modals for select/date/location
+   ============================================ */
+
+/* Picker overlay background */
+.mobile-picker-overlay {
+  background: #000 !important;
+  background-color: #000 !important;
+}
+
+/* Picker close button - transparent, no green */
+.mobile-picker-close,
+button.mobile-picker-close {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: white !important;
+}
+
+/* Picker option buttons - transparent by default, subtle highlight when selected */
+.mobile-picker-option,
+button.mobile-picker-option {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: none !important;
+  color: white !important;
+}
+
+/* Picker option hover/active state */
+.mobile-picker-option:active,
+button.mobile-picker-option:active {
+  background: rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Capacitor-specific overrides for picker elements */
+:is(.capacitor-native, .mobile-unified) .mobile-picker-overlay,
+.plt-ios .mobile-picker-overlay,
+.plt-android .mobile-picker-overlay {
+  background: #000 !important;
+  background-color: #000 !important;
+}
+
+:is(.capacitor-native, .mobile-unified) .mobile-picker-close,
+:is(.capacitor-native, .mobile-unified) button.mobile-picker-close,
+.plt-ios .mobile-picker-close,
+.plt-ios button.mobile-picker-close,
+.plt-android .mobile-picker-close,
+.plt-android button.mobile-picker-close {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  color: white !important;
+}
+
+:is(.capacitor-native, .mobile-unified) .mobile-picker-option,
+:is(.capacitor-native, .mobile-unified) button.mobile-picker-option,
+.plt-ios .mobile-picker-option,
+.plt-ios button.mobile-picker-option,
+.plt-android .mobile-picker-option,
+.plt-android button.mobile-picker-option {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: white !important;
 }

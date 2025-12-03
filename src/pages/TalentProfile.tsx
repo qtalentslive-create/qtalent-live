@@ -8,7 +8,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProBadge } from "@/components/ProBadge";
 import { BookingForm } from "@/components/BookingForm";
-import { Calendar, MapPin, Clock, Star, Music, User, Globe } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Clock,
+  Star,
+  Music,
+  User,
+  Globe,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -49,7 +57,7 @@ export default function TalentProfile() {
   const profileEndRef = useRef<HTMLDivElement>(null);
   const profileContainerRef = useRef<HTMLDivElement>(null);
   const isCapacitorNative = Capacitor.isNativePlatform();
-  
+
   const [talent, setTalent] = useState<TalentProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -57,7 +65,7 @@ export default function TalentProfile() {
 
   // Format talent act with proper capitalization and styling
   const formatTalentAct = (act: string) => {
-    if (act.toLowerCase() === 'dj') return 'DJ';
+    if (act.toLowerCase() === "dj") return "DJ";
     return act.charAt(0).toUpperCase() + act.slice(1);
   };
 
@@ -70,27 +78,27 @@ export default function TalentProfile() {
 
       try {
         const { data, error } = await supabase
-          .from('talent_profiles_public')
-          .select('*')
-          .eq('id', id)
+          .from("talent_profiles_public")
+          .select("*")
+          .eq("id", id)
           .single();
 
         if (error) {
-          console.error('Error fetching talent:', error);
+          console.error("Error fetching talent:", error);
           toast({
             title: "Error",
             description: "Could not load talent profile",
-            variant: "destructive"
+            variant: "destructive",
           });
         } else {
           setTalent(data);
         }
       } catch (err) {
-        console.error('Error:', err);
+        console.error("Error:", err);
         toast({
           title: "Error",
           description: "Could not load talent profile",
-          variant: "destructive"
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -106,20 +114,32 @@ export default function TalentProfile() {
       const scrollToBeginning = () => {
         // Scroll to the beginning of the profile to show picture, details, and book button
         if (profileImageRef.current) {
-          profileImageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          profileImageRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
         } else if (profileContainerRef.current) {
           // Fallback: scroll to top of the container
-          profileContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          profileContainerRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
         } else {
           // Final fallback: scroll to top of page
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          window.scrollTo({ top: 0, behavior: "smooth" });
         }
       };
 
       // Small delay to ensure page is fully rendered
       const timer = setTimeout(scrollToBeginning, 300);
       return () => clearTimeout(timer);
-    } else if (!loading && talent && bookButtonRef.current && !isOwnProfile && !isCapacitorNative) {
+    } else if (
+      !loading &&
+      talent &&
+      bookButtonRef.current &&
+      !isOwnProfile &&
+      !isCapacitorNative
+    ) {
       // For web: scroll to button only
       const scrollToButton = () => {
         const button = bookButtonRef.current;
@@ -130,7 +150,7 @@ export default function TalentProfile() {
 
         // On mobile: always scroll. On desktop: only scroll if not visible
         if (isMobile || !isInViewport) {
-          button.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          button.scrollIntoView({ behavior: "smooth", block: "center" });
         }
       };
 
@@ -151,14 +171,21 @@ export default function TalentProfile() {
   const handleBookNow = () => {
     if (!user) {
       // Store booking intent in localStorage for post-auth redirect
-      localStorage.setItem('bookingIntent', JSON.stringify({ 
-        talentId: id, 
-        talentName: talent?.artist_name 
-      }));
-      navigate('/auth', { state: { intent: 'booking-form', talentId: id, mode: 'booker' } });
-    } else {
-      setShowBookingForm(true);
+      localStorage.setItem(
+        "bookingIntent",
+        JSON.stringify({
+          talentId: id,
+          talentName: talent?.artist_name,
+        })
+      );
+      navigate("/auth", {
+        state: { intent: "booking-form", talentId: id, mode: "booker" },
+      });
+      return;
     }
+
+    // Both web and native: open the direct booking form
+    setShowBookingForm(true);
   };
 
   if (loading) {
@@ -180,8 +207,10 @@ export default function TalentProfile() {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Talent not found</h1>
-            <p className="text-muted-foreground mb-8">The talent profile you're looking for doesn't exist.</p>
-            <Button onClick={() => navigate('/')}>Back to Home</Button>
+            <p className="text-muted-foreground mb-8">
+              The talent profile you're looking for doesn't exist.
+            </p>
+            <Button onClick={() => navigate("/")}>Back to Home</Button>
           </div>
         </div>
         <Footer />
@@ -192,7 +221,7 @@ export default function TalentProfile() {
   return (
     <div className="min-h-screen">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto" ref={profileContainerRef}>
           {/* Profile Header */}
@@ -203,8 +232,8 @@ export default function TalentProfile() {
                 <div className="flex-shrink-0" ref={profileImageRef}>
                   <div className="w-48 h-48 rounded-lg overflow-hidden bg-muted">
                     {talent.picture_url ? (
-                      <img 
-                        src={talent.picture_url} 
+                      <img
+                        src={talent.picture_url}
                         alt={talent.artist_name}
                         className="w-full h-full object-cover"
                       />
@@ -220,15 +249,16 @@ export default function TalentProfile() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-4">
                     <h1 className="text-3xl font-bold">{talent.artist_name}</h1>
-                    {talent.is_pro_subscriber && (
-                      <ProBadge size="default" />
-                    )}
+                    {talent.is_pro_subscriber && <ProBadge size="default" />}
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Music className="w-4 h-4" />
-                      <Badge variant="outline" className="text-sm font-bold bg-primary/10 border-primary/30 text-primary">
+                      <Badge
+                        variant="outline"
+                        className="text-sm font-bold bg-primary/10 border-primary/30 text-primary"
+                      >
                         {formatTalentAct(talent.act)}
                       </Badge>
                     </div>
@@ -242,7 +272,9 @@ export default function TalentProfile() {
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <User className="w-4 h-4" />
-                      <span className="capitalize">{talent.gender}, {talent.age}</span>
+                      <span className="capitalize">
+                        {talent.gender}, {talent.age}
+                      </span>
                     </div>
                   </div>
 
@@ -250,20 +282,22 @@ export default function TalentProfile() {
                   <div className="mb-6">
                     <div className="text-2xl font-bold text-primary">
                       {talent.rate_per_hour} {talent.currency}
-                      <span className="text-base font-normal text-muted-foreground ml-2">per hour</span>
+                      <span className="text-base font-normal text-muted-foreground ml-2">
+                        per hour
+                      </span>
                     </div>
                   </div>
 
                   {/* Book Now Button */}
                   {!isOwnProfile && (
-                    <Button 
+                    <Button
                       ref={bookButtonRef}
-                      onClick={handleBookNow} 
-                      size="lg" 
+                      onClick={handleBookNow}
+                      size="lg"
                       className="w-full md:w-auto"
                     >
                       <Calendar className="h-4 w-4 mr-2" />
-                      {user ? 'Book Now' : 'Sign In to Book'}
+                      {user ? "Book Now" : "Sign In to Book"}
                     </Button>
                   )}
                 </div>
@@ -278,7 +312,7 @@ export default function TalentProfile() {
               <div className="flex flex-wrap gap-2">
                 {talent.music_genres.map((genre, index) => (
                   <Badge key={index} variant="outline" className="capitalize">
-                    {genre.replace(/[_-]/g, ' ')}
+                    {genre.replace(/[_-]/g, " ")}
                   </Badge>
                 ))}
                 {talent.custom_genre && (
@@ -301,11 +335,13 @@ export default function TalentProfile() {
           </Card>
 
           {/* Media Section */}
-          {(talent.soundcloud_link || talent.youtube_link || talent.gallery_images.length > 0) && (
+          {(talent.soundcloud_link ||
+            talent.youtube_link ||
+            talent.gallery_images.length > 0) && (
             <Card className="mb-8 overflow-hidden w-full max-w-full">
               <CardContent className="p-4 sm:p-6 w-full max-w-full overflow-hidden">
                 <h2 className="text-xl font-semibold mb-6">Media</h2>
-                
+
                 <div className="space-y-8 w-full max-w-full overflow-hidden">
                   {/* SoundCloud */}
                   {talent.soundcloud_link && (
@@ -334,10 +370,15 @@ export default function TalentProfile() {
                       <div className="w-full max-w-full overflow-hidden">
                         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 w-full">
                           {talent.gallery_images.map((image, index) => (
-                            <div key={index} className="aspect-square rounded-lg overflow-hidden bg-muted w-full max-w-full">
-                              <img 
-                                src={image} 
-                                alt={`${talent.artist_name} gallery ${index + 1}`}
+                            <div
+                              key={index}
+                              className="aspect-square rounded-lg overflow-hidden bg-muted w-full max-w-full"
+                            >
+                              <img
+                                src={image}
+                                alt={`${talent.artist_name} gallery ${
+                                  index + 1
+                                }`}
                                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                                 loading="lazy"
                               />
@@ -353,7 +394,11 @@ export default function TalentProfile() {
           )}
 
           {/* End marker for scrolling - invisible but used for scroll target */}
-          <div ref={profileEndRef} style={{ height: '1px', visibility: 'hidden' }} aria-hidden="true" />
+          <div
+            ref={profileEndRef}
+            style={{ height: "1px", visibility: "hidden" }}
+            aria-hidden="true"
+          />
         </div>
       </main>
 

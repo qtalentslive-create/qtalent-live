@@ -25,6 +25,7 @@ import {
   Crown,
   HelpCircle,
   Calendar,
+  Loader2,
 } from "lucide-react";
 import { countries, sortCountriesByProximity } from "@/lib/countries";
 import { useLocationDetection } from "@/hooks/useLocationDetection";
@@ -102,6 +103,7 @@ export function HeroSection() {
   });
   const [featuredTalents, setFeaturedTalents] = useState<TalentProfile[]>([]);
   const [currentBiographyIndex, setCurrentBiographyIndex] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Sort countries by proximity to user's location
   const sortedCountries = sortCountriesByProximity(
@@ -159,6 +161,9 @@ export function HeroSection() {
   };
 
   const handleSearch = () => {
+    // Show loading immediately for user feedback
+    setIsSearching(true);
+
     const params = new URLSearchParams();
     if (searchFilters.location && searchFilters.location !== "all") {
       params.set("location", searchFilters.location);
@@ -171,18 +176,25 @@ export function HeroSection() {
       ? `/?${params.toString()}#talents`
       : "/#talents";
 
-    navigate(newUrl);
+    // Small delay for loading state visibility, then navigate
+    setTimeout(() => {
+      navigate(newUrl);
 
-    const hasFilters =
-      searchFilters.location !== "all" || searchFilters.talentType !== "all";
-    if (hasFilters) {
-      setTimeout(() => {
-        document.getElementById("talents")?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 100);
-    }
+      const hasFilters =
+        searchFilters.location !== "all" || searchFilters.talentType !== "all";
+      if (hasFilters) {
+        setTimeout(() => {
+          document.getElementById("talents")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+          // Reset loading after scroll
+          setIsSearching(false);
+        }, 100);
+      } else {
+        setIsSearching(false);
+      }
+    }, 150);
   };
 
   return (
@@ -396,17 +408,37 @@ export function HeroSection() {
                       isNativeApp
                         ? "h-10 bg-primary text-primary-foreground font-semibold text-sm shadow-sm"
                         : "h-11 sm:h-12 bg-primary text-primary-foreground font-bold text-sm sm:text-base shadow-minimal hover:shadow-elevated"
-                    } transition-all duration-300 hover:bg-primary/90 ${
+                    } ${
                       isNativeApp
                         ? "rounded-lg"
-                        : "rounded-xl hover:scale-[1.02]"
+                        : "rounded-xl hover:scale-[1.02] transition-all duration-300 hover:bg-primary/90"
                     }`}
                     onClick={handleSearch}
+                    disabled={isSearching}
+                    style={
+                      isNativeApp
+                        ? {
+                            touchAction: "manipulation",
+                            WebkitTapHighlightColor: "transparent",
+                            WebkitTouchCallout: "none",
+                            userSelect: "none",
+                          }
+                        : undefined
+                    }
                   >
-                    {!isNativeExperience && (
-                      <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+                    {isSearching ? (
+                      <>
+                        <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0 animate-spin" />
+                        <span className="truncate">Searching...</span>
+                      </>
+                    ) : (
+                      <>
+                        {!isNativeExperience && (
+                          <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+                        )}
+                        <span className="truncate">Explore</span>
+                      </>
                     )}
-                    <span className="truncate">Explore</span>
                   </Button>
                 </div>
               </div>
