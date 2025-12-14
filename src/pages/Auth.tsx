@@ -69,16 +69,14 @@ const Auth = () => {
   const verificationMessage = state?.message; // Email verification message from redirect
 
   const title = mode === "booker" ? "Welcome to Qtalent" : "Talent Access";
-  const description = "Sign in or create an account with a magic link.";
-
-  // Get intent from state to show appropriate messaging
+  
+  // Get intent from state for contextual description
   const intent = state?.intent;
-  const intentMessage =
-    intent === "booking-form"
-      ? "Sign in to complete your booking request"
-      : intent === "event-form"
-      ? "Sign in to get personalized recommendations"
-      : null;
+  const description = intent === "booking-form"
+    ? "Sign in to complete your booking"
+    : intent === "event-form"
+    ? "Sign in to find your perfect talent"
+    : "Sign in or create your account";
 
   // Store intent in localStorage when component mounts
   useEffect(() => {
@@ -562,17 +560,6 @@ const Auth = () => {
               </div>
             )}
 
-            {intentMessage && !verificationMessage && (
-              <div className="mt-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
-                <p className="text-sm font-medium text-primary mb-2">
-                  {intentMessage}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  ✨ <strong>New here?</strong> Switch to the "Sign Up" tab to
-                  create your account first!
-                </p>
-              </div>
-            )}
           </CardHeader>
           <CardContent>
             <Tabs 

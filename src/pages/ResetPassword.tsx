@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -20,10 +21,15 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
+      // Use a stable https callback. Native apps rely on app-links to open in-app.
+      const redirectUrl = Capacitor.isNativePlatform()
+        ? "https://qtalent.live/auth/callback"
+        : `${window.location.origin}/auth/callback`; 
+
       const { error } = await supabase.auth.resetPasswordForEmail(
         email.toLowerCase().trim(),
         {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
         }
       );
 
@@ -32,7 +38,9 @@ const ResetPassword = () => {
       setSent(true);
       toast({
         title: "Reset link sent",
-        description: "Check your email for the password reset link.",
+        description: Capacitor.isNativePlatform()
+          ? "Check your email. Tap the link to return to the app and set your new password."
+          : "Check your email for the password reset link.",
       });
     } catch (error: any) {
       toast({
@@ -123,3 +131,5 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
+
+

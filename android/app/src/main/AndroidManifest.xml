@@ -19,16 +19,45 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Handle subscription-success deep link -->
             <intent-filter>
-    <action android:name="android.intent.action.VIEW" />
-    <category android:name="android.intent.category.DEFAULT" />
-    <category android:name="android.intent.category.BROWSABLE" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="live.qtalent.app"
+                    android:host="subscription-success" />
+            </intent-filter>
 
-    <!-- Handle live.qtalent.app://subscription-success -->
-    <data
-        android:scheme="live.qtalent.app"
-        android:host="subscription-success" />
-</intent-filter>
+            <!-- Handle auth callbacks (password reset, email verification) -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="live.qtalent.app"
+                    android:host="auth"
+                    android:pathPrefix="/callback" />
+            </intent-filter>
+
+            <!-- Handle auth callbacks via HTTPS app links -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="qtalent.live"
+                    android:pathPrefix="/auth/callback" />
+            </intent-filter>
+
+            <!-- Handle all other app deep links -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="live.qtalent.app" />
+            </intent-filter>
         </activity>
         <service android:name="com.google.firebase.messaging.FirebaseMessagingService" android:exported="false">
             <intent-filter>

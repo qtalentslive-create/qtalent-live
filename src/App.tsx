@@ -5,9 +5,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { useEffect } from "react"; // 👈 This was part of the fix
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
 //
 // ▼▼▼ THESE ARE THE FIXED IMPORTS ▼▼▼
 //
@@ -143,18 +144,64 @@ const AppContent = () => {
     };
   }, [navigate, user]);
 
-  //
-  // ▼▼▼ THIS IS THE FIX (Part 2) ▼▼▼
-  //
+  // Register device for push notifications when user logs in
   useEffect(() => {
-    // If we find a user, register their device for notifications
     if (user) {
-      registerDeviceForNotifications(user.id); // 👈 This will now work
+      registerDeviceForNotifications(user.id);
     }
-  }, [user]); // 👈 This runs every time 'user' is loaded
-  //
-  // ▲▲▲ END OF FIX ▲▲▲
-  //
+  }, [user]);
+
+    // Handle deep links for native app (password reset, auth callbacks, etc.)
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const handleDeepLink = (event: { url: string }) => {
+      try {
+        const url = new URL(event.url);
+        const path = url.pathname || "";
+        const host = url.host || "";
+        const queryAndHash = url.search + url.hash;
+
+        // Auth callbacks (custom scheme or https app link)
+        if (
+          host === "auth" ||
+          host === "qtalent.live" ||
+          path.includes("/auth/callback") ||
+          path.includes("/callback")
+        ) {
+          const routePath = `/auth/callback${queryAndHash}`;
+          console.log("[DeepLink] Navigating to:", routePath);
+          navigate(routePath, { replace: true });
+          return;
+        }
+
+        // Subscription success
+        if (host === "subscription-success" || path.includes("subscription-success")) {
+          navigate("/subscription-success", { replace: true });
+          return;
+        }
+
+        // Other paths
+        if (path && path !== "/") {
+          navigate(path, { replace: true });
+        }
+      } catch (error) {
+        console.error("[DeepLink] Error handling deep link:", error);
+      }
+    };
+
+    CapacitorApp.addListener("appUrlOpen", handleDeepLink);
+
+    CapacitorApp.getLaunchUrl().then((launchUrl) => {
+      if (launchUrl?.url) {
+        handleDeepLink({ url: launchUrl.url });
+      }
+    });
+
+    return () => {
+      CapacitorApp.removeAllListeners();
+    };
+  }, [navigate]);
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">

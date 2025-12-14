@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAutoScrollOnInput } from "@/hooks/useAutoScrollOnInput";
 import { CheckCircle, AlertTriangle } from "lucide-react";
@@ -34,38 +40,42 @@ const UpdatePassword = () => {
   });
 
   useEffect(() => {
-    
     // Check if we came from recovery flow
-    const fromRecovery = sessionStorage.getItem('isPasswordRecovery');
-    
+    const fromRecovery = sessionStorage.getItem("isPasswordRecovery");
+
     // Wait a moment for session to be fully available
     const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
       if (session) {
         setIsReady(true);
       } else if (fromRecovery) {
         // Give it one more second (session might still be persisting)
         setTimeout(async () => {
-          const { data: { session: retrySession } } = await supabase.auth.getSession();
+          const {
+            data: { session: retrySession },
+          } = await supabase.auth.getSession();
           if (retrySession) {
             setIsReady(true);
           } else {
-            setMessage('Session expired. Please request a new reset link.');
-            setMessageType('error');
+            setMessage("Session expired. Please request a new reset link.");
+            setMessageType("error");
           }
         }, 1000);
       } else {
-        setMessage('Invalid or expired reset link. Please request a new one.');
-        setMessageType('error');
+        setMessage("Invalid or expired reset link. Please request a new one.");
+        setMessageType("error");
       }
     };
-    
+
     checkSession();
-    
+
     // Clean up recovery flag when component unmounts
     return () => {
-      sessionStorage.removeItem('isPasswordRecovery');
+      sessionStorage.removeItem("isPasswordRecovery");
     };
   }, []);
 
@@ -107,8 +117,8 @@ const UpdatePassword = () => {
       setLoading(false);
     } else {
       // 🔐 Clear the recovery flag after successful password update
-      sessionStorage.removeItem('isPasswordRecovery');
-      
+      sessionStorage.removeItem("isPasswordRecovery");
+
       setMessageType("success");
       setMessage("Your password has been updated successfully! Redirecting...");
       toast({
@@ -126,7 +136,7 @@ const UpdatePassword = () => {
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
-            <CardTitle>{message ? 'Link Issue' : 'Verifying Link'}</CardTitle>
+            <CardTitle>{message ? "Link Issue" : "Verifying Link"}</CardTitle>
           </CardHeader>
           <CardContent>
             {message ? (
@@ -142,12 +152,15 @@ const UpdatePassword = () => {
                   <p>{message}</p>
                 </div>
                 <div className="space-y-2">
-                  <Button onClick={() => navigate("/reset-password")} className="w-full">
+                  <Button
+                    onClick={() => navigate("/reset-password")}
+                    className="w-full"
+                  >
                     Request a New Reset Link
                   </Button>
-                  <Button 
-                    onClick={() => window.location.reload()} 
-                    variant="outline" 
+                  <Button
+                    onClick={() => window.location.reload()}
+                    variant="outline"
                     className="w-full"
                   >
                     Retry Verification
@@ -155,7 +168,9 @@ const UpdatePassword = () => {
                 </div>
               </>
             ) : (
-              <p className="text-muted-foreground animate-pulse">Verifying your reset link...</p>
+              <p className="text-muted-foreground animate-pulse">
+                Verifying your reset link...
+              </p>
             )}
           </CardContent>
         </Card>
@@ -171,7 +186,8 @@ const UpdatePassword = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Set a New Password</CardTitle>
             <CardDescription>
-              Create a new, secure password for your account. It must be at least 6 characters long.
+              Create a new, secure password for your account. It must be at
+              least 6 characters long.
             </CardDescription>
           </CardHeader>
 
@@ -220,10 +236,10 @@ const UpdatePassword = () => {
                 </div>
               )}
 
-              <Button 
+              <Button
                 ref={submitButtonRef}
-                type="submit" 
-                disabled={loading} 
+                type="submit"
+                disabled={loading}
                 className="w-full"
               >
                 {loading ? "Updating..." : "Update Password"}
