@@ -1,7 +1,13 @@
 import { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,8 +27,8 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      // Use a stable https callback. Native apps rely on app-links to open in-app.
-      const redirectUrl = "https://qtalent.live/auth/callback"; 
+      // Redirect directly to update-password page (simpler flow)
+      const redirectUrl = "https://qtalent.live/update-password";
 
       const { error } = await supabase.auth.resetPasswordForEmail(
         email.toLowerCase().trim(),
@@ -65,7 +71,8 @@ const ResetPassword = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground text-center">
-              If an account exists for {email}, you will receive a password reset link shortly.
+              If an account exists for {email}, you will receive a password
+              reset link shortly.
             </p>
             <Button
               variant="outline"
@@ -129,6 +136,3 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
-
-
-

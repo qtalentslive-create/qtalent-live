@@ -7,38 +7,26 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
     />
     <script>
-      // CRITICAL: Handle www redirect and auth tokens IMMEDIATELY
+      // CRITICAL: Handle www redirect and password recovery
       (function () {
-        // Step 1: Redirect www to non-www (preserves hash in client-side redirect)
-        if (window.location.hostname === "www.qtalent.live") {
-          window.location.href =
-            "https://qtalent.live" +
-            window.location.pathname +
-            window.location.search +
-            window.location.hash;
-          return; // Stop execution, page will redirect
-        }
-
         var hash = window.location.hash;
         var path = window.location.pathname;
 
-        // Step 2: Handle auth tokens
-        if (hash && hash.includes("access_token")) {
-          console.log("[AuthHash] Detected auth tokens in URL");
+        // Redirect www to non-www (preserves hash)
+        if (window.location.hostname === "www.qtalent.live") {
+          window.location.href =
+            "https://qtalent.live" + path + window.location.search + hash;
+          return;
+        }
 
-          // Store the hash for AuthCallback to use
-          sessionStorage.setItem("supabase_auth_hash", hash);
-
-          // Check if this is a password recovery
-          if (hash.includes("type=recovery")) {
-            console.log("[AuthHash] Password recovery detected");
-            sessionStorage.setItem("isPasswordRecovery", "true");
-          }
-
-          // If we're not on /auth/callback, redirect there with the hash
-          if (!path.includes("/auth/callback")) {
-            console.log("[AuthHash] Redirecting to /auth/callback");
-            window.location.href = "/auth/callback" + hash;
+        // Password recovery: redirect directly to /update-password
+        if (
+          hash &&
+          hash.includes("type=recovery") &&
+          hash.includes("access_token")
+        ) {
+          if (!path.includes("/update-password")) {
+            window.location.href = "/update-password" + hash;
             return;
           }
         }
