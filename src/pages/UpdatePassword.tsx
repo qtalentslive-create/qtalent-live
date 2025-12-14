@@ -150,10 +150,21 @@ const UpdatePassword = () => {
     setSuccess(true);
     toast({
       title: "Password Updated! ✅",
-      description: "You can now sign in with your new password.",
+      description: "Redirecting you now...",
     });
 
-    setTimeout(() => navigate("/auth"), 2000);
+    // Get user info to redirect to correct dashboard
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    setTimeout(() => {
+      if (user?.user_metadata?.user_type === "talent") {
+        navigate("/talent-dashboard", { replace: true });
+      } else {
+        navigate("/booker-dashboard", { replace: true });
+      }
+    }, 2000);
   };
 
   // Loading state
@@ -215,7 +226,9 @@ const UpdatePassword = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
-            <p className="text-muted-foreground">Redirecting to sign in...</p>
+            <p className="text-muted-foreground">
+              Redirecting to your dashboard...
+            </p>
           </CardContent>
         </Card>
       </div>
