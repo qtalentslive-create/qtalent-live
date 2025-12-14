@@ -321,12 +321,6 @@ export function generateAdminEmailHtml(data: {
       </div>
     </div>
 
-    <div style="text-align: center; margin: 32px 0;">
-      <a href="${data.appUrl}/admin" style="background-color: #dc3545; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
-        View Admin Panel
-      </a>
-    </div>
-
     <p style="color: #898989; font-size: 12px; line-height: 22px; margin-top: 32px;">
       Admin notification from Qtalent.live
     </p>
