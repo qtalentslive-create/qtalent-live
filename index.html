@@ -7,35 +7,6 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
     />
     <script>
-      // CRITICAL: Handle password recovery - redirect to /update-password
-      (function () {
-        var hash = window.location.hash;
-        var path = window.location.pathname;
-        var host = window.location.hostname;
-
-        // RECOVERY: If we have recovery tokens, ALWAYS go to /update-password on qtalent.live
-        if (
-          hash &&
-          hash.includes("type=recovery") &&
-          hash.includes("access_token")
-        ) {
-          var target = "https://qtalent.live/update-password" + hash;
-          if (host !== "qtalent.live" || path !== "/update-password") {
-            window.location.replace(target);
-            return;
-          }
-        }
-
-        // WWW redirect for non-recovery pages
-        if (host === "www.qtalent.live") {
-          window.location.replace(
-            "https://qtalent.live" + path + window.location.search + hash
-          );
-          return;
-        }
-      })();
-    </script>
-    <script>
       (function () {
         var MOBILE_CLASS = "mobile-unified";
         var QUERY = "(max-width: 768px)";
