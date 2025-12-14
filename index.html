@@ -7,12 +7,22 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
     />
     <script>
-      // CRITICAL: Handle auth tokens IMMEDIATELY before any redirect can strip them
+      // CRITICAL: Handle www redirect and auth tokens IMMEDIATELY
       (function () {
+        // Step 1: Redirect www to non-www (preserves hash in client-side redirect)
+        if (window.location.hostname === "www.qtalent.live") {
+          window.location.href =
+            "https://qtalent.live" +
+            window.location.pathname +
+            window.location.search +
+            window.location.hash;
+          return; // Stop execution, page will redirect
+        }
+
         var hash = window.location.hash;
         var path = window.location.pathname;
 
-        // Check if this is an auth callback with tokens
+        // Step 2: Handle auth tokens
         if (hash && hash.includes("access_token")) {
           console.log("[AuthHash] Detected auth tokens in URL");
 
@@ -29,6 +39,7 @@
           if (!path.includes("/auth/callback")) {
             console.log("[AuthHash] Redirecting to /auth/callback");
             window.location.href = "/auth/callback" + hash;
+            return;
           }
         }
       })();
