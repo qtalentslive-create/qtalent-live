@@ -49,36 +49,38 @@ interface PaymentEmailData {
 export function generateBookingEmailHtml(data: BookingEmailData): string {
   const getSubject = () => {
     switch (data.bookingStatus) {
-      case 'pending':
-        return data.isForTalent ? 'New Booking Request' : 'Booking Request Submitted';
-      case 'approved':
-        return 'Booking Approved';
-      case 'declined':
-        return 'Booking Declined';
-      case 'completed':
-        return 'Booking Completed';
+      case "pending":
+        return data.isForTalent
+          ? "New Booking Request"
+          : "Booking Request Submitted";
+      case "approved":
+        return "Booking Approved";
+      case "declined":
+        return "Booking Declined";
+      case "completed":
+        return "Booking Completed";
       default:
-        return 'Booking Update';
+        return "Booking Update";
     }
   };
 
   const getMessage = () => {
     const eventDetails = `${data.eventType} event on ${data.eventDate} at ${data.eventLocation}`;
-    
+
     switch (data.bookingStatus) {
-      case 'pending':
-        return data.isForTalent 
+      case "pending":
+        return data.isForTalent
           ? `You have received a new booking request from ${data.bookerName} for a ${eventDetails}.`
           : `Your booking request for a ${eventDetails} has been submitted and is awaiting approval.`;
-      case 'approved':
+      case "approved":
         return data.isForTalent
           ? `You have approved the booking request from ${data.bookerName} for a ${eventDetails}.`
           : `Great news! Your booking request for a ${eventDetails} has been approved by ${data.talentName}.`;
-      case 'declined':
+      case "declined":
         return data.isForTalent
           ? `You have declined the booking request from ${data.bookerName} for a ${eventDetails}.`
           : `Your booking request for a ${eventDetails} has been declined by ${data.talentName}.`;
-      case 'completed':
+      case "completed":
         return `The booking for a ${eventDetails} has been completed successfully.`;
       default:
         return `There has been an update to your booking for a ${eventDetails}.`;
@@ -86,38 +88,84 @@ export function generateBookingEmailHtml(data: BookingEmailData): string {
   };
 
   const getActionText = () => {
-    if (data.bookingStatus === 'pending' && data.isForTalent) {
-      return 'Review Booking Request';
+    if (data.bookingStatus === "pending" && data.isForTalent) {
+      return "Review Booking Request";
     }
-    return 'View Booking Details';
+    return "View Booking Details";
   };
 
   const eventDetailsHtml = `
     <strong>Type:</strong> ${data.eventType}<br/>
     <strong>Date:</strong> ${data.eventDate}<br/>
     <strong>Location:</strong> ${data.eventLocation}<br/>
-    ${data.eventDuration ? `<strong>Duration:</strong> ${data.eventDuration} hours<br/>` : ''}
+    ${
+      data.eventDuration
+        ? `<strong>Duration:</strong> ${data.eventDuration} hours<br/>`
+        : ""
+    }
   `;
 
-  const clientDetailsHtml = data.isForTalent ? `
+  const clientDetailsHtml = data.isForTalent
+    ? `
     <strong>Client:</strong> ${data.bookerName}<br/>
-    ${data.showFullDetails && data.bookerEmail ? `<strong>Client Email:</strong> ${data.bookerEmail}<br/>` : ''}
-    ${data.showFullDetails && data.bookerPhone ? `<strong>Client Phone:</strong> ${data.bookerPhone}<br/>` : ''}
-    ${data.showFullDetails && data.eventAddress ? `<strong>Full Address:</strong> ${data.eventAddress}<br/>` : ''}
-    ${data.showFullDetails && data.budget ? `<strong>Budget:</strong> ${data.budget} ${data.budgetCurrency || 'USD'}<br/>` : ''}
-    ${data.showFullDetails && data.description ? `<strong>Description:</strong> ${data.description}<br/>` : ''}
+    ${
+      data.showFullDetails && data.bookerEmail
+        ? `<strong>Client Email:</strong> ${data.bookerEmail}<br/>`
+        : ""
+    }
+    ${
+      data.showFullDetails && data.bookerPhone
+        ? `<strong>Client Phone:</strong> ${data.bookerPhone}<br/>`
+        : ""
+    }
+    ${
+      data.showFullDetails && data.eventAddress
+        ? `<strong>Full Address:</strong> ${data.eventAddress}<br/>`
+        : ""
+    }
+    ${
+      data.showFullDetails && data.budget
+        ? `<strong>Budget:</strong> ${data.budget} ${
+            data.budgetCurrency || "USD"
+          }<br/>`
+        : ""
+    }
+    ${
+      data.showFullDetails && data.description
+        ? `<strong>Description:</strong> ${data.description}<br/>`
+        : ""
+    }
     
-    ${!data.showFullDetails ? `
+    ${
+      !data.showFullDetails
+        ? `
       <div style="color: #007ee6; font-size: 14px; font-style: italic; margin: 12px 0 0 0; padding: 12px; background-color: #e3f2fd; border-radius: 6px; border: 1px solid #bbdefb;">
         <strong>📧 Upgrade to Pro</strong> to see client contact details, budget, and full event description.
       </div>
-    ` : ''}
-  ` : `
+    `
+        : ""
+    }
+  `
+    : `
     <strong>Booker:</strong> ${data.bookerName}<br/>
-    ${data.talentName ? `<strong>Talent:</strong> ${data.talentName}<br/>` : ''}
-    ${data.eventAddress ? `<strong>Full Address:</strong> ${data.eventAddress}<br/>` : ''}
-    ${data.budget ? `<strong>Budget:</strong> ${data.budget} ${data.budgetCurrency || 'USD'}<br/>` : ''}
-    ${data.description ? `<strong>Description:</strong> ${data.description}<br/>` : ''}
+    ${data.talentName ? `<strong>Talent:</strong> ${data.talentName}<br/>` : ""}
+    ${
+      data.eventAddress
+        ? `<strong>Full Address:</strong> ${data.eventAddress}<br/>`
+        : ""
+    }
+    ${
+      data.budget
+        ? `<strong>Budget:</strong> ${data.budget} ${
+            data.budgetCurrency || "USD"
+          }<br/>`
+        : ""
+    }
+    ${
+      data.description
+        ? `<strong>Description:</strong> ${data.description}<br/>`
+        : ""
+    }
   `;
 
   return `<!DOCTYPE html>
@@ -129,11 +177,15 @@ export function generateBookingEmailHtml(data: BookingEmailData): string {
 <body style="font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif; background-color: #ffffff;">
   <div style="margin: 0 auto; padding: 20px 0 48px; max-width: 560px;">
     <h1 style="color: #333; font-size: 24px; font-weight: bold; margin: 40px 0; padding: 0;">${getSubject()}</h1>
-    <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Hi ${data.recipientName},</p>
+    <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Hi ${
+      data.recipientName
+    },</p>
     <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">${getMessage()}</p>
     
     <div style="text-align: center; margin: 32px 0;">
-      <a href="${data.appUrl}/talent-dashboard" style="background-color: #007ee6; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
+      <a href="${
+        data.appUrl
+      }/talent-dashboard" style="background-color: #007ee6; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
         ${getActionText()}
       </a>
     </div>
@@ -157,15 +209,17 @@ export function generateBookingEmailHtml(data: BookingEmailData): string {
 
 export function generateMessageEmailHtml(data: MessageEmailData): string {
   const isEventRequest = !!data.eventRequestId;
-  const dashboardUrl = data.eventRequestId 
+  const dashboardUrl = data.eventRequestId
     ? `${data.appUrl}/booker-dashboard?chat=${data.eventRequestId}`
     : data.bookingId
-    ? `${data.appUrl}/${data.isFromTalent ? 'booker' : 'talent'}-dashboard?chat=${data.bookingId}`
+    ? `${data.appUrl}/${
+        data.isFromTalent ? "booker" : "talent"
+      }-dashboard?chat=${data.bookingId}`
     : `${data.appUrl}/dashboard`;
-  
-  const messageContext = isEventRequest 
+
+  const messageContext = isEventRequest
     ? `your ${data.eventType} event request`
-    : data.eventDate 
+    : data.eventDate
     ? `your ${data.eventType} event on ${data.eventDate}`
     : `your ${data.eventType} event`;
 
@@ -178,9 +232,13 @@ export function generateMessageEmailHtml(data: MessageEmailData): string {
 <body style="font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif; background-color: #ffffff;">
   <div style="margin: 0 auto; padding: 20px 0 48px; max-width: 560px;">
     <h1 style="color: #333; font-size: 24px; font-weight: bold; margin: 40px 0; padding: 0;">New Message</h1>
-    <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Hi ${data.recipientName},</p>
+    <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Hi ${
+      data.recipientName
+    },</p>
     <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">
-      You have received a new message from ${data.senderName}${data.isFromAdmin ? ' (QTalent Team)' : ''} regarding ${messageContext}.
+      You have received a new message from ${data.senderName}${
+    data.isFromAdmin ? " (QTalent Team)" : ""
+  } regarding ${messageContext}.
     </p>
     
     <div style="margin: 24px 0; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
@@ -206,8 +264,8 @@ export function generateMessageEmailHtml(data: MessageEmailData): string {
 }
 
 export function generatePaymentEmailHtml(data: PaymentEmailData): string {
-  const subject = data.isForTalent ? 'Payment Received' : 'Payment Processed';
-  
+  const subject = data.isForTalent ? "Payment Received" : "Payment Processed";
+
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -217,29 +275,46 @@ export function generatePaymentEmailHtml(data: PaymentEmailData): string {
 <body style="font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif; background-color: #ffffff;">
   <div style="margin: 0 auto; padding: 20px 0 48px; max-width: 560px;">
     <h1 style="color: #333; font-size: 24px; font-weight: bold; margin: 40px 0; padding: 0;">${subject}</h1>
-    <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Hi ${data.recipientName},</p>
+    <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Hi ${
+      data.recipientName
+    },</p>
     <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">
-      ${data.isForTalent 
-        ? `Great news! Payment has been processed for your ${data.eventType} event on ${data.eventDate}.`
-        : `Your payment for the ${data.eventType} event on ${data.eventDate} has been processed successfully.`
+      ${
+        data.isForTalent
+          ? `Great news! Payment has been processed for your ${data.eventType} event on ${data.eventDate}.`
+          : `Your payment for the ${data.eventType} event on ${data.eventDate} has been processed successfully.`
       }
     </p>
     
     <div style="margin: 24px 0; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
       <p style="color: #333; font-size: 16px; font-weight: bold; margin: 0 0 12px 0;">Payment Details:</p>
       <div style="color: #666; font-size: 14px; line-height: 22px; margin: 0;">
-        <p><strong>Total Amount:</strong> ${data.currency} ${data.totalAmount}</p>
-        ${data.isForTalent && data.talentEarnings ? `
-          <p><strong>Your Earnings:</strong> ${data.currency} ${data.talentEarnings}</p>
-          ${data.platformCommission ? `<p><strong>Platform Fee:</strong> ${data.currency} ${data.platformCommission}</p>` : ''}
-        ` : ''}
+        <p><strong>Total Amount:</strong> ${data.currency} ${
+    data.totalAmount
+  }</p>
+        ${
+          data.isForTalent && data.talentEarnings
+            ? `
+          <p><strong>Your Earnings:</strong> ${data.currency} ${
+                data.talentEarnings
+              }</p>
+          ${
+            data.platformCommission
+              ? `<p><strong>Platform Fee:</strong> ${data.currency} ${data.platformCommission}</p>`
+              : ""
+          }
+        `
+            : ""
+        }
         <p><strong>Event:</strong> ${data.eventType}</p>
         <p><strong>Date:</strong> ${data.eventDate}</p>
       </div>
     </div>
 
     <div style="text-align: center; margin: 32px 0;">
-      <a href="${data.appUrl}/talent-dashboard" style="background-color: #28a745; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
+      <a href="${
+        data.appUrl
+      }/talent-dashboard" style="background-color: #28a745; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
         View Payment Details
       </a>
     </div>
@@ -253,7 +328,12 @@ export function generatePaymentEmailHtml(data: PaymentEmailData): string {
 </html>`;
 }
 
-export function generateBroadcastEmailHtml(data: { recipientName: string; message: string; recipientType: string; appUrl: string }): string {
+export function generateBroadcastEmailHtml(data: {
+  recipientName: string;
+  message: string;
+  recipientType: string;
+  appUrl: string;
+}): string {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -305,8 +385,12 @@ export function generateAdminEmailHtml(data: {
 </head>
 <body style="font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif; background-color: #ffffff;">
   <div style="margin: 0 auto; padding: 20px 0 48px; max-width: 560px;">
-    <h1 style="color: #333; font-size: 24px; font-weight: bold; margin: 40px 0; padding: 0;">Admin Notification: ${data.notificationType}</h1>
-    <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Admin notification for ${data.eventType} event.</p>
+    <h1 style="color: #333; font-size: 24px; font-weight: bold; margin: 40px 0; padding: 0;">Admin Notification: ${
+      data.notificationType
+    }</h1>
+    <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Admin notification for ${
+      data.eventType
+    } event.</p>
     
     <div style="margin: 24px 0; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
       <p style="color: #333; font-size: 16px; font-weight: bold; margin: 0 0 12px 0;">Event Details:</p>
@@ -316,7 +400,11 @@ export function generateAdminEmailHtml(data: {
         <p><strong>Location:</strong> ${data.eventLocation}</p>
         <p><strong>Booker:</strong> ${data.bookerName}</p>
         <p><strong>Talent:</strong> ${data.talentName}</p>
-        ${data.amount ? `<p><strong>Amount:</strong> ${data.currency} ${data.amount}</p>` : ''}
+        ${
+          data.amount
+            ? `<p><strong>Amount:</strong> ${data.currency} ${data.amount}</p>`
+            : ""
+        }
         <p><strong>Booking ID:</strong> ${data.bookingId}</p>
       </div>
     </div>
@@ -343,7 +431,9 @@ export function generateEventRequestConfirmationEmailHtml(data: {
 <body style="font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif; background-color: #ffffff;">
   <div style="margin: 0 auto; padding: 20px 0 48px; max-width: 560px;">
     <h1 style="color: #333; font-size: 24px; font-weight: bold; margin: 40px 0; padding: 0;">Event Request Confirmation</h1>
-    <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Hi ${data.recipientName},</p>
+    <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Hi ${
+      data.recipientName
+    },</p>
     <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">
       Thank you for your event request! We have received the following details:
     </p>
@@ -351,11 +441,31 @@ export function generateEventRequestConfirmationEmailHtml(data: {
     <div style="margin: 24px 0; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
       <p style="color: #333; font-size: 16px; font-weight: bold; margin: 0 0 12px 0;">Event Details:</p>
       <div style="color: #666; font-size: 14px; line-height: 22px; margin: 0;">
-        ${data.eventData?.event_type ? `<p><strong>Type:</strong> ${data.eventData.event_type}</p>` : ''}
-        ${data.eventData?.event_date ? `<p><strong>Date:</strong> ${data.eventData.event_date}</p>` : ''}
-        ${data.eventData?.event_location ? `<p><strong>Location:</strong> ${data.eventData.event_location}</p>` : ''}
-        ${data.eventData?.event_duration ? `<p><strong>Duration:</strong> ${data.eventData.event_duration} hours</p>` : ''}
-        ${data.eventData?.description ? `<p><strong>Description:</strong> ${data.eventData.description}</p>` : ''}
+        ${
+          data.eventData?.event_type
+            ? `<p><strong>Type:</strong> ${data.eventData.event_type}</p>`
+            : ""
+        }
+        ${
+          data.eventData?.event_date
+            ? `<p><strong>Date:</strong> ${data.eventData.event_date}</p>`
+            : ""
+        }
+        ${
+          data.eventData?.event_location
+            ? `<p><strong>Location:</strong> ${data.eventData.event_location}</p>`
+            : ""
+        }
+        ${
+          data.eventData?.event_duration
+            ? `<p><strong>Duration:</strong> ${data.eventData.event_duration} hours</p>`
+            : ""
+        }
+        ${
+          data.eventData?.description
+            ? `<p><strong>Description:</strong> ${data.eventData.description}</p>`
+            : ""
+        }
       </div>
     </div>
 
@@ -364,7 +474,9 @@ export function generateEventRequestConfirmationEmailHtml(data: {
     </p>
 
     <div style="text-align: center; margin: 32px 0;">
-      <a href="${data.appUrl}" style="background-color: #007ee6; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
+      <a href="${
+        data.appUrl
+      }" style="background-color: #007ee6; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
         Visit Qtalent
       </a>
     </div>
@@ -392,9 +504,10 @@ export function generateAdminSupportMessageEmailHtml(data: {
   booker_phone?: string;
 }): string {
   const hasEventRequest = !!(data.event_request_id || data.event_type);
-  const replyUrl = hasEventRequest && data.event_request_id 
-    ? `${data.appUrl}/admin/bookings?eventRequestId=${data.event_request_id}`
-    : `${data.appUrl}/admin/direct-messages`;
+  const replyUrl =
+    hasEventRequest && data.event_request_id
+      ? `${data.appUrl}/admin/bookings?eventRequestId=${data.event_request_id}`
+      : `${data.appUrl}/admin/direct-messages`;
 
   return `<!DOCTYPE html>
 <html>
@@ -404,12 +517,17 @@ export function generateAdminSupportMessageEmailHtml(data: {
 </head>
 <body style="font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif; background-color: #ffffff;">
   <div style="margin: 0 auto; padding: 20px 0 48px; max-width: 560px;">
-    <h1 style="color: #333; font-size: 24px; font-weight: bold; margin: 40px 0; padding: 0;">${hasEventRequest ? '📅 New Event Request Message' : '🆘 New Support Message'}</h1>
+    <h1 style="color: #333; font-size: 24px; font-weight: bold; margin: 40px 0; padding: 0;">${
+      hasEventRequest
+        ? "📅 New Event Request Message"
+        : "🆘 New Support Message"
+    }</h1>
     <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">Hi Admin,</p>
     <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0;">
-      ${hasEventRequest 
-        ? 'A booker has sent a new message regarding their event request and is waiting for your response.'
-        : 'A user has sent a new support message and is waiting for your response.'
+      ${
+        hasEventRequest
+          ? "A booker has sent a new message regarding their event request and is waiting for your response."
+          : "A user has sent a new support message and is waiting for your response."
       }
     </p>
     
@@ -418,22 +536,50 @@ export function generateAdminSupportMessageEmailHtml(data: {
       <div style="color: #666; font-size: 14px; line-height: 22px; margin: 0;">
         <p><strong>Name:</strong> ${data.senderName}</p>
         <p><strong>Email:</strong> ${data.senderEmail}</p>
-        ${data.booker_phone ? `<p><strong>Phone:</strong> ${data.booker_phone}</p>` : ''}
+        ${
+          data.booker_phone
+            ? `<p><strong>Phone:</strong> ${data.booker_phone}</p>`
+            : ""
+        }
       </div>
     </div>
 
-    ${hasEventRequest ? `
+    ${
+      hasEventRequest
+        ? `
     <div style="margin: 24px 0; padding: 20px; background-color: #e7f3ff; border-radius: 8px; border: 2px solid #2196F3;">
       <p style="color: #333; font-size: 16px; font-weight: bold; margin: 0 0 12px 0;">Event Request Details:</p>
       <div style="color: #666; font-size: 14px; line-height: 22px; margin: 0;">
-        ${data.event_type ? `<p><strong>Event Type:</strong> ${data.event_type}</p>` : ''}
-        ${data.event_date ? `<p><strong>Event Date:</strong> ${data.event_date}</p>` : ''}
-        ${data.event_location ? `<p><strong>Location:</strong> ${data.event_location}</p>` : ''}
-        ${data.event_duration ? `<p><strong>Duration:</strong> ${data.event_duration} hours</p>` : ''}
-        ${data.description ? `<p><strong>Description:</strong> ${data.description}</p>` : ''}
+        ${
+          data.event_type
+            ? `<p><strong>Event Type:</strong> ${data.event_type}</p>`
+            : ""
+        }
+        ${
+          data.event_date
+            ? `<p><strong>Event Date:</strong> ${data.event_date}</p>`
+            : ""
+        }
+        ${
+          data.event_location
+            ? `<p><strong>Location:</strong> ${data.event_location}</p>`
+            : ""
+        }
+        ${
+          data.event_duration
+            ? `<p><strong>Duration:</strong> ${data.event_duration} hours</p>`
+            : ""
+        }
+        ${
+          data.description
+            ? `<p><strong>Description:</strong> ${data.description}</p>`
+            : ""
+        }
       </div>
     </div>
-    ` : ''}
+    `
+        : ""
+    }
 
     <div style="margin: 24px 0; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
       <p style="color: #333; font-size: 16px; font-weight: bold; margin: 0 0 12px 0;">Message:</p>
@@ -444,7 +590,7 @@ export function generateAdminSupportMessageEmailHtml(data: {
 
     <div style="text-align: center; margin: 32px 0;">
       <a href="${replyUrl}" style="background-color: #dc3545; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; text-align: center; display: inline-block; padding: 12px 24px;">
-        ${hasEventRequest ? 'View Event Request & Reply' : 'Reply to User'}
+        ${hasEventRequest ? "View Event Request & Reply" : "Reply to User"}
       </a>
     </div>
 

@@ -126,7 +126,6 @@ serve(async (req: Request): Promise<Response> => {
                 : "Unknown"
             }</li>
           </ul>
-          <p><a href="${appUrl}/admin/users">Manage Users</a></p>
         `;
         subject = "New User Signup on Qtalent";
         break;
@@ -151,7 +150,6 @@ serve(async (req: Request): Promise<Response> => {
               data.talent_id || "Not provided"
             }</li>
           </ul>
-          <p><a href="${appUrl}/admin/users">Review Talent</a></p>
         `;
         subject = "New Talent Profile Created";
         break;
@@ -217,10 +215,6 @@ serve(async (req: Request): Promise<Response> => {
                 : ""
             }
           </div>
-          
-          <p style="margin-top: 30px;">
-            <a href="${appUrl}/admin/bookings" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">Manage Bookings</a>
-          </p>
         `;
         subject = "New Booking Request";
         break;
@@ -250,7 +244,6 @@ serve(async (req: Request): Promise<Response> => {
               data.new_status || "Unknown"
             }</li>
           </ul>
-          <p><a href="${appUrl}/admin/bookings">View Booking</a></p>
         `;
         subject = "Booking Status Changed";
         break;
@@ -340,7 +333,6 @@ serve(async (req: Request): Promise<Response> => {
                 : ""
             }
           </ul>
-          <p><a href="${appUrl}/admin/payments">View Payments</a></p>
         `;
         subject = data.is_subscription
           ? "New Subscription Payment"

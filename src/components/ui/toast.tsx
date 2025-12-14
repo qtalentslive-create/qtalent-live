@@ -18,8 +18,8 @@ const ToastViewport = React.forwardRef<
       ref={ref}
       className={cn(
         "fixed top-0 z-[100004] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
-        // Native/mobile: centered in middle of screen, smaller, better visibility
-        isNativeExperience && "pt-0 px-3 max-w-[min(calc(100vw-1.5rem),300px)] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 right-auto items-center justify-center z-[100004]",
+        // Native/mobile: bottom of screen, above safe area/navigation
+        isNativeExperience && "top-auto bottom-24 left-1/2 -translate-x-1/2 right-auto px-4 max-w-[calc(100vw-2rem)] items-center",
         className
       )}
       {...props}
