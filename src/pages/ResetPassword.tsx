@@ -22,9 +22,7 @@ const ResetPassword = () => {
 
     try {
       // Use a stable https callback. Native apps rely on app-links to open in-app.
-      const redirectUrl = Capacitor.isNativePlatform()
-        ? "https://qtalent.live/auth/callback"
-        : `${window.location.origin}/auth/callback`; 
+      const redirectUrl = "https://qtalent.live/auth/callback"; 
 
       const { error } = await supabase.auth.resetPasswordForEmail(
         email.toLowerCase().trim(),
@@ -131,5 +129,6 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
+
 
 

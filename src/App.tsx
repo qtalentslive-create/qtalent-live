@@ -49,14 +49,7 @@ import ResetPassword from "./pages/ResetPassword";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SubscriptionCancelled from "./pages/SubscriptionCancelled";
 
-// 🔐 Global auth listener with PASSWORD_RECOVERY detection
-supabase.auth.onAuthStateChange((event, session) => {
-
-  // Set recovery flag when PASSWORD_RECOVERY event is detected
-  if (event === "PASSWORD_RECOVERY") {
-    sessionStorage.setItem("isPasswordRecovery", "true");
-  }
-});
+// Note: PASSWORD_RECOVERY is handled inside AppContent with navigate access
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -71,6 +64,28 @@ const AppContent = () => {
 
   // Add backdrop for modals, popovers, and selects in Capacitor native apps
   useModalBackdrop();
+
+  // 🔐 PASSWORD RECOVERY: Listen for Supabase auth events and redirect on recovery
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("[Auth] Event:", event);
+
+      if (event === "PASSWORD_RECOVERY") {
+        console.log(
+          "[Auth] PASSWORD_RECOVERY detected - redirecting to update-password"
+        );
+        sessionStorage.setItem("isPasswordRecovery", "true");
+        // Navigate immediately to update password page
+        navigate("/update-password", { replace: true });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   useEffect(() => {
     // Handle push notification navigation - wait for user to be authenticated
@@ -151,7 +166,7 @@ const AppContent = () => {
     }
   }, [user]);
 
-    // Handle deep links for native app (password reset, auth callbacks, etc.)
+  // Handle deep links for native app (password reset, auth callbacks, etc.)
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
@@ -166,6 +181,7 @@ const AppContent = () => {
         if (
           host === "auth" ||
           host === "qtalent.live" ||
+          host === "www.qtalent.live" ||
           path.includes("/auth/callback") ||
           path.includes("/callback")
         ) {
@@ -176,7 +192,10 @@ const AppContent = () => {
         }
 
         // Subscription success
-        if (host === "subscription-success" || path.includes("subscription-success")) {
+        if (
+          host === "subscription-success" ||
+          path.includes("subscription-success")
+        ) {
           navigate("/subscription-success", { replace: true });
           return;
         }

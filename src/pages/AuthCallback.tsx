@@ -22,55 +22,95 @@ const AuthCallback = () => {
       console.error("[AuthCallback] TIMEOUT - forcing error after 15 seconds");
       setError(
         "The verification process took too long. Your email may be verified. " +
-        "Please try signing in manually with your email and password."
+          "Please try signing in manually with your email and password."
       );
     }, 15000); // 15 second timeout
 
     const handleCallback = async () => {
       try {
         // Parse URL parameters (query string AND hash fragment)
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        // IMPORTANT: Check sessionStorage for hash that may have been captured before redirect
+        let hashString = window.location.hash.substring(1);
+
+        // If URL hash is empty, check if we captured it before a www redirect stripped it
+        if (!hashString || !hashString.includes("access_token")) {
+          const storedHash = sessionStorage.getItem("supabase_auth_hash");
+          if (storedHash) {
+            hashString = storedHash.substring(1); // Remove the # prefix
+            console.log("[AuthCallback] Using stored hash from sessionStorage");
+            sessionStorage.removeItem("supabase_auth_hash"); // Clean up
+          }
+        } else {
+          // Clean up stored hash if we have a fresh one in URL
+          sessionStorage.removeItem("supabase_auth_hash");
+        }
+
+        const hashParams = new URLSearchParams(hashString);
         const authType = searchParams.get("type") || hashParams.get("type");
-        const error_code = searchParams.get("error_code") || hashParams.get("error_code");
-        const error_description = searchParams.get("error_description") || hashParams.get("error_description");
-        const access_token = hashParams.get('access_token');
-        const refresh_token = hashParams.get('refresh_token');
+        const error_code =
+          searchParams.get("error_code") || hashParams.get("error_code");
+        const error_description =
+          searchParams.get("error_description") ||
+          hashParams.get("error_description");
+        const access_token = hashParams.get("access_token");
+        const refresh_token = hashParams.get("refresh_token");
+
+        console.log("[AuthCallback] Parsed params:", {
+          authType,
+          hasAccessToken: !!access_token,
+          hasRefreshToken: !!refresh_token,
+          error_code,
+        });
 
         // Handle Supabase auth errors
         if (error_code) {
-          console.error("[AuthCallback] Auth error:", error_code, error_description);
-          setError(error_description || "The link is invalid or has expired. Please request a new one.");
+          console.error(
+            "[AuthCallback] Auth error:",
+            error_code,
+            error_description
+          );
+          setError(
+            error_description ||
+              "The link is invalid or has expired. Please request a new one."
+          );
           return;
         }
 
         // Handle password recovery
+        // Supabase automatically processes recovery tokens and fires PASSWORD_RECOVERY event
+        // The App.tsx auth listener handles the redirect to /update-password
         if (authType === "recovery") {
-          // Try to set session from tokens if present (new flow)
-          if (access_token && refresh_token) {
-            const { error: sessionError } = await supabase.auth.setSession({ 
-              access_token, 
-              refresh_token 
-            });
+          console.log(
+            "[AuthCallback] Recovery type detected, letting Supabase handle it..."
+          );
 
-            if (sessionError) {
-              console.error("[AuthCallback] Failed to set recovery session:", sessionError);
-              setError("Failed to verify reset link. Please request a new one.");
+          // If we have tokens, let Supabase process them
+          if (access_token && refresh_token) {
+            // Supabase will automatically detect and fire PASSWORD_RECOVERY event
+            // which is handled in App.tsx - just wait a moment
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+
+            // If we're still here, check if session was established
+            const {
+              data: { session },
+            } = await supabase.auth.getSession();
+            if (session) {
+              sessionStorage.setItem("isPasswordRecovery", "true");
+              navigate("/update-password", { replace: true });
               return;
             }
+          }
 
-            sessionStorage.setItem('isPasswordRecovery', 'true');
-            navigate('/update-password', { replace: true });
-            return;
-          }
-          
-          // If no tokens, check for existing session (old flow - Supabase sets it via cookie)
-          const { data: { session } } = await supabase.auth.getSession();
+          // Fallback: check for existing session
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
           if (session) {
-            sessionStorage.setItem('isPasswordRecovery', 'true');
-            navigate('/update-password', { replace: true });
+            sessionStorage.setItem("isPasswordRecovery", "true");
+            navigate("/update-password", { replace: true });
             return;
           }
-          
+
           // No session found - link might be expired
           setError("Reset link has expired. Please request a new one.");
           return;
@@ -80,10 +120,11 @@ const AuthCallback = () => {
         if (authType === "signup") {
           // Modern flow: tokens in URL hash
           if (access_token && refresh_token) {
-            const { data, error: sessionError } = await supabase.auth.setSession({ 
-              access_token, 
-              refresh_token 
-            });
+            const { data, error: sessionError } =
+              await supabase.auth.setSession({
+                access_token,
+                refresh_token,
+              });
 
             if (sessionError || !data.session) {
               setError("Failed to authenticate. Please try signing in again.");
@@ -99,7 +140,8 @@ const AuthCallback = () => {
           // So we just show success and redirect to sign in
           toast({
             title: "Email Confirmed! ✓",
-            description: "Your email has been verified. Please sign in to continue.",
+            description:
+              "Your email has been verified. Please sign in to continue.",
             duration: 4000,
           });
 
@@ -111,14 +153,15 @@ const AuthCallback = () => {
         }
 
         // No type parameter - check for existing session
-        const { data: { session } } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
         if (session) {
           handleExistingSession(session.user);
         } else {
           setError("No active session found. Please sign in again.");
         }
-
       } catch (err: any) {
         console.error("[AuthCallback] Unexpected error:", err);
         setError(err.message || "An unexpected error occurred");
@@ -146,7 +189,8 @@ const AuthCallback = () => {
     // Show welcome message
     toast({
       title: "Welcome to Qtalent! 🎉",
-      description: "Your email has been verified. Taking you to your dashboard...",
+      description:
+        "Your email has been verified. Taking you to your dashboard...",
       duration: 3000,
     });
 
@@ -159,7 +203,7 @@ const AuthCallback = () => {
   const handleExistingSession = (user: any) => {
     const storedIntent = localStorage.getItem("bookingIntent");
     const authIntent = localStorage.getItem("authIntent");
-    
+
     // Event-form intent
     if (authIntent === "event-form") {
       localStorage.removeItem("authIntent");
@@ -173,9 +217,9 @@ const AuthCallback = () => {
         const bookingData = JSON.parse(storedIntent);
         localStorage.removeItem("bookingIntent");
         if (bookingData?.talentId) {
-          navigate(`/talent/${bookingData.talentId}`, { 
-            state: { openBookingForm: true }, 
-            replace: true 
+          navigate(`/talent/${bookingData.talentId}`, {
+            state: { openBookingForm: true },
+            replace: true,
           });
           return;
         }
@@ -207,24 +251,26 @@ const AuthCallback = () => {
               <AlertCircle className="h-12 w-12 text-destructive" />
             </div>
           </div>
-          
+
           <div className="space-y-3">
-            <h1 className="text-2xl font-bold tracking-tight">Authentication Error</h1>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Authentication Error
+            </h1>
             <p className="text-muted-foreground">{error}</p>
           </div>
 
           <div className="space-y-3">
-            <Button 
-              onClick={() => navigate("/auth")} 
-              className="w-full"
-            >
+            <Button onClick={() => navigate("/auth")} className="w-full">
               <Home className="mr-2 h-4 w-4" />
               Back to Sign In
             </Button>
-            
+
             <p className="text-xs text-muted-foreground">
               If this problem persists, please contact support at{" "}
-              <a href="mailto:qtalentslive@gmail.com" className="text-primary hover:underline">
+              <a
+                href="mailto:qtalentslive@gmail.com"
+                className="text-primary hover:underline"
+              >
                 qtalentslive@gmail.com
               </a>
             </p>
@@ -240,8 +286,10 @@ const AuthCallback = () => {
       <div className="text-center space-y-4">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
         <div className="space-y-2">
-          <p className="text-lg font-medium">Completing email verification...</p>
-          <p className="text-sm text-muted-foreground">Please wait while we set up your account</p>
+          <p className="text-lg font-medium">Processing your request...</p>
+          <p className="text-sm text-muted-foreground">
+            Please wait, you'll be redirected shortly
+          </p>
         </div>
       </div>
     </div>

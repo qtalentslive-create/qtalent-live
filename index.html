@@ -7,6 +7,33 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
     />
     <script>
+      // CRITICAL: Handle auth tokens IMMEDIATELY before any redirect can strip them
+      (function () {
+        var hash = window.location.hash;
+        var path = window.location.pathname;
+
+        // Check if this is an auth callback with tokens
+        if (hash && hash.includes("access_token")) {
+          console.log("[AuthHash] Detected auth tokens in URL");
+
+          // Store the hash for AuthCallback to use
+          sessionStorage.setItem("supabase_auth_hash", hash);
+
+          // Check if this is a password recovery
+          if (hash.includes("type=recovery")) {
+            console.log("[AuthHash] Password recovery detected");
+            sessionStorage.setItem("isPasswordRecovery", "true");
+          }
+
+          // If we're not on /auth/callback, redirect there with the hash
+          if (!path.includes("/auth/callback")) {
+            console.log("[AuthHash] Redirecting to /auth/callback");
+            window.location.href = "/auth/callback" + hash;
+          }
+        }
+      })();
+    </script>
+    <script>
       (function () {
         var MOBILE_CLASS = "mobile-unified";
         var QUERY = "(max-width: 768px)";
@@ -42,9 +69,11 @@
         });
       })();
     </script>
-    
+
     <!-- Primary Meta Tags -->
-    <title>Qtalent.live | Book Live Talent, Performers & Artists for Events</title>
+    <title>
+      Qtalent.live | Book Live Talent, Performers & Artists for Events
+    </title>
     <meta
       name="title"
       content="Qtalent.live | Book Live Talent, Performers & Artists for Events"
@@ -58,14 +87,17 @@
       content="book talent, hire performers, live entertainment, event booking, musicians for hire, artists for events, corporate entertainment, wedding performers, party entertainment, local talent, talent booking platform, live performers, event talent, booking platform, book live music, hire artists, event performers"
     />
     <meta name="author" content="Qtalent.live" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
     <meta name="language" content="English" />
     <meta name="revisit-after" content="7 days" />
     <meta name="rating" content="general" />
     <meta name="distribution" content="global" />
     <meta name="geo.region" content="US" />
     <link rel="canonical" href="https://qtalent.live/" />
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://qtalent.live/" />
@@ -77,13 +109,13 @@
       property="og:description"
       content="Find and book exceptional live talent for your events. Connect with verified performers, musicians, artists, and creators. Professional booking platform for corporate events, weddings, parties, and more."
     />
-    <meta
-      property="og:image"
-      content="https://qtalent.live/og-image.png"
-    />
+    <meta property="og:image" content="https://qtalent.live/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Qtalent.live - Book Live Talent for Events" />
+    <meta
+      property="og:image:alt"
+      content="Qtalent.live - Book Live Talent for Events"
+    />
     <meta property="og:site_name" content="Qtalent.live" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="ar_AR" />
@@ -92,15 +124,15 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://qtalent.live/" />
-    <meta name="twitter:title" content="Qtalent.live | Book Live Talent for Events" />
+    <meta
+      name="twitter:title"
+      content="Qtalent.live | Book Live Talent for Events"
+    />
     <meta
       name="twitter:description"
       content="Find and book exceptional live talent for your events. Connect with verified performers, musicians, artists, and creators."
     />
-    <meta
-      name="twitter:image"
-      content="https://qtalent.live/og-image.png"
-    />
+    <meta name="twitter:image" content="https://qtalent.live/og-image.png" />
     <meta name="twitter:image:alt" content="Qtalent.live - Book Live Talent" />
     <meta name="twitter:site" content="@qtalentlive" />
     <meta name="twitter:creator" content="@qtalentlive" />
@@ -109,7 +141,10 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="Qtalent" />
     <meta name="application-name" content="Qtalent" />
     <meta name="theme-color" content="#9b87f5" />
@@ -118,59 +153,55 @@
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Qtalent.live",
-      "url": "https://qtalent.live",
-      "description": "Find and book exceptional live talent for your events. Connect with verified performers, musicians, artists, and creators.",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://qtalent.live/?search={search_term_string}",
-        "query-input": "required name=search_term_string"
-      },
-      "sameAs": [
-        "https://twitter.com/qtalentlive"
-      ]
-    }
-    </script>
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Qtalent.live",
-      "url": "https://qtalent.live",
-      "logo": "https://qtalent.live/android-chrome-512x512.png",
-      "description": "Professional platform for booking live talent, performers, and artists for events",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "contactType": "Customer Service",
-        "email": "support@qtalent.live"
-      },
-      "sameAs": [
-        "https://twitter.com/qtalentlive"
-      ]
-    }
-    </script>
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Service",
-      "serviceType": "Talent Booking Platform",
-      "provider": {
-        "@type": "Organization",
-        "name": "Qtalent.live"
-      },
-      "areaServed": "Worldwide",
-      "description": "Connect with exceptional live talent for your events. Book verified performers, musicians, artists, and creators.",
-      "offers": {
-        "@type": "Offer",
-        "name": "Talent Booking Service",
-        "description": "Professional booking platform for live talent"
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Qtalent.live",
+        "url": "https://qtalent.live",
+        "description": "Find and book exceptional live talent for your events. Connect with verified performers, musicians, artists, and creators.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://qtalent.live/?search={search_term_string}",
+          "query-input": "required name=search_term_string"
+        },
+        "sameAs": ["https://twitter.com/qtalentlive"]
       }
-    }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Qtalent.live",
+        "url": "https://qtalent.live",
+        "logo": "https://qtalent.live/android-chrome-512x512.png",
+        "description": "Professional platform for booking live talent, performers, and artists for events",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "Customer Service",
+          "email": "support@qtalent.live"
+        },
+        "sameAs": ["https://twitter.com/qtalentlive"]
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "serviceType": "Talent Booking Platform",
+        "provider": {
+          "@type": "Organization",
+          "name": "Qtalent.live"
+        },
+        "areaServed": "Worldwide",
+        "description": "Connect with exceptional live talent for your events. Book verified performers, musicians, artists, and creators.",
+        "offers": {
+          "@type": "Offer",
+          "name": "Talent Booking Service",
+          "description": "Professional booking platform for live talent"
+        }
+      }
     </script>
 
     <!-- Performance & Preconnect -->
@@ -185,8 +216,18 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="shortcut icon" href="/shortcut-icon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/android-chrome-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="/android-chrome-512x512.png"
+    />
 
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json" />
