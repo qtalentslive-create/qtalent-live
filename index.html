@@ -7,28 +7,31 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
     />
     <script>
-      // CRITICAL: Handle www redirect and password recovery
+      // CRITICAL: Handle password recovery - redirect to /update-password
       (function () {
         var hash = window.location.hash;
         var path = window.location.pathname;
+        var host = window.location.hostname;
 
-        // Redirect www to non-www (preserves hash)
-        if (window.location.hostname === "www.qtalent.live") {
-          window.location.href =
-            "https://qtalent.live" + path + window.location.search + hash;
-          return;
-        }
-
-        // Password recovery: redirect directly to /update-password
+        // RECOVERY: If we have recovery tokens, ALWAYS go to /update-password on qtalent.live
         if (
           hash &&
           hash.includes("type=recovery") &&
           hash.includes("access_token")
         ) {
-          if (!path.includes("/update-password")) {
-            window.location.href = "/update-password" + hash;
+          var target = "https://qtalent.live/update-password" + hash;
+          if (host !== "qtalent.live" || path !== "/update-password") {
+            window.location.replace(target);
             return;
           }
+        }
+
+        // WWW redirect for non-recovery pages
+        if (host === "www.qtalent.live") {
+          window.location.replace(
+            "https://qtalent.live" + path + window.location.search + hash
+          );
+          return;
         }
       })();
     </script>
