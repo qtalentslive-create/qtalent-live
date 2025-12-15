@@ -31,21 +31,22 @@ export const useCapacitorPushNotifications = () => {
 
         // Listen for registration
         await PushNotifications.addListener("registration", async (token) => {
+          console.log("[CapacitorPush] Got FCM token:", token.value);
 
-          // Store token in Supabase
+          // Store token in profiles.push_token (same as usePushNotifications.ts)
           try {
-            const { error } = await supabase.from("push_subscriptions").insert({
-              user_id: user.id,
-              endpoint: token.value,
-              p256dh: "capacitor",
-              auth: "capacitor",
-            });
+            const { error } = await supabase
+              .from("profiles")
+              .update({ push_token: token.value })
+              .eq("id", user.id);
 
             if (error) {
-              console.error("Error storing push token:", error);
+              console.error("[CapacitorPush] Error storing push token:", error);
+            } else {
+              console.log("[CapacitorPush] Token saved to profiles.push_token");
             }
           } catch (err) {
-            console.error("Error storing push token:", err);
+            console.error("[CapacitorPush] Error storing push token:", err);
           }
         });
 

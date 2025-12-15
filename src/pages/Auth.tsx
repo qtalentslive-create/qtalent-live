@@ -47,7 +47,7 @@ const Auth = () => {
   const signupSubmitButtonRef = useRef<HTMLButtonElement>(null);
   const formCardRef = useRef<HTMLDivElement>(null);
   const formContainerRef = useRef<HTMLDivElement>(null);
-  
+
   // Refs for autofill detection
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +57,8 @@ const Auth = () => {
   // Auto-scroll when inputs are focused - use the active tab's submit button
   // GENTLE auto-scrolling: small scroll to show next field, not aggressive
   useAutoScrollOnInput({
-    submitButtonRef: activeTab === "login" ? loginSubmitButtonRef : signupSubmitButtonRef,
+    submitButtonRef:
+      activeTab === "login" ? loginSubmitButtonRef : signupSubmitButtonRef,
     formRef: formCardRef,
     enabled: true,
     scrollDelay: Capacitor.isNativePlatform() ? 300 : 200, // Shorter delay for more responsive gentle scrolling
@@ -69,14 +70,15 @@ const Auth = () => {
   const verificationMessage = state?.message; // Email verification message from redirect
 
   const title = mode === "booker" ? "Welcome to Qtalent" : "Talent Access";
-  
+
   // Get intent from state for contextual description
   const intent = state?.intent;
-  const description = intent === "booking-form"
-    ? "Sign in to complete your booking"
-    : intent === "event-form"
-    ? "Sign in to find your perfect talent"
-    : "Sign in or create your account";
+  const description =
+    intent === "booking-form"
+      ? "Sign in to complete your booking"
+      : intent === "event-form"
+      ? "Sign in to find your perfect talent"
+      : "Sign in or create your account";
 
   // Store intent in localStorage when component mounts
   useEffect(() => {
@@ -105,9 +107,14 @@ const Auth = () => {
   // Auto-submit on biometric autofill (Capacitor only)
   useEffect(() => {
     const isNativeApp = Capacitor.isNativePlatform();
-    
+
     // Only auto-submit on native app, login tab, password method
-    if (!isNativeApp || activeTab !== "login" || authMethod !== "password" || loading) {
+    if (
+      !isNativeApp ||
+      activeTab !== "login" ||
+      authMethod !== "password" ||
+      loading
+    ) {
       if (!loading && autoSubmitTimerRef.current) {
         clearTimeout(autoSubmitTimerRef.current);
         autoSubmitTimerRef.current = null;
@@ -124,7 +131,7 @@ const Auth = () => {
     if (emailFilled && passwordFilled && !autoSubmitAttemptedRef.current) {
       autoSubmitAttemptedRef.current = true;
       setAutoSignInPending(true);
-      
+
       // Small delay to ensure autofill is complete
       autoSubmitTimerRef.current = setTimeout(() => {
         autoSubmitTimerRef.current = null;
@@ -156,7 +163,13 @@ const Auth = () => {
   // Reset auto-submit flag when loading completes and fields are cleared (allows retry)
   useEffect(() => {
     // Only reset if fields are cleared (user manually cleared them to retry)
-    if (!loading && autoSubmitAttemptedRef.current && activeTab === "login" && !email && !password) {
+    if (
+      !loading &&
+      autoSubmitAttemptedRef.current &&
+      activeTab === "login" &&
+      !email &&
+      !password
+    ) {
       autoSubmitAttemptedRef.current = false;
       setAutoSignInPending(false);
     }
@@ -474,7 +487,7 @@ const Auth = () => {
   const isNativeApp = Capacitor.isNativePlatform();
 
   return (
-    <div 
+    <div
       className={cn(
         "min-h-screen flex items-center justify-center p-4",
         isNativeApp && "pb-[calc(4rem+env(safe-area-inset-bottom))]"
@@ -559,14 +572,15 @@ const Auth = () => {
                 )}
               </div>
             )}
-
           </CardHeader>
           <CardContent>
-            <Tabs 
-              defaultValue="login" 
+            <Tabs
+              defaultValue="login"
               className="w-full"
               value={activeTab}
-              onValueChange={(value) => setActiveTab(value as "login" | "signup")}
+              onValueChange={(value) =>
+                setActiveTab(value as "login" | "signup")
+              }
             >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Sign In</TabsTrigger>
@@ -581,12 +595,12 @@ const Auth = () => {
                   className="space-y-4 pt-4"
                 >
                   <div className="space-y-4 p-4 bg-muted/30 rounded-lg border">
-                  {isNativeApp && autoSignInPending && (
-                    <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/10 p-3 text-sm text-primary">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>Signing you in securely…</span>
-                    </div>
-                  )}
+                    {isNativeApp && autoSignInPending && (
+                      <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/10 p-3 text-sm text-primary">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Signing you in securely…</span>
+                      </div>
+                    )}
 
                     <div className="flex items-center justify-between">
                       <Label className="text-sm font-medium">
@@ -667,10 +681,10 @@ const Auth = () => {
                     . New here? Switch to "Sign Up" tab
                   </p>
 
-                  <Button 
+                  <Button
                     ref={loginSubmitButtonRef}
-                    type="submit" 
-                    disabled={loading} 
+                    type="submit"
+                    disabled={loading}
                     className="w-full"
                   >
                     {loading
@@ -735,10 +749,10 @@ const Auth = () => {
                     registered? Use "Sign In" tab
                   </p>
 
-                  <Button 
+                  <Button
                     ref={signupSubmitButtonRef}
-                    type="submit" 
-                    disabled={loading} 
+                    type="submit"
+                    disabled={loading}
                     className="w-full"
                   >
                     {loading ? "Welcome! 🎉" : "Create Account"}

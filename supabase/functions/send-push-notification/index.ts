@@ -149,25 +149,7 @@ serve(async (req) => {
     console.log(`!!!!!!!!!! FOUND TOKEN: ${token} !!!!!!!!!!`);
 
     // ---
-    // 3. Store notification in history
-    // ---
-    try {
-      await supabase.from("notification_history").insert({
-        user_id: userId,
-        title: title,
-        body: body,
-        url: url || "/",
-        booking_id: bookingId || null,
-        event_request_id: eventRequestId || null,
-        notification_type: "push",
-      });
-      console.log("Notification stored in history");
-    } catch (err) {
-      console.error("Failed to store notification history:", err);
-    }
-
-    // ---
-    // 4. Build the "Notification" Message
+    // 3. Build the "Notification" Message (history stored AFTER success)
     // ---
     const message = {
       token: token,
@@ -202,7 +184,7 @@ serve(async (req) => {
     };
 
     // ---
-    // 5. Send the message using Firebase Admin
+    // 4. Send the message using Firebase Admin
     // ---
     console.log(
       "!!!!!!!!!! SENDING THIS TO FIREBASE: !!!!!!!!!!",
@@ -211,6 +193,24 @@ serve(async (req) => {
 
     const response = await admin.messaging().send(message);
     console.log("Successfully sent message:", response);
+
+    // ---
+    // 5. Store notification in history ONLY after successful push
+    // ---
+    try {
+      await supabase.from("notification_history").insert({
+        user_id: userId,
+        title: title,
+        body: body,
+        url: url || "/",
+        booking_id: bookingId || null,
+        event_request_id: eventRequestId || null,
+        notification_type: "push",
+      });
+      console.log("Notification stored in history after successful push");
+    } catch (err) {
+      console.error("Failed to store notification history:", err);
+    }
 
     return new Response(
       JSON.stringify({ success: true, message: "Notification sent", response }),

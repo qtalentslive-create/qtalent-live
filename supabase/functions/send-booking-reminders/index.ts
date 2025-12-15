@@ -54,11 +54,26 @@ serve(async (req) => {
       .not("talent_id", "is", null)
       .gte("created_at", maxWindowStart);
 
+    // #region agent log
+    console.log(
+      "[DEBUG-A] Bookings query:",
+      JSON.stringify({
+        count: bookings?.length || 0,
+        error: bookingError?.message || null,
+        maxWindowStart,
+        now: now.toISOString(),
+      })
+    );
+    // #endregion
+
     if (bookingError) {
       throw bookingError;
     }
 
     if (!bookings?.length) {
+      // #region agent log
+      console.log("[DEBUG-A] No pending bookings found");
+      // #endregion
       return new Response(
         JSON.stringify({
           success: true,
@@ -91,24 +106,58 @@ serve(async (req) => {
       }
 
       if (!talent || !talent.user_id) {
+        // #region agent log
+        console.log(
+          "[DEBUG-B] Talent not found or no user_id:",
+          JSON.stringify({
+            bookingId: booking.id,
+            talentId: booking.talent_id,
+          })
+        );
+        // #endregion
         continue;
       }
 
       candidatesEvaluated += 1;
+
+      // #region agent log
+      console.log(
+        "[DEBUG-C] Processing booking:",
+        JSON.stringify({
+          bookingId: booking.id,
+          talentUserId: talent.user_id,
+          status: booking.status,
+        })
+      );
+      // #endregion
 
       // Check if talent has already responded (status changed from pending)
       // We check if there's a recent notification that indicates they've been reminded
       // and if the booking status is still pending, they haven't responded
       const { data: recentNotification } = await supabase
         .from("notification_history")
-        .select("id")
+        .select("id, created_at")
         .eq("user_id", talent.user_id)
         .eq("booking_id", booking.id)
         .gte("created_at", reminderWindowStart)
         .limit(1)
         .maybeSingle();
 
+      // #region agent log
+      console.log(
+        "[DEBUG-D] Notification history check:",
+        JSON.stringify({
+          bookingId: booking.id,
+          hasRecentNotification: !!recentNotification,
+          reminderWindowStart,
+        })
+      );
+      // #endregion
+
       if (recentNotification) {
+        // #region agent log
+        console.log("[DEBUG-SKIP] Already notified recently");
+        // #endregion
         continue;
       }
 
@@ -137,6 +186,7 @@ serve(async (req) => {
         : "upcoming date";
       const reminderBody = `Please respond to the ${booking.event_type} booking in ${booking.event_location} scheduled for ${bookingDate}.`;
 
+      let pushSucceeded = false;
       try {
         const response = await fetch(
           `${supabaseUrl}/functions/v1/send-push-notification`,
@@ -159,18 +209,72 @@ serve(async (req) => {
 
         if (!response.ok) {
           const text = await response.text();
-          console.error(
-            "Failed to send reminder push:",
-            response.status,
-            text
+          // #region agent log
+          console.log(
+            "[DEBUG-E] Push notification failed:",
+            JSON.stringify({
+              status: response.status,
+              response: text,
+              bookingId: booking.id,
+            })
           );
+          // #endregion
+          console.error("Failed to send reminder push:", response.status, text);
         } else {
+          // #region agent log
+          console.log(
+            "[DEBUG-E] Push notification SUCCESS:",
+            JSON.stringify({
+              bookingId: booking.id,
+              talentUserId: talent.user_id,
+            })
+          );
+          // #endregion
+          pushSucceeded = true;
           remindersSent += 1;
         }
       } catch (pushError) {
         console.error("Error invoking push notification:", pushError);
       }
+
+      // Fallback: Create in-app notification if push failed
+      if (!pushSucceeded) {
+        try {
+          const { error: notifError } = await supabase
+            .from("notifications")
+            .insert({
+              user_id: talent.user_id,
+              type: "booking_reminder",
+              title: reminderTitle,
+              message: reminderBody,
+              booking_id: booking.id,
+              is_read: false,
+            });
+
+          if (notifError) {
+            console.error(
+              "Failed to create in-app notification:",
+              notifError.message
+            );
+          } else {
+            remindersSent += 1; // Count fallback as successful reminder
+          }
+        } catch (fallbackError) {
+          console.error("Error creating fallback notification:", fallbackError);
+        }
+      }
     }
+
+    // #region agent log
+    console.log(
+      "[DEBUG-FINAL] Completed:",
+      JSON.stringify({
+        remindersSent,
+        candidatesEvaluated,
+        bookingsCount: bookings?.length || 0,
+      })
+    );
+    // #endregion
 
     return new Response(
       JSON.stringify({
@@ -194,4 +298,3 @@ serve(async (req) => {
     );
   }
 });
-

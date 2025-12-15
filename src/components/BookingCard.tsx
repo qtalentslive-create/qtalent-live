@@ -75,7 +75,9 @@ export const BookingCard = ({
   const { canReceiveBooking, isProUser, talentId } = useTalentBookingLimit();
   const { unreadCount } = useIndividualUnreadCount(booking.id, "booking");
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
-  const [statusUpdating, setStatusUpdating] = useState<"accepted" | "declined" | null>(null);
+  const [statusUpdating, setStatusUpdating] = useState<
+    "accepted" | "declined" | null
+  >(null);
   const isNativeApp = Capacitor.isNativePlatform();
 
   // Safety check
@@ -83,7 +85,14 @@ export const BookingCard = ({
   const isTalentPendingResponse =
     mode === "talent" &&
     (booking.status === "pending" || booking.status === "pending_approval");
-  const canTalentChat = mode !== "talent" || !isTalentPendingResponse;
+
+  // Talent can only chat after accepting the booking
+  // Declined bookings should have chat disabled
+  const canTalentChat =
+    mode !== "talent" ||
+    booking.status === "accepted" ||
+    booking.status === "completed" ||
+    booking.status === "paid";
 
   const handleRemove = async () => {
     try {
@@ -139,7 +148,8 @@ export const BookingCard = ({
         if (!countError && acceptedCount !== null && acceptedCount >= 1) {
           toast({
             title: "Limit Reached",
-            description: "You've reached your limit this month. Upgrade to Pro to accept more bookings!",
+            description:
+              "You've reached your limit this month. Upgrade to Pro to accept more bookings!",
             variant: "destructive",
           });
           setStatusUpdating(null);
@@ -161,9 +171,7 @@ export const BookingCard = ({
 
       toast({
         title:
-          nextStatus === "accepted"
-            ? "Booking accepted"
-            : "Booking declined",
+          nextStatus === "accepted" ? "Booking accepted" : "Booking declined",
         description:
           nextStatus === "accepted"
             ? "Chat unlocked with this booker."
@@ -692,9 +700,7 @@ export const BookingCard = ({
               <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"
-                  className={cn(
-                    "dashboard-card-button h-8 text-xs px-3"
-                  )}
+                  className={cn("dashboard-card-button h-8 text-xs px-3")}
                   onClick={() => updateTalentBookingStatus("accepted")}
                   disabled={statusUpdating !== null}
                 >

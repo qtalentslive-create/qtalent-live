@@ -106,15 +106,24 @@ Deno.serve(async (req) => {
         `Subscription is not active. Status: ${subscriptionData.status}`
       );
     }
-    // ✅ Determine subscription period
+    // ✅ Determine subscription period based on actual PayPal plan IDs
     let periodEndDate = new Date();
     const planId = subscriptionData.plan_id || "";
-    if (planId.includes("monthly") || planId.includes("month")) {
-      periodEndDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-      console.log("Detected monthly plan");
-    } else {
+
+    // Known PayPal Plan IDs
+    const MONTHLY_PLAN_ID = "P-9NW37063VU373363ENCYI3LY";
+    const YEARLY_PLAN_ID = "P-83U36288W1589964ANCYI6QQ";
+
+    // Check if it's a monthly plan (default to monthly if unknown for safety)
+    const isYearlyPlan = planId === YEARLY_PLAN_ID;
+
+    if (isYearlyPlan) {
       periodEndDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
-      console.log("Detected yearly plan");
+      console.log("Detected yearly plan:", planId);
+    } else {
+      // Monthly plan or unknown - default to monthly (30 days)
+      periodEndDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      console.log("Detected monthly plan:", planId);
     }
     console.log("Period end date:", periodEndDate.toISOString());
     // ✅ Update user's talent profile to Pro status

@@ -122,8 +122,10 @@ const TalentProfileEdit = () => {
       navigate("/auth");
       return;
     }
+    // Refresh Pro status when page loads (ensures up-to-date status after payment)
+    refreshProStatus();
     fetchTalentProfile();
-  }, [user, navigate, fetchTalentProfile]);
+  }, [user, navigate, fetchTalentProfile, refreshProStatus]);
 
   // Helper: append or replace a 't' timestamp query param to bust caches
   const appendCacheBuster = (url: string) => {

@@ -25,13 +25,33 @@ Deno.serve(async (req) => {
     );
     // ✅ Authenticate user
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
+    console.log("Auth header present:", !!authHeader);
+    if (!authHeader)
+      throw new Error(
+        "No authorization header provided. Please sign in again."
+      );
+
     const token = authHeader.replace("Bearer ", "");
+    console.log("Token length:", token?.length || 0);
+
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser(token);
-    if (authError || !user) throw new Error("Invalid authentication");
+
+    console.log("Auth result:", {
+      userId: user?.id,
+      error: authError?.message,
+    });
+
+    if (authError) {
+      throw new Error(
+        `Authentication failed: ${authError.message}. Please sign in again.`
+      );
+    }
+    if (!user) {
+      throw new Error("User session expired. Please sign in again.");
+    }
     // ✅ Parse subscription ID from request
     const { subscriptionId } = await req.json();
     if (!subscriptionId) throw new Error("No subscription ID provided");

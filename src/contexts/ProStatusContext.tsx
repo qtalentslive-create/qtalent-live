@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ProStatusContextType {
   isProUser: boolean;
@@ -9,7 +15,9 @@ interface ProStatusContextType {
   refreshProStatus: () => Promise<void>;
 }
 
-const ProStatusContext = createContext<ProStatusContextType | undefined>(undefined);
+const ProStatusContext = createContext<ProStatusContextType | undefined>(
+  undefined
+);
 
 export function ProStatusProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -17,7 +25,7 @@ export function ProStatusProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [talentProfileId, setTalentProfileId] = useState<string | null>(null);
 
-  const refreshProStatus = async () => {
+  const refreshProStatus = useCallback(async () => {
     if (!user) {
       setIsProUser(false);
       setTalentProfileId(null);
@@ -28,13 +36,13 @@ export function ProStatusProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('talent_profiles')
-        .select('id, is_pro_subscriber')
-        .eq('user_id', user.id)
+        .from("talent_profiles")
+        .select("id, is_pro_subscriber")
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching Pro status:', error);
+        console.error("Error fetching Pro status:", error);
         setIsProUser(false);
         setTalentProfileId(null);
         return;
@@ -48,25 +56,25 @@ export function ProStatusProvider({ children }: { children: React.ReactNode }) {
         setTalentProfileId(null);
       }
     } catch (error) {
-      console.error('Error in Pro status check:', error);
+      console.error("Error in Pro status check:", error);
       setIsProUser(false);
       setTalentProfileId(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     refreshProStatus();
-  }, [user]);
+  }, [refreshProStatus]);
 
   return (
-    <ProStatusContext.Provider 
-      value={{ 
-        isProUser, 
-        loading, 
-        talentProfileId, 
-        refreshProStatus 
+    <ProStatusContext.Provider
+      value={{
+        isProUser,
+        loading,
+        talentProfileId,
+        refreshProStatus,
       }}
     >
       {children}
@@ -77,7 +85,7 @@ export function ProStatusProvider({ children }: { children: React.ReactNode }) {
 export function useProStatus() {
   const context = useContext(ProStatusContext);
   if (context === undefined) {
-    throw new Error('useProStatus must be used within a ProStatusProvider');
+    throw new Error("useProStatus must be used within a ProStatusProvider");
   }
   return context;
 }
